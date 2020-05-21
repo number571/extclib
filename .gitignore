@@ -1,0 +1,6 @@
+hashtab.o
+io.o
+net.o
+stack.o
+tree.o
+type.o
