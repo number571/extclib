@@ -1,8 +1,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-extern void *decimal(int64_t x) {
-    return (void*)x;
+extern void *decimal(int32_t x) {
+    return (void*)(intptr_t)x;
 }
 
 extern void *string(uint8_t *x) {

@@ -45,7 +45,7 @@ extern int8_t push_stack(Stack *stack, void *value) {
     }
     switch(stack->type) {
         case DECIMAL_ELEM:
-            stack->buffer[stack->pointer++].decimal = (int64_t)value;
+            stack->buffer[stack->pointer++].decimal = (int32_t)(intptr_t)value;
         break;
         case REAL_ELEM:
             stack->buffer[stack->pointer++].real = *(double*)value;

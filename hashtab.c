@@ -35,7 +35,7 @@ extern void del_hashtab(HashTab *hashtab, void *key) {
     uint32_t hash;
     switch(hashtab->type.key) {
         case DECIMAL_ELEM:
-            hash = (uint64_t)key % hashtab->size;
+            hash = (uint32_t)(intptr_t)key % hashtab->size;
         break;
         case STRING_ELEM:
             hash = _strhash((uint8_t*)key, hashtab->size);
@@ -49,7 +49,7 @@ extern _Bool in_hashtab(HashTab *hashtab, void *key) {
     _Bool result;
     switch(hashtab->type.key) {
         case DECIMAL_ELEM:
-            hash = (uint64_t)key % hashtab->size;
+            hash = (uint32_t)(intptr_t)key % hashtab->size;
         break;
         case STRING_ELEM:
             hash = _strhash((uint8_t*)key, hashtab->size);
@@ -64,7 +64,7 @@ extern value_t get_hashtab(HashTab *hashtab, void *key) {
     value_t result;
     switch(hashtab->type.key) {
         case DECIMAL_ELEM:
-            hash = (uint64_t)key % hashtab->size;
+            hash = (uint32_t)(intptr_t)key % hashtab->size;
         break;
         case STRING_ELEM:
             hash = _strhash((uint8_t*)key, hashtab->size);
@@ -78,7 +78,7 @@ extern void set_hashtab(HashTab *hashtab, void *key, void *value) {
     uint32_t hash;
     switch(hashtab->type.key) {
         case DECIMAL_ELEM:
-            hash = (uint64_t)key % hashtab->size;
+            hash = (uint32_t)(intptr_t)key % hashtab->size;
         break;
         case STRING_ELEM:
             hash = _strhash((uint8_t*)key, hashtab->size);

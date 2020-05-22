@@ -115,7 +115,7 @@ static tree_node *_new_node(vtype_t tkey, vtype_t tvalue, void *key, void *value
 static void _set_key(tree_node *node, vtype_t tkey, void *key) {
     switch(tkey) {
         case DECIMAL_ELEM:
-            node->data.key.decimal = (int64_t)key;
+            node->data.key.decimal = (int32_t)(intptr_t)key;
         break;
         case STRING_ELEM:
             node->data.key.string = (uint8_t*)key;
@@ -126,7 +126,7 @@ static void _set_key(tree_node *node, vtype_t tkey, void *key) {
 static void _set_value(tree_node *node, vtype_t tvalue, void *value) {
     switch(tvalue) {
         case DECIMAL_ELEM:
-            node->data.value.decimal = (int64_t)value;
+            node->data.value.decimal = (int32_t)(intptr_t)value;
         break;
         case REAL_ELEM:
             node->data.value.real = *(double*)value;
@@ -142,14 +142,14 @@ static void _set_tree(tree_node *node, vtype_t tkey, vtype_t tvalue, void *key, 
     int cond = 0;
     switch(tkey) {
         case DECIMAL_ELEM:
-            if ((int64_t)key > node->data.key.decimal) {
+            if ((int32_t)(intptr_t)key > node->data.key.decimal) {
                 if (node->right == NULL) {
                     node->right = _new_node(tkey, tvalue, key, value);
                     node->right->parent = node;
                 } else {
                     _set_tree(node->right, tkey, tvalue, key, value);
                 }
-            } else if ((int64_t)key < node->data.key.decimal) {
+            } else if ((int32_t)(intptr_t)key < node->data.key.decimal) {
                 if (node->left == NULL) {
                     node->left = _new_node(tkey, tvalue, key, value);
                     node->left->parent = node;
@@ -190,9 +190,9 @@ static tree_node *_get_tree(tree_node *node, vtype_t tkey, void *key) {
     }
     switch(tkey) {
         case DECIMAL_ELEM:
-            if ((int64_t)key > node->data.key.decimal) {
+            if ((int32_t)(intptr_t)key > node->data.key.decimal) {
                 return _get_tree(node->right, tkey, key);
-            } else if ((int64_t)key < node->data.key.decimal) {
+            } else if ((int32_t)(intptr_t)key < node->data.key.decimal) {
                 return _get_tree(node->left, tkey, key);
             }
         break;

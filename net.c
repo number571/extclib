@@ -6,7 +6,7 @@
 
 #define INDEX(ptr, init) (ptr-init)
 
-static int8_t parse_address(uint8_t *address, uint8_t *ipv4, uint8_t *port);
+static int8_t _parse_address(uint8_t *address, uint8_t *ipv4, uint8_t *port);
 
 extern int tcp_listen(uint8_t *address) {
     int listener = socket(AF_INET, SOCK_STREAM, 0);
@@ -17,7 +17,7 @@ extern int tcp_listen(uint8_t *address) {
     uint8_t ipv4[16];
     uint8_t port[6];
 
-    if (parse_address(address, ipv4, port) != 0) {
+    if (_parse_address(address, ipv4, port) != 0) {
         return -2;
     }
 
@@ -46,7 +46,7 @@ extern int tcp_connect(uint8_t *address) {
     uint8_t ipv4[16];
     uint8_t port[6];
 
-    if (parse_address(address, ipv4, port) != 0) {
+    if (_parse_address(address, ipv4, port) != 0) {
         return -2;
     }
 
@@ -80,7 +80,7 @@ extern int tcp_close(int conn) {
     return close(conn);
 }
 
-static int8_t parse_address(uint8_t *address, uint8_t *ipv4, uint8_t *port) {
+static int8_t _parse_address(uint8_t *address, uint8_t *ipv4, uint8_t *port) {
     uint8_t *ptr = address;
     while(*ptr != ':') {
         if (*ptr == '\0') {
