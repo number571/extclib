@@ -3,9 +3,12 @@
 
 ### Compile library:
 ```
-$ cd extclib/
-$ make compile
+$ make -C extclib/
+$ cc main.c extclib/extclib.o -o main
 ```
+
+### Used libraries:
+1. bigdigits: [di-mgt.com.au/bigdigits.html](https://di-mgt.com.au/bigdigits.html);
 
 ### Example (HashTab):
 ```c

@@ -1,6 +1,12 @@
+bigint/bigd.o
+bigint/bigdigits.o
+bigint/bigint.o
+bigint.o
 hashtab.o
 io.o
 net.o
+list.o
 stack.o
 tree.o
 type.o
+extclib.o
