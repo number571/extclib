@@ -14,7 +14,6 @@ extern int8_t push_stack(Stack *stack, void *value);
 extern value_t pop_stack(Stack *stack);
 
 extern int8_t cmp_stack(Stack *x, Stack *y);
-
 extern size_t size_stack(Stack *stack);
 extern size_t sizeof_stack(void);
 

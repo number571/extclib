@@ -143,6 +143,10 @@ extern size_t size_list(List *list) {
     return list->size;
 }
 
+extern size_t sizeof_list(void) {
+    return sizeof(List);
+}
+
 extern value_t get_list(List *list, size_t index) {
     list_node *node = list->node;
     while(node != NULL && index) {

@@ -20,6 +20,7 @@ extern int32_t in_list(List *list, void *value);
 
 extern int8_t cmp_list(List *x, List *y);
 extern size_t size_list(List *list);
+extern size_t sizeof_list(void);
 
 extern void print_list(List *list);
 extern void println_list(List *list);
