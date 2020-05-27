@@ -34,6 +34,7 @@ static void _set_tree(Tree *tree, tree_node *node, vtype_t tkey, vtype_t tvalue,
 static void _set_key(tree_node *node, vtype_t tkey, void *key);
 static void _set_value(tree_node *node, vtype_t tvalue, void *value);
 static void _free_tree(Tree *tree, tree_node *node);
+static void _free_node_tree(Tree *tree, tree_node *node);
 static void _print_tree(tree_node *node, vtype_t tkey, vtype_t tvalue);
 static void _print_tree_branches(tree_node *node, vtype_t tkey, vtype_t tvalue);
 static void _print_tree_elem(tree_node *node, vtype_t tkey, vtype_t tvalue);
@@ -361,6 +362,7 @@ static tree_node *_del1_tree(Tree *tree, vtype_t tkey, void *key) {
         parent->right = NULL;
     }
     tree->size -= 1;
+    _free_node_tree(tree, node);
     free(node);
     return NULL;
 }
@@ -382,6 +384,7 @@ static void _del2_tree(Tree *tree, tree_node *node) {
     }
     tree->size -= 1;
     temp->parent = parent;
+    _free_node_tree(tree, node);
     free(node);
 }
 
@@ -399,6 +402,7 @@ static void _del3_tree(Tree *tree, tree_node *node) {
         parent->right = NULL;
     }
     tree->size -= 1;
+    _free_node_tree(tree, ptr);
     free(ptr);
 }
 
@@ -468,6 +472,11 @@ static void _free_tree(Tree *tree, tree_node *node) {
     }
     _free_tree(tree, node->left);
     _free_tree(tree, node->right);
+    _free_node_tree(tree, node);
+    free(node);
+}
+
+static void _free_node_tree(Tree *tree, tree_node *node) {
     switch(tree->type.value) {
         case LIST_ELEM:
             free_list(node->data.value.list);
@@ -485,5 +494,4 @@ static void _free_tree(Tree *tree, tree_node *node) {
             free_bigint(node->data.value.bigint);
         break;
     }
-    free(node);
 }

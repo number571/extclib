@@ -211,6 +211,7 @@ extern int8_t del_list(List *list, size_t index) {
     } else {
         prev_node->next = temp;
     }
+    _free_list(list, curr_node);
     free(curr_node);
     list->size -= 1;
     return 0;
