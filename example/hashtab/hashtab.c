@@ -18,7 +18,7 @@ int main(void) {
         printf("%d\n", get_hashtab(hashtab, string(elem)).decimal);
     }
 
-    print_hashtab(hashtab);
+    println_hashtab(hashtab);
     free_hashtab(hashtab);
     return 0;
 }

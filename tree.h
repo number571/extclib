@@ -1,14 +1,9 @@
-#pragma once
+#ifndef EXTCLIB_TREE_H_
+#define EXTCLIB_TREE_H_
 
 #include "type.h"
 
-typedef struct Tree {
-    struct {
-        vtype_t key;
-        vtype_t value;
-    } type;
-    struct tree_node *node;
-} Tree;
+typedef struct Tree Tree;
 
 extern Tree *new_tree(vtype_t key, vtype_t value);
 extern void free_tree(Tree *tree);
@@ -18,5 +13,14 @@ extern void set_tree(Tree *tree, void *key, void *value);
 extern void del_tree(Tree *tree, void *key);
 extern _Bool in_tree(Tree *tree, void *key);
 
+extern int8_t cmp_tree(Tree *x, Tree *y);
+extern size_t size_tree(Tree *tree);
+extern size_t sizeof_tree(void);
+
 extern void print_tree(Tree *tree);
-extern void print_tree_as_list(Tree *tree);
+extern void println_tree(Tree *tree);
+
+extern void print_tree_branches(Tree *tree);
+extern void println_tree_branches(Tree *tree);
+
+#endif /* EXTCLIB_TREE_H_ */

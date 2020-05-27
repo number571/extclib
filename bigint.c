@@ -83,5 +83,9 @@ extern int8_t cmp_bigint(BigInt *x, BigInt *y) {
 }
 
 extern void print_bigint(BigInt *x) {
+    bdPrintDecimal("", *x, "");
+}
+
+extern void println_bigint(BigInt *x) {
     bdPrintDecimal("", *x, "\n");
 }

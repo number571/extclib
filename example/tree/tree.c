@@ -18,8 +18,8 @@ int main(void) {
         printf("%d\n", get_tree(tree, string(elem)).decimal);
     }
 
-    print_tree(tree);
-    print_tree_as_list(tree);
+    println_tree(tree);
+    println_tree_branches(tree);
     
     free_tree(tree);
     return 0;

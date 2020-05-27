@@ -4,20 +4,37 @@
 #include <string.h>
 
 #include "type.h"
+#include "list.h"
+#include "tree.h"
+#include "hashtab.h"
+#include "stack.h"
+#include "bigint.h"
 
 typedef struct list_node {
     value_t value;
     struct list_node *next;
 } list_node;
 
-#include "list.h"
+typedef struct List {
+    vtype_t type;
+    size_t size;
+    struct list_node *node;
+} List;
 
 static list_node *_new_node(vtype_t type, void *value);
 static void _print_list(vtype_t type, list_node *node);
+static void _free_list(List *list, list_node *node);
 
 extern List *new_list(vtype_t type) {
     switch(type) {
-        case DECIMAL_ELEM: case REAL_ELEM: case STRING_ELEM:
+        case DECIMAL_ELEM: 
+        case REAL_ELEM: 
+        case STRING_ELEM: 
+        case LIST_ELEM: 
+        case TREE_ELEM: 
+        case HASHTAB_ELEM: 
+        case STACK_ELEM:
+        case BIGINT_ELEM:
             break;
         default:
             fprintf(stderr, "%s\n", "value type not supported");
@@ -34,23 +51,38 @@ extern int32_t in_list(List *list, void *value) {
     int32_t index = 0;
     list_node *node = list->node;
     while(node != NULL) {
+        _Bool flag = 0;
         switch(list->type) {
             case DECIMAL_ELEM:
-                if((int32_t)(intptr_t)value == node->value.decimal) {
-                    return index;
-                }
+                flag = (int32_t)(intptr_t)value == node->value.decimal;
             break;
             case REAL_ELEM:
-                if(*(double*)value == node->value.real) {
+                flag = *(double*)value == node->value.real;
+                if(flag) {
                     free((double*)value);
-                    return index;
                 }
             break;
             case STRING_ELEM:
-                if(strcmp((uint8_t*)value, node->value.string) == 0) {
-                    return index;
-                }
+                flag = strcmp((uint8_t*)value, node->value.string) == 0;
             break;
+            case LIST_ELEM:
+                flag = cmp_list((List*)value, node->value.list) == 0;
+            break;
+            case TREE_ELEM:
+                flag = cmp_tree((Tree*)value, node->value.tree) == 0;
+            break;
+            case HASHTAB_ELEM:
+                flag = cmp_hashtab((HashTab*)value, node->value.hashtab) == 0;
+            break;
+            case STACK_ELEM:
+                flag = cmp_stack((Stack*)value, node->value.stack) == 0;
+            break;
+            case BIGINT_ELEM:
+                flag = cmp_bigint(value, node->value.bigint) == 0;
+            break;
+        }
+        if (flag) {
+            return index;
         }
         node = node->next;
         ++index;
@@ -59,6 +91,56 @@ extern int32_t in_list(List *list, void *value) {
         free((double*)value);
     }
     return -1;
+}
+
+extern int8_t cmp_list(List *x, List *y) {
+    if (x->type != y->type) {
+        return -1;
+    }
+    if (x->size != y->size) {
+        return 2;
+    }
+    list_node *ptrx = x->node;
+    list_node *ptry = y->node;
+    while(ptrx != NULL) {
+        _Bool fval = 0;
+        switch(x->type) {
+            case DECIMAL_ELEM:
+                fval = ptrx->value.decimal == ptry->value.decimal;
+            break;
+            case REAL_ELEM:
+                fval = ptrx->value.real == ptry->value.real;
+            break;
+            case STRING_ELEM:
+                fval = strcmp(ptrx->value.string, ptry->value.string) == 0;
+            break;
+            case LIST_ELEM:
+                fval = cmp_list(ptrx->value.list, ptry->value.list) == 0;
+            break;
+            case TREE_ELEM:
+                fval = cmp_tree(ptrx->value.tree, ptry->value.tree) == 0;
+            break;
+            case HASHTAB_ELEM:
+                fval = cmp_hashtab(ptrx->value.hashtab, ptry->value.hashtab) == 0;
+            break;
+            case STACK_ELEM:
+                fval = cmp_stack(ptrx->value.stack, ptrx->value.stack) == 0;
+            break;
+            case BIGINT_ELEM:
+                fval = cmp_bigint(ptrx->value.bigint, ptrx->value.bigint) == 0;
+            break;
+        }
+        if (!fval) {
+            return 1;
+        }
+        ptrx = ptrx->next;
+        ptry = ptry->next;
+    }
+    return 0;
+}
+
+extern size_t size_list(List *list) {
+    return list->size;
 }
 
 extern value_t get_list(List *list, size_t index) {
@@ -174,6 +256,10 @@ extern value_t pop_list(List *list) {
 
 extern void print_list(List *list) {
     _print_list(list->type, list->node);
+}
+
+extern void println_list(List *list) {
+    _print_list(list->type, list->node);
     putchar('\n');
 }
 
@@ -182,10 +268,31 @@ extern void free_list(List *list) {
     list_node *node = list->node;
     while(node != NULL) {
         temp = node->next;
+        _free_list(list, node);
         free(node);
         node = temp;
     }
     free(list);
+}
+
+static void _free_list(List *list, list_node *node) {
+    switch(list->type) {
+        case LIST_ELEM:
+            free_list(node->value.list);
+        break;
+        case TREE_ELEM:
+            free_tree(node->value.tree);
+        break;
+        case HASHTAB_ELEM:
+            free_hashtab(node->value.hashtab);
+        break;
+        case STACK_ELEM: 
+            free_stack(node->value.stack);
+        break;
+        case BIGINT_ELEM:
+            free_bigint(node->value.bigint);
+        break;
+    }
 }
 
 static list_node *_new_node(vtype_t type, void *value) {
@@ -202,24 +309,55 @@ static list_node *_new_node(vtype_t type, void *value) {
         case STRING_ELEM:
             node->value.string = (uint8_t*)value;
         break;
+        case LIST_ELEM:
+            node->value.list = (struct List*)value;
+        break;
+        case TREE_ELEM:
+            node->value.tree = (struct Tree*)value;
+        break;
+        case HASHTAB_ELEM:
+            node->value.hashtab = (struct HashTab*)value;
+        break;
+        case STACK_ELEM: 
+            node->value.stack = (struct Stack*)value;
+        break;
+        case BIGINT_ELEM:
+            node->value.bigint = (struct BigInt*)value;
+        break;
     }
     return node;
 }
 
 static void _print_list(vtype_t type, list_node *node) {
-    printf("[ ");
+    printf("#L[ ");
     while(node != NULL) {
         switch(type) {
             case DECIMAL_ELEM:
-                printf("%d ", node->value.decimal);
-                break;
+                printf("%d", node->value.decimal);
+            break;
             case REAL_ELEM:
-                printf("%lf ", node->value.real);
-                break;
+                printf("%lf", node->value.real);
+            break;
             case STRING_ELEM:
-                printf("'%s' ", node->value.string);
-                break;
+                printf("'%s'", node->value.string);
+            break;
+            case LIST_ELEM:
+                print_list(node->value.list);
+            break;
+            case TREE_ELEM:
+                print_tree(node->value.tree);
+            break;
+            case HASHTAB_ELEM:
+                print_hashtab(node->value.hashtab);
+            break;
+            case STACK_ELEM: 
+                print_stack(node->value.stack);
+            break;
+            case BIGINT_ELEM:
+                print_bigint(node->value.bigint);
+            break;
         }
+        putchar(' ');
         node = node->next;
     }
     putchar(']');

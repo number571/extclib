@@ -11,7 +11,7 @@ int main(void) {
     push_stack(stack, string("B"));
     push_stack(stack, string("C"));
 
-    print_stack(stack);
+    println_stack(stack);
 
     printf("%s\n", pop_stack(stack).string);
     printf("%s\n", pop_stack(stack).string);

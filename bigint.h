@@ -1,8 +1,9 @@
-#pragma once
+#ifndef EXTCLIB_BIGINT_H_
+#define EXTCLIB_BIGINT_H_
 
 #include <stdint.h>
 
-typedef struct BIGD BigInt;
+typedef struct BigInt BigInt;
 
 extern BigInt *new_bigint(uint8_t *str);
 extern void free_bigint(BigInt *x);
@@ -26,3 +27,6 @@ extern void cpy_bigint(BigInt *x, BigInt *y);
 extern int8_t cmp_bigint(BigInt *x, BigInt *y);
 
 extern void print_bigint(BigInt *x);
+extern void println_bigint(BigInt *x);
+
+#endif /* EXTCLIB_BIGINT_H_ */
