@@ -37,7 +37,7 @@ int main(void) {
         get_hashtab(hashtab, string("varY")).bigint
     );
 
-    fmt_println("(%B * %B = %B)", 
+    printf_io("(%B * %B = %B)\n", 
         get_hashtab(hashtab, string("varX")).bigint,
         get_hashtab(hashtab, string("varY")).bigint,
         get_hashtab(hashtab, string("result")).bigint
