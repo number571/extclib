@@ -10,29 +10,38 @@ $ cc main.c extclib/extclib.o -o main
 ### Used libraries:
 1. bigdigits: [di-mgt.com.au/bigdigits.html](https://di-mgt.com.au/bigdigits.html);
 
-### Example (HashTab):
+### Example (IO, HashTab, BigInt):
 ```c
-#include <stdio.h>
-
+#include "extclib/io.h"
 #include "extclib/hashtab.h"
+#include "extclib/bigint.h"
 
-// gcc main.c extclib/hashtab.c extclib/type.c extclib/tree.c -o main
+// gcc main.c extclib/extclib.o -o main
 
 int main(void) {
-    HashTab *hashtab = new_hashtab(10000, STRING_ELEM, DECIMAL_ELEM);
+    HashTab *hashtab = new_hashtab(250, STRING_ELEM, BIGINT_ELEM);
 
-    set_hashtab(hashtab, string("A"), decimal(10));
-    set_hashtab(hashtab, string("B"), decimal(20));
-    set_hashtab(hashtab, string("C"), decimal(30));
+    set_hashtab(hashtab, string("varX"), bigint(new_bigint("872138712637512787387124821738712648712736128749182")));
+    set_hashtab(hashtab, string("varY"), bigint(new_bigint("675346126835124712346172467268375128731")));
 
-    del_hashtab(hashtab, string("B"));
+    // result <- varX
+    set_hashtab(hashtab, string("result"), bigint(new_bigint("")));
+    cpy_bigint(
+        get_hashtab(hashtab, string("result")).bigint, 
+        get_hashtab(hashtab, string("varX")).bigint
+    );
 
-    uint8_t *elem = "A";
-    if (in_hashtab(hashtab, string(elem))) {
-        printf("%d\n", get_hashtab(hashtab, string(elem)).decimal);
-    }
+    // result <- result * varY
+    mul_bigint(
+        get_hashtab(hashtab, string("result")).bigint, 
+        get_hashtab(hashtab, string("varY")).bigint
+    );
 
-    print_hashtab(hashtab);
+    fmt_println("(%B * %B = %B)", 
+        get_hashtab(hashtab, string("varX")).bigint,
+        get_hashtab(hashtab, string("varY")).bigint,
+        get_hashtab(hashtab, string("result")).bigint
+    );
     free_hashtab(hashtab);
     return 0;
 }

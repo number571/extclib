@@ -1,8 +1,32 @@
 #include <stdio.h>
+#include <stdarg.h>
 
 #include "io.h"
+#include "type.h"
+#include "tree.h"
+#include "list.h"
+#include "hashtab.h"
+#include "array.h"
+#include "bigint.h"
 
 #define INDEX(ptr, init) (ptr-init)
+
+static void _fmt_print(uint8_t *fmt, va_list args);
+
+extern void fmt_print(uint8_t *fmt, ...) {
+	va_list factor;
+    va_start(factor, fmt);
+	_fmt_print(fmt, factor);
+	va_end(factor);
+}
+
+extern void fmt_println(uint8_t *fmt, ...) {
+	va_list factor;
+    va_start(factor, fmt);
+	_fmt_print(fmt, factor);
+	va_end(factor);
+	putchar('\n');
+}
 
 extern void input_string(uint8_t *buffer, size_t size) {
 	if (size == 0) {
@@ -13,4 +37,36 @@ extern void input_string(uint8_t *buffer, size_t size) {
         ++ptr;
     }
     *ptr = '\0';
+}
+
+static void _fmt_print(uint8_t *fmt, va_list args) {
+	_Bool flag = 0;
+    while(*fmt) {
+        switch(*fmt) {
+        	case '%': 
+        		flag = 1;
+        		break;
+        	default:
+        		putchar(*fmt);
+        }
+        if (flag) {
+        	++fmt;
+        	switch(*fmt){
+        		case 'd': printf("%d", va_arg(args, int)); break;
+        		case 'f': printf("%f", va_arg(args, double)); break;
+        		case 's': printf("%s", va_arg(args, char*)); break;
+        		case 'c': printf("%c", va_arg(args, int)); break;
+        		case 'o': printf("%o", va_arg(args, int)); break;
+        		case 'x': printf("%x", va_arg(args, int)); break;
+        		case 'L': print_list(va_arg(args, List*)); break;
+        		case 'T': print_tree(va_arg(args, Tree*)); break;
+        		case 'H': print_hashtab(va_arg(args, HashTab*)); break;
+        		case 'B': print_bigint(va_arg(args, BigInt*)); break;
+        		case 'A': print_array(va_arg(args, Array*)); break;
+        		case 'S': print_stack(va_arg(args, Array*)); break;
+        	}
+        }
+        flag = 0;
+        ++fmt;
+    }
 }
