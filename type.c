@@ -5,7 +5,7 @@
 #include "list.h"
 #include "tree.h"
 #include "hashtab.h"
-#include "stack.h"
+#include "array.h"
 #include "bigint.h"
 
 extern void *decimal(int32_t x) {
@@ -34,10 +34,10 @@ extern void *hashtab(struct HashTab *x) {
 	return (void*)x;
 }
 
-extern void *stack(struct Stack *x) {
+extern void *bigint(struct BigInt *x) {
 	return (void*)x;
 }
 
-extern void *bigint(struct BigInt *x) {
+extern void *array(struct Array *x) {
 	return (void*)x;
 }

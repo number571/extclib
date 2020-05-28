@@ -5,7 +5,7 @@
 #include "tree.h"
 #include "list.h"
 #include "hashtab.h"
-#include "stack.h"
+#include "array.h"
 #include "bigint.h"
 
 typedef struct HashTab {
@@ -34,7 +34,7 @@ extern HashTab *new_hashtab(size_t size, vtype_t key, vtype_t value) {
         case LIST_ELEM: 
         case TREE_ELEM: 
         case HASHTAB_ELEM: 
-        case STACK_ELEM:
+        case ARRAY_ELEM:
         case BIGINT_ELEM:
             break;
         default:

@@ -7,7 +7,7 @@
 #include "list.h"
 #include "tree.h"
 #include "hashtab.h"
-#include "stack.h"
+#include "array.h"
 #include "bigint.h"
 
 typedef struct list_node {
@@ -33,7 +33,7 @@ extern List *new_list(vtype_t type) {
         case LIST_ELEM: 
         case TREE_ELEM: 
         case HASHTAB_ELEM: 
-        case STACK_ELEM:
+        case ARRAY_ELEM:
         case BIGINT_ELEM:
             break;
         default:
@@ -74,11 +74,11 @@ extern int32_t in_list(List *list, void *value) {
             case HASHTAB_ELEM:
                 flag = cmp_hashtab((HashTab*)value, node->value.hashtab) == 0;
             break;
-            case STACK_ELEM:
-                flag = cmp_stack((Stack*)value, node->value.stack) == 0;
+            case ARRAY_ELEM:
+                flag = cmp_array((Array*)value, node->value.array) == 0;
             break;
             case BIGINT_ELEM:
-                flag = cmp_bigint(value, node->value.bigint) == 0;
+                flag = cmp_bigint((BigInt*)value, node->value.bigint) == 0;
             break;
         }
         if (flag) {
@@ -123,8 +123,8 @@ extern int8_t cmp_list(List *x, List *y) {
             case HASHTAB_ELEM:
                 fval = cmp_hashtab(ptrx->value.hashtab, ptry->value.hashtab) == 0;
             break;
-            case STACK_ELEM:
-                fval = cmp_stack(ptrx->value.stack, ptrx->value.stack) == 0;
+            case ARRAY_ELEM:
+                fval = cmp_array(ptrx->value.array, ptrx->value.array) == 0;
             break;
             case BIGINT_ELEM:
                 fval = cmp_bigint(ptrx->value.bigint, ptrx->value.bigint) == 0;
@@ -291,8 +291,8 @@ static void _free_list(List *list, list_node *node) {
         case HASHTAB_ELEM:
             free_hashtab(node->value.hashtab);
         break;
-        case STACK_ELEM: 
-            free_stack(node->value.stack);
+        case ARRAY_ELEM: 
+            free_array(node->value.array);
         break;
         case BIGINT_ELEM:
             free_bigint(node->value.bigint);
@@ -323,8 +323,8 @@ static list_node *_new_node(vtype_t type, void *value) {
         case HASHTAB_ELEM:
             node->value.hashtab = (struct HashTab*)value;
         break;
-        case STACK_ELEM: 
-            node->value.stack = (struct Stack*)value;
+        case ARRAY_ELEM: 
+            node->value.array = (struct Array*)value;
         break;
         case BIGINT_ELEM:
             node->value.bigint = (struct BigInt*)value;
@@ -355,8 +355,8 @@ static void _print_list(vtype_t type, list_node *node) {
             case HASHTAB_ELEM:
                 print_hashtab(node->value.hashtab);
             break;
-            case STACK_ELEM: 
-                print_stack(node->value.stack);
+            case ARRAY_ELEM: 
+                print_array(node->value.array);
             break;
             case BIGINT_ELEM:
                 print_bigint(node->value.bigint);

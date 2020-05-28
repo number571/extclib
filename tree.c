@@ -6,7 +6,7 @@
 #include "tree.h"
 #include "list.h"
 #include "hashtab.h"
-#include "stack.h"
+#include "array.h"
 #include "bigint.h"
 
 typedef struct tree_node {
@@ -59,7 +59,7 @@ extern Tree *new_tree(vtype_t key, vtype_t value) {
         case LIST_ELEM: 
         case TREE_ELEM: 
         case HASHTAB_ELEM: 
-        case STACK_ELEM:
+        case ARRAY_ELEM:
         case BIGINT_ELEM:
             break;
         default:
@@ -162,8 +162,8 @@ static int8_t _cmp_tree(vtype_t tkey, vtype_t tvalue, tree_node *x, tree_node *y
             case HASHTAB_ELEM:
                 fval = cmp_hashtab(x->data.value.hashtab, y->data.value.hashtab) == 0;
             break;
-            case STACK_ELEM:
-                fval = cmp_stack(x->data.value.stack, y->data.value.stack) == 0;
+            case ARRAY_ELEM:
+                fval = cmp_array(x->data.value.array, y->data.value.array) == 0;
             break;
             case BIGINT_ELEM:
                 fval = cmp_bigint(x->data.value.bigint, y->data.value.bigint) == 0;
@@ -254,11 +254,11 @@ static void _set_value(tree_node *node, vtype_t tvalue, void *value) {
             }
             node->data.value.hashtab = (struct HashTab*)value;
         break;
-        case STACK_ELEM:
+        case ARRAY_ELEM:
             if (node->exist) {
-                free_stack(node->data.value.stack);
+                free_array(node->data.value.array);
             }
-            node->data.value.stack = (struct Stack*)value;
+            node->data.value.array = (struct Array*)value;
         break;
         case BIGINT_ELEM:
             if (node->exist) {
@@ -409,10 +409,10 @@ static void _del3_tree(Tree *tree, tree_node *node) {
 static void _print_tree_elem(tree_node *node, vtype_t tkey, vtype_t tvalue) {
     switch(tkey) {
         case DECIMAL_ELEM:
-            printf("{ %d => ", node->data.key.decimal);
+            printf("{%d => ", node->data.key.decimal);
         break;
         case STRING_ELEM:
-            printf("{ '%s' => ", node->data.key.string);
+            printf("{'%s' => ", node->data.key.string);
         break;
     }
     switch(tvalue) {
@@ -434,14 +434,14 @@ static void _print_tree_elem(tree_node *node, vtype_t tkey, vtype_t tvalue) {
         case HASHTAB_ELEM: 
             print_hashtab(node->data.value.hashtab);
         break;
-        case STACK_ELEM:
-            print_stack(node->data.value.stack);
+        case ARRAY_ELEM:
+            print_array(node->data.value.array);
         break;
         case BIGINT_ELEM:
             print_bigint(node->data.value.bigint);
         break;
     }
-    printf(" } ");
+    printf("} ");
 }
 
 static void _print_tree_branches(tree_node *node, vtype_t tkey, vtype_t tvalue) {
@@ -487,8 +487,8 @@ static void _free_node_tree(Tree *tree, tree_node *node) {
         case HASHTAB_ELEM:
             free_hashtab(node->data.value.hashtab);
         break;
-        case STACK_ELEM: 
-            free_stack(node->data.value.stack);
+        case ARRAY_ELEM: 
+            free_array(node->data.value.array);
         break;
         case BIGINT_ELEM:
             free_bigint(node->data.value.bigint);

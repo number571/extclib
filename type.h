@@ -10,7 +10,7 @@ typedef enum {
     LIST_ELEM,
     TREE_ELEM,
     HASHTAB_ELEM,
-    STACK_ELEM,
+    ARRAY_ELEM,
     BIGINT_ELEM,
 } vtype_t;
 
@@ -21,7 +21,7 @@ typedef union value_t {
     struct List *list;
     struct Tree *tree;
     struct HashTab *hashtab;
-    struct Stack *stack;
+    struct Array *array;
     struct BigInt *bigint;
 } value_t;
 
@@ -31,7 +31,7 @@ extern void *real(double x);
 extern void *list(struct List *x);
 extern void *tree(struct Tree *x);
 extern void *hashtab(struct HashTab *x);
-extern void *stack(struct Stack *x);
 extern void *bigint(struct BigInt *x);
+extern void *array(struct Array *x);
 
 #endif /* EXTCLIB_TYPE_H_ */
