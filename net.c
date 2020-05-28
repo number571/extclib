@@ -8,7 +8,7 @@
 
 static int8_t _parse_address(uint8_t *address, uint8_t *ipv4, uint8_t *port);
 
-extern int tcp_listen(uint8_t *address) {
+extern int listen_net(uint8_t *address) {
     int listener = socket(AF_INET, SOCK_STREAM, 0);
     if (listener < 0) {
         return -1;
@@ -37,7 +37,7 @@ extern int tcp_listen(uint8_t *address) {
     return listener;
 }
 
-extern int tcp_connect(uint8_t *address) {
+extern int connect_net(uint8_t *address) {
     int conn = socket(AF_INET, SOCK_STREAM, 0);
     if (conn < 0) {
         return -1;
@@ -62,21 +62,21 @@ extern int tcp_connect(uint8_t *address) {
     return conn;
 }
 
-extern int tcp_accept(int listener) {
+extern int accept_net(int listener) {
     return accept(listener, NULL, NULL);
 }
 
-extern int tcp_send(int conn, uint8_t *buffer, size_t size) {
+extern int send_net(int conn, uint8_t *buffer, size_t size) {
     // return send(conn, (char*)buffer, (int)size, 0);
     return write(conn, (char*)buffer, (int)size);
 }
 
-extern int tcp_recv(int conn, uint8_t *buffer, size_t size) {
+extern int recv_net(int conn, uint8_t *buffer, size_t size) {
     // return recv(conn, (char*)buffer, (int)size, 0);
     return read(conn, (char*)buffer, (int)size);
 }
 
-extern int tcp_close(int conn) {
+extern int close_net(int conn) {
     return close(conn);
 }
 

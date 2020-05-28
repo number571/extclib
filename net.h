@@ -4,13 +4,13 @@
 #include <stddef.h>
 #include <stdint.h>
 
-extern int tcp_listen(uint8_t *address);
-extern int tcp_accept(int listener);
+extern int listen_net(uint8_t *address);
+extern int accept_net(int listener);
 
-extern int tcp_connect(uint8_t *address);
-extern int tcp_close(int conn);
+extern int connect_net(uint8_t *address);
+extern int close_net(int conn);
 
-extern int tcp_send(int conn, uint8_t *buffer, size_t size);
-extern int tcp_recv(int conn, uint8_t *buffer, size_t size);
+extern int send_net(int conn, uint8_t *buffer, size_t size);
+extern int recv_net(int conn, uint8_t *buffer, size_t size);
 
 #endif /* EXTCLIB_NET_H_ */

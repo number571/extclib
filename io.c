@@ -11,24 +11,16 @@
 
 #define INDEX(ptr, init) (ptr-init)
 
-static void _fmt_print(uint8_t *fmt, va_list args);
+static void _printf_io(uint8_t *fmt, va_list args);
 
-extern void fmt_print(uint8_t *fmt, ...) {
+extern void printf_io(uint8_t *fmt, ...) {
 	va_list factor;
     va_start(factor, fmt);
-	_fmt_print(fmt, factor);
+	_printf_io(fmt, factor);
 	va_end(factor);
 }
 
-extern void fmt_println(uint8_t *fmt, ...) {
-	va_list factor;
-    va_start(factor, fmt);
-	_fmt_print(fmt, factor);
-	va_end(factor);
-	putchar('\n');
-}
-
-extern void input_string(uint8_t *buffer, size_t size) {
+extern void inputs_io(uint8_t *buffer, size_t size) {
 	if (size == 0) {
 		return;
 	}
@@ -39,7 +31,7 @@ extern void input_string(uint8_t *buffer, size_t size) {
     *ptr = '\0';
 }
 
-static void _fmt_print(uint8_t *fmt, va_list args) {
+static void _printf_io(uint8_t *fmt, va_list args) {
 	_Bool flag = 0;
     while(*fmt) {
         switch(*fmt) {
