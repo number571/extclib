@@ -8,9 +8,9 @@
 int main(void) {
     Array *array = new_array(3, LIST_ELEM);
 
-    push_array(array, list(new_list(DECIMAL_ELEM)));
-    push_array(array, list(new_list(STRING_ELEM)));
-    push_array(array, list(new_list(REAL_ELEM)));
+    push_stack(array, list(new_list(DECIMAL_ELEM)));
+    push_stack(array, list(new_list(STRING_ELEM)));
+    push_stack(array, list(new_list(REAL_ELEM)));
 
     List *list = get_array(array, 2).list;
     push_list(list, real(5.71));
