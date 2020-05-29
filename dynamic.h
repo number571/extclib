@@ -1,6 +1,8 @@
 #ifndef EXTCLIB_DYNAMIC_H_
 #define EXTCLIB_DYNAMIC_H_
 
+#include <stddef.h>
+
 #include "type.h"
 
 typedef struct Dynamic Dynamic;

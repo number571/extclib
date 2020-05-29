@@ -1,5 +1,3 @@
-#include <stdio.h>
-
 #include "extclib/bigint.h"
 
 // gcc main.c extclib/bigint.c extclib/bigint/bigd.c extclib/bigint/bigdigits.c -o main
@@ -14,7 +12,7 @@ int main(void) {
     add_bigint(y, x);   // y = 803469022129495137770981046170581301261101496891396417650690
     mul_bigint(x, y);   // x = 645562469521727147413979793000752968582426448207305878207666446073206164494485840619503679482636980061969575786022174720
 
-    print_bigint(x);
+    println_bigint(x);
 
     free_bigint(x);
     free_bigint(y);

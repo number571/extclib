@@ -1,5 +1,3 @@
-#include <stdio.h>
-
 #include "extclib/dynamic.h"
 
 // gcc main.c extclib/dynamic.c extclib/type.c -o main

@@ -1,5 +1,3 @@
-#include <stdio.h>
-
 #include "extclib/array.h"
 #include "extclib/list.h"
 

@@ -1,5 +1,3 @@
-#include <stdio.h>
-
 #include "extclib/array.h"
 
 // gcc main.c extclib/array.c extclib/type.c -o main
