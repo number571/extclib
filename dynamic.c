@@ -77,6 +77,10 @@ extern size_t sizeof_dynamic(void) {
     return sizeof(Dynamic);
 }
 
+extern value_t value_dynamic(Dynamic *dynamic) {
+    return dynamic->value;
+}
+
 extern vtype_t type_dynamic(Dynamic *dynamic) {
     return dynamic->type;
 }
