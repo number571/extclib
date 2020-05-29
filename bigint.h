@@ -1,6 +1,7 @@
 #ifndef EXTCLIB_BIGINT_H_
 #define EXTCLIB_BIGINT_H_
 
+#include <stddef.h>
 #include <stdint.h>
 
 typedef struct BigInt BigInt;
