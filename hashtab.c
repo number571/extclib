@@ -3,10 +3,6 @@
 
 #include "type.h"
 #include "tree.h"
-#include "list.h"
-#include "hashtab.h"
-#include "array.h"
-#include "bigint.h"
 
 typedef struct HashTab {
     struct {
@@ -36,6 +32,7 @@ extern HashTab *new_hashtab(size_t size, vtype_t key, vtype_t value) {
         case HASHTAB_ELEM: 
         case ARRAY_ELEM:
         case BIGINT_ELEM:
+        case DYNAMIC_ELEM:
             break;
         default:
             fprintf(stderr, "%s\n", "value type not supported");

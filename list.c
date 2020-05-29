@@ -9,6 +9,7 @@
 #include "hashtab.h"
 #include "array.h"
 #include "bigint.h"
+#include "dynamic.h"
 
 typedef struct list_node {
     value_t value;
@@ -35,6 +36,7 @@ extern List *new_list(vtype_t type) {
         case HASHTAB_ELEM: 
         case ARRAY_ELEM:
         case BIGINT_ELEM:
+        case DYNAMIC_ELEM:
             break;
         default:
             fprintf(stderr, "%s\n", "value type not supported");
@@ -80,6 +82,9 @@ extern int32_t in_list(List *list, void *value) {
             case BIGINT_ELEM:
                 flag = cmp_bigint((BigInt*)value, node->value.bigint) == 0;
             break;
+            case DYNAMIC_ELEM:
+                flag = cmp_dynamic((Dynamic*)value, node->value.dynamic) == 0;
+            break;
         }
         if (flag) {
             return index;
@@ -103,34 +108,37 @@ extern int8_t cmp_list(List *x, List *y) {
     list_node *ptrx = x->node;
     list_node *ptry = y->node;
     while(ptrx != NULL) {
-        _Bool fval = 0;
+        _Bool flag = 0;
         switch(x->type) {
             case DECIMAL_ELEM:
-                fval = ptrx->value.decimal == ptry->value.decimal;
+                flag = ptrx->value.decimal == ptry->value.decimal;
             break;
             case REAL_ELEM:
-                fval = ptrx->value.real == ptry->value.real;
+                flag = ptrx->value.real == ptry->value.real;
             break;
             case STRING_ELEM:
-                fval = strcmp(ptrx->value.string, ptry->value.string) == 0;
+                flag = strcmp(ptrx->value.string, ptry->value.string) == 0;
             break;
             case LIST_ELEM:
-                fval = cmp_list(ptrx->value.list, ptry->value.list) == 0;
+                flag = cmp_list(ptrx->value.list, ptry->value.list) == 0;
             break;
             case TREE_ELEM:
-                fval = cmp_tree(ptrx->value.tree, ptry->value.tree) == 0;
+                flag = cmp_tree(ptrx->value.tree, ptry->value.tree) == 0;
             break;
             case HASHTAB_ELEM:
-                fval = cmp_hashtab(ptrx->value.hashtab, ptry->value.hashtab) == 0;
+                flag = cmp_hashtab(ptrx->value.hashtab, ptry->value.hashtab) == 0;
             break;
             case ARRAY_ELEM:
-                fval = cmp_array(ptrx->value.array, ptrx->value.array) == 0;
+                flag = cmp_array(ptrx->value.array, ptrx->value.array) == 0;
             break;
             case BIGINT_ELEM:
-                fval = cmp_bigint(ptrx->value.bigint, ptrx->value.bigint) == 0;
+                flag = cmp_bigint(ptrx->value.bigint, ptrx->value.bigint) == 0;
+            break;
+            case DYNAMIC_ELEM:
+                flag = cmp_dynamic(ptrx->value.dynamic, ptrx->value.dynamic) == 0;
             break;
         }
-        if (!fval) {
+        if (!flag) {
             return 1;
         }
         ptrx = ptrx->next;
@@ -297,6 +305,9 @@ static void _free_list(List *list, list_node *node) {
         case BIGINT_ELEM:
             free_bigint(node->value.bigint);
         break;
+        case DYNAMIC_ELEM:
+            free_dynamic(node->value.dynamic);
+        break;
     }
 }
 
@@ -329,6 +340,9 @@ static list_node *_new_node(vtype_t type, void *value) {
         case BIGINT_ELEM:
             node->value.bigint = (struct BigInt*)value;
         break;
+        case DYNAMIC_ELEM:
+            node->value.dynamic = (struct Dynamic*)value;
+        break;
     }
     return node;
 }
@@ -360,6 +374,9 @@ static void _print_list(vtype_t type, list_node *node) {
             break;
             case BIGINT_ELEM:
                 print_bigint(node->value.bigint);
+            break;
+            case DYNAMIC_ELEM:
+                print_dynamic(node->value.dynamic);
             break;
         }
         putchar(' ');

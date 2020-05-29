@@ -9,6 +9,7 @@
 #include "hashtab.h"
 #include "array.h"
 #include "bigint.h"
+#include "dynamic.h"
 
 typedef struct array_value {
     value_t value;
@@ -44,6 +45,7 @@ extern Array *new_array(size_t size, vtype_t type) {
         case HASHTAB_ELEM: 
         case ARRAY_ELEM:
         case BIGINT_ELEM:
+        case DYNAMIC_ELEM:
             break;
         default:
             fprintf(stderr, "%s\n", "type not supported");
@@ -122,6 +124,9 @@ extern int32_t in_array(Array *array, void *value) {
             case BIGINT_ELEM:
                 flag = cmp_bigint((BigInt*)value, array->buffer[index].value.bigint) == 0;
             break;
+            case DYNAMIC_ELEM:
+                flag = cmp_dynamic((Dynamic*)value, array->buffer[index].value.dynamic) == 0;
+            break;
         }
         if (flag) {
             return index;
@@ -185,12 +190,12 @@ extern int8_t set_stack(Array *array, size_t top, size_t begin, size_t end) {
     if (begin > end) {
         return 2;
     }
-    if (top > end || top < begin) {
+    if (top > end - begin) {
         return 3;
     }
     array->stack.begin = begin;
     array->stack.end = end;
-    array->stack.top = top;
+    array->stack.top = begin + top;
     return 0;
 }
 
@@ -289,6 +294,9 @@ static void _print_node_array(Array *array, size_t index) {
         case BIGINT_ELEM:
             print_bigint(array->buffer[index].value.bigint);
         break;
+        case DYNAMIC_ELEM:
+            print_dynamic(array->buffer[index].value.dynamic);
+        break;
     }
 }
 
@@ -322,6 +330,9 @@ static void _set_node_array(Array *array, size_t index, void *value) {
         case BIGINT_ELEM:
             array->buffer[index].value.bigint = (struct BigInt*)value;
         break;
+        case DYNAMIC_ELEM:
+            array->buffer[index].value.dynamic = (struct Dynamic*)value;
+        break;
     }
     array->buffer[index].exist = 1;
 }
@@ -353,6 +364,9 @@ static _Bool _cmp_node_array(Array *x, Array *y, size_t ix, size_t iy) {
         case BIGINT_ELEM:
             flag = cmp_bigint(x->buffer[ix].value.bigint, y->buffer[iy].value.bigint) == 0;
         break;
+        case DYNAMIC_ELEM:
+            flag = cmp_dynamic(x->buffer[ix].value.dynamic, y->buffer[iy].value.dynamic) == 0;
+        break;
     }
     return flag;
 }
@@ -382,6 +396,9 @@ static void _free_node_array(Array *array, size_t index) {
         break;
         case BIGINT_ELEM:
             free_bigint(array->buffer[index].value.bigint);
+        break;
+        case DYNAMIC_ELEM:
+            free_dynamic(array->buffer[index].value.dynamic);
         break;
     }
 }

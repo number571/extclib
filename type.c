@@ -23,21 +23,25 @@ extern void *real(double x) {
 }
 
 extern void *list(struct List *x) {
-	return (void*)x;
+    return (void*)x;
 }
 
 extern void *tree(struct Tree *x) {
-	return (void*)x;
+    return (void*)x;
 }
 
 extern void *hashtab(struct HashTab *x) {
-	return (void*)x;
+    return (void*)x;
 }
 
 extern void *bigint(struct BigInt *x) {
-	return (void*)x;
+    return (void*)x;
 }
 
 extern void *array(struct Array *x) {
-	return (void*)x;
+    return (void*)x;
+}
+
+extern void *dynamic(struct Dynamic *x) {
+    return (void*)x;
 }

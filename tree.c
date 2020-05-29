@@ -8,6 +8,7 @@
 #include "hashtab.h"
 #include "array.h"
 #include "bigint.h"
+#include "dynamic.h"
 
 typedef struct tree_node {
     struct {
@@ -61,6 +62,7 @@ extern Tree *new_tree(vtype_t key, vtype_t value) {
         case HASHTAB_ELEM: 
         case ARRAY_ELEM:
         case BIGINT_ELEM:
+        case DYNAMIC_ELEM:
             break;
         default:
             fprintf(stderr, "%s\n", "value type not supported");
@@ -168,6 +170,9 @@ static int8_t _cmp_tree(vtype_t tkey, vtype_t tvalue, tree_node *x, tree_node *y
             case BIGINT_ELEM:
                 fval = cmp_bigint(x->data.value.bigint, y->data.value.bigint) == 0;
             break;
+            case DYNAMIC_ELEM:
+                fval = cmp_dynamic(x->data.value.dynamic, y->data.value.dynamic) == 0;
+            break;
         }
         return fkey && fval && _cmp_tree(tkey, tvalue, x->left, y->left) && _cmp_tree(tkey, tvalue, x->right, y->right);
     }
@@ -265,6 +270,12 @@ static void _set_value(tree_node *node, vtype_t tvalue, void *value) {
                 free_bigint(node->data.value.bigint);
             }
             node->data.value.bigint = (struct BigInt*)value;
+        break;
+        case DYNAMIC_ELEM:
+            if (node->exist) {
+                free_dynamic(node->data.value.dynamic);
+            }
+            node->data.value.dynamic = (struct Dynamic*)value;
         break;
     }
     node->exist = 1;
@@ -440,6 +451,9 @@ static void _print_tree_elem(tree_node *node, vtype_t tkey, vtype_t tvalue) {
         case BIGINT_ELEM:
             print_bigint(node->data.value.bigint);
         break;
+        case DYNAMIC_ELEM:
+            print_dynamic(node->data.value.dynamic);
+        break;
     }
     printf("} ");
 }
@@ -492,6 +506,9 @@ static void _free_node_tree(Tree *tree, tree_node *node) {
         break;
         case BIGINT_ELEM:
             free_bigint(node->data.value.bigint);
+        break;
+        case DYNAMIC_ELEM:
+            free_dynamic(node->data.value.dynamic);
         break;
     }
 }
