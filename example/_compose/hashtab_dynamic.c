@@ -3,8 +3,6 @@
 #include "extclib/bigint.h"
 #include "extclib/list.h"
 
-// gcc main.c extclib/extclib.o -o main
-
 int main(void) {
     HashTab *hashtab = new_hashtab(100, STRING_TYPE, DYNAMIC_TYPE);
 

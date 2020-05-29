@@ -2,8 +2,6 @@
 
 #include "extclib/tree.h"
 
-// gcc main.c extclib/tree.c extclib/type.c -o main
-
 int main(void) {
     Tree *tree = new_tree(STRING_TYPE, DECIMAL_TYPE);
 

@@ -3,8 +3,6 @@
 #include "extclib/list.h"
 #include "extclib/dynamic.h"
 
-// gcc main.c extclib/extclib.o -o main
-
 int main(void) {
     List *list = new_list(DYNAMIC_TYPE);
 

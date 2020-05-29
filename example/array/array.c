@@ -2,8 +2,6 @@
 
 #include "extclib/array.h"
 
-// gcc main.c extclib/array.c extclib/type.c -o main
-
 int main(void) {
     Array *array = new_array(1000, STRING_TYPE);
 

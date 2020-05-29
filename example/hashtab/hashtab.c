@@ -2,8 +2,6 @@
 
 #include "extclib/hashtab.h"
 
-// gcc main.c extclib/hashtab.c extclib/type.c extclib/tree.c -o main
-
 int main(void) {
     HashTab *hashtab = new_hashtab(10000, STRING_TYPE, DECIMAL_TYPE);
 

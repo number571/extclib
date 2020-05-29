@@ -1,8 +1,6 @@
 #include "extclib/array.h"
 #include "extclib/list.h"
 
-// gcc main.c extclib/extclib.o -o main
-
 int main(void) {
     Array *array = new_array(3, LIST_TYPE);
 

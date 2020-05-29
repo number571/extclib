@@ -6,23 +6,21 @@
 
 #define BUFF_SIZE 256
 
-// gcc main.c extclib/net.c extclib/io.c -o main
-
 int main(void) {
-    int conn = tcp_connect("127.0.0.1:8080");
+    int conn = connect_net("127.0.0.1:8080");
     if (conn < 0) {
         fprintf(stderr, "%d\n", conn);
         return 1;
     }
 
     char buffer[BUFF_SIZE];
-    input_string(buffer, BUFF_SIZE);
+    inputs_io(buffer, BUFF_SIZE);
 
-    tcp_send(conn, buffer, BUFF_SIZE);
-    tcp_recv(conn, buffer, BUFF_SIZE);
+    send_net(conn, buffer, BUFF_SIZE);
+    recv_net(conn, buffer, BUFF_SIZE);
 
     printf("%s\n", buffer);
-    tcp_close(conn);
+    close_net(conn);
 
     return 0;
 }

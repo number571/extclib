@@ -1,7 +1,5 @@
 #include "extclib/bigint.h"
 
-// gcc main.c extclib/bigint.c extclib/bigint/bigd.c extclib/bigint/bigdigits.c -o main
-
 int main(void) {
     BigInt *x = new_bigint("1");
     BigInt *y = new_bigint("2");

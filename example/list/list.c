@@ -2,8 +2,6 @@
 
 #include "extclib/list.h"
 
-// gcc main.c extclib/list.c extclib/type.c -o main
-
 int main(void) {
     List *list = new_list(STRING_TYPE);
 

@@ -1,7 +1,5 @@
 #include "extclib/array.h"
 
-// gcc main.c extclib/array.c extclib/type.c -o main
-
 int main(void) {
     Array *array = new_array(3, ARRAY_TYPE);
     for (size_t i = 0; i < 3; ++i) {
