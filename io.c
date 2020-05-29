@@ -44,6 +44,7 @@ static void _printf_io(uint8_t *fmt, va_list args) {
         if (flag) {
         	++fmt;
         	switch(*fmt){
+                case '%': putchar('%'); break;
         		case 'd': printf("%d", va_arg(args, int)); break;
         		case 'f': printf("%f", va_arg(args, double)); break;
         		case 's': printf("%s", va_arg(args, char*)); break;
@@ -56,7 +57,8 @@ static void _printf_io(uint8_t *fmt, va_list args) {
         		case 'B': print_bigint(va_arg(args, BigInt*)); break;
         		case 'A': print_array(va_arg(args, Array*)); break;
         		case 'S': print_stack(va_arg(args, Array*)); break;
-        	}
+        	    default:  putchar(*fmt);
+            }
         }
         flag = 0;
         ++fmt;
