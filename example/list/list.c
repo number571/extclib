@@ -5,7 +5,7 @@
 // gcc main.c extclib/list.c extclib/type.c -o main
 
 int main(void) {
-    List *list = new_list(STRING_ELEM);
+    List *list = new_list(STRING_TYPE);
 
     set_list(list, 0, string("A"));
     set_list(list, 0, string("B"));

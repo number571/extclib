@@ -28,15 +28,15 @@ static void _free_list(List *list, list_node *node);
 
 extern List *new_list(vtype_t type) {
     switch(type) {
-        case DECIMAL_ELEM: 
-        case REAL_ELEM: 
-        case STRING_ELEM: 
-        case LIST_ELEM: 
-        case TREE_ELEM: 
-        case HASHTAB_ELEM: 
-        case ARRAY_ELEM:
-        case BIGINT_ELEM:
-        case DYNAMIC_ELEM:
+        case DECIMAL_TYPE: 
+        case REAL_TYPE: 
+        case STRING_TYPE: 
+        case LIST_TYPE: 
+        case TREE_TYPE: 
+        case HASHTAB_TYPE: 
+        case ARRAY_TYPE:
+        case BIGINT_TYPE:
+        case DYNAMIC_TYPE:
             break;
         default:
             fprintf(stderr, "%s\n", "value type not supported");
@@ -55,34 +55,34 @@ extern int32_t in_list(List *list, void *value) {
     while(node != NULL) {
         _Bool flag = 0;
         switch(list->type) {
-            case DECIMAL_ELEM:
+            case DECIMAL_TYPE:
                 flag = (int32_t)(intptr_t)value == node->value.decimal;
             break;
-            case REAL_ELEM:
+            case REAL_TYPE:
                 flag = *(double*)value == node->value.real;
                 if(flag) {
                     free((double*)value);
                 }
             break;
-            case STRING_ELEM:
+            case STRING_TYPE:
                 flag = strcmp((uint8_t*)value, node->value.string) == 0;
             break;
-            case LIST_ELEM:
+            case LIST_TYPE:
                 flag = cmp_list((List*)value, node->value.list) == 0;
             break;
-            case TREE_ELEM:
+            case TREE_TYPE:
                 flag = cmp_tree((Tree*)value, node->value.tree) == 0;
             break;
-            case HASHTAB_ELEM:
+            case HASHTAB_TYPE:
                 flag = cmp_hashtab((HashTab*)value, node->value.hashtab) == 0;
             break;
-            case ARRAY_ELEM:
+            case ARRAY_TYPE:
                 flag = cmp_array((Array*)value, node->value.array) == 0;
             break;
-            case BIGINT_ELEM:
+            case BIGINT_TYPE:
                 flag = cmp_bigint((BigInt*)value, node->value.bigint) == 0;
             break;
-            case DYNAMIC_ELEM:
+            case DYNAMIC_TYPE:
                 flag = cmp_dynamic((Dynamic*)value, node->value.dynamic) == 0;
             break;
         }
@@ -92,7 +92,7 @@ extern int32_t in_list(List *list, void *value) {
         node = node->next;
         ++index;
     }
-    if(list->type == REAL_ELEM) {
+    if(list->type == REAL_TYPE) {
         free((double*)value);
     }
     return -1;
@@ -110,31 +110,31 @@ extern int8_t cmp_list(List *x, List *y) {
     while(ptrx != NULL) {
         _Bool flag = 0;
         switch(x->type) {
-            case DECIMAL_ELEM:
+            case DECIMAL_TYPE:
                 flag = ptrx->value.decimal == ptry->value.decimal;
             break;
-            case REAL_ELEM:
+            case REAL_TYPE:
                 flag = ptrx->value.real == ptry->value.real;
             break;
-            case STRING_ELEM:
+            case STRING_TYPE:
                 flag = strcmp(ptrx->value.string, ptry->value.string) == 0;
             break;
-            case LIST_ELEM:
+            case LIST_TYPE:
                 flag = cmp_list(ptrx->value.list, ptry->value.list) == 0;
             break;
-            case TREE_ELEM:
+            case TREE_TYPE:
                 flag = cmp_tree(ptrx->value.tree, ptry->value.tree) == 0;
             break;
-            case HASHTAB_ELEM:
+            case HASHTAB_TYPE:
                 flag = cmp_hashtab(ptrx->value.hashtab, ptry->value.hashtab) == 0;
             break;
-            case ARRAY_ELEM:
+            case ARRAY_TYPE:
                 flag = cmp_array(ptrx->value.array, ptrx->value.array) == 0;
             break;
-            case BIGINT_ELEM:
+            case BIGINT_TYPE:
                 flag = cmp_bigint(ptrx->value.bigint, ptrx->value.bigint) == 0;
             break;
-            case DYNAMIC_ELEM:
+            case DYNAMIC_TYPE:
                 flag = cmp_dynamic(ptrx->value.dynamic, ptrx->value.dynamic) == 0;
             break;
         }
@@ -290,22 +290,22 @@ extern void free_list(List *list) {
 
 static void _free_list(List *list, list_node *node) {
     switch(list->type) {
-        case LIST_ELEM:
+        case LIST_TYPE:
             free_list(node->value.list);
         break;
-        case TREE_ELEM:
+        case TREE_TYPE:
             free_tree(node->value.tree);
         break;
-        case HASHTAB_ELEM:
+        case HASHTAB_TYPE:
             free_hashtab(node->value.hashtab);
         break;
-        case ARRAY_ELEM: 
+        case ARRAY_TYPE: 
             free_array(node->value.array);
         break;
-        case BIGINT_ELEM:
+        case BIGINT_TYPE:
             free_bigint(node->value.bigint);
         break;
-        case DYNAMIC_ELEM:
+        case DYNAMIC_TYPE:
             free_dynamic(node->value.dynamic);
         break;
     }
@@ -315,32 +315,32 @@ static list_node *_new_node(vtype_t type, void *value) {
     list_node *node = (list_node*)malloc(sizeof(list_node));
     node->next = NULL;
     switch(type) {
-        case DECIMAL_ELEM:
+        case DECIMAL_TYPE:
             node->value.decimal = (int32_t)(intptr_t)value;
         break;
-        case REAL_ELEM:
+        case REAL_TYPE:
             node->value.real = *(double*)value;
             free((double*)value);
         break;
-        case STRING_ELEM:
+        case STRING_TYPE:
             node->value.string = (uint8_t*)value;
         break;
-        case LIST_ELEM:
+        case LIST_TYPE:
             node->value.list = (struct List*)value;
         break;
-        case TREE_ELEM:
+        case TREE_TYPE:
             node->value.tree = (struct Tree*)value;
         break;
-        case HASHTAB_ELEM:
+        case HASHTAB_TYPE:
             node->value.hashtab = (struct HashTab*)value;
         break;
-        case ARRAY_ELEM: 
+        case ARRAY_TYPE: 
             node->value.array = (struct Array*)value;
         break;
-        case BIGINT_ELEM:
+        case BIGINT_TYPE:
             node->value.bigint = (struct BigInt*)value;
         break;
-        case DYNAMIC_ELEM:
+        case DYNAMIC_TYPE:
             node->value.dynamic = (struct Dynamic*)value;
         break;
     }
@@ -351,31 +351,31 @@ static void _print_list(vtype_t type, list_node *node) {
     printf("#L[ ");
     while(node != NULL) {
         switch(type) {
-            case DECIMAL_ELEM:
+            case DECIMAL_TYPE:
                 printf("%d", node->value.decimal);
             break;
-            case REAL_ELEM:
+            case REAL_TYPE:
                 printf("%lf", node->value.real);
             break;
-            case STRING_ELEM:
+            case STRING_TYPE:
                 printf("'%s'", node->value.string);
             break;
-            case LIST_ELEM:
+            case LIST_TYPE:
                 print_list(node->value.list);
             break;
-            case TREE_ELEM:
+            case TREE_TYPE:
                 print_tree(node->value.tree);
             break;
-            case HASHTAB_ELEM:
+            case HASHTAB_TYPE:
                 print_hashtab(node->value.hashtab);
             break;
-            case ARRAY_ELEM: 
+            case ARRAY_TYPE: 
                 print_array(node->value.array);
             break;
-            case BIGINT_ELEM:
+            case BIGINT_TYPE:
                 print_bigint(node->value.bigint);
             break;
-            case DYNAMIC_ELEM:
+            case DYNAMIC_TYPE:
                 print_dynamic(node->value.dynamic);
             break;
         }

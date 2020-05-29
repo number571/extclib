@@ -6,7 +6,7 @@
 // gcc main.c extclib/extclib.o -o main
 
 int main(void) {
-    HashTab *hashtab = new_hashtab(250, STRING_ELEM, BIGINT_ELEM);
+    HashTab *hashtab = new_hashtab(250, STRING_TYPE, BIGINT_TYPE);
 
     set_hashtab(hashtab, string("A"), bigint(new_bigint("8721387126375127864217387124821738712648712736128749182")));
     set_hashtab(hashtab, string("B"), bigint(new_bigint("675346126835124712346172467268375128731")));

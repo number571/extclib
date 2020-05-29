@@ -37,15 +37,15 @@ static void _free_node_array(Array *array, size_t index);
 
 extern Array *new_array(size_t size, vtype_t type) {
     switch(type) {
-        case DECIMAL_ELEM: 
-        case REAL_ELEM: 
-        case STRING_ELEM: 
-        case LIST_ELEM: 
-        case TREE_ELEM: 
-        case HASHTAB_ELEM: 
-        case ARRAY_ELEM:
-        case BIGINT_ELEM:
-        case DYNAMIC_ELEM:
+        case DECIMAL_TYPE: 
+        case REAL_TYPE: 
+        case STRING_TYPE: 
+        case LIST_TYPE: 
+        case TREE_TYPE: 
+        case HASHTAB_TYPE: 
+        case ARRAY_TYPE:
+        case BIGINT_TYPE:
+        case DYNAMIC_TYPE:
             break;
         default:
             fprintf(stderr, "%s\n", "type not supported");
@@ -97,34 +97,34 @@ extern int32_t in_array(Array *array, void *value) {
         }
         _Bool flag = 0;
         switch(array->type) {
-            case DECIMAL_ELEM:
+            case DECIMAL_TYPE:
                 flag = (int32_t)(intptr_t)value == array->buffer[index].value.decimal;
             break;
-            case REAL_ELEM:
+            case REAL_TYPE:
                 flag = *(double*)value == array->buffer[index].value.real;
                 if(flag) {
                     free((double*)value);
                 }
             break;
-            case STRING_ELEM:
+            case STRING_TYPE:
                 flag = strcmp((uint8_t*)value, array->buffer[index].value.string) == 0;
             break;
-            case LIST_ELEM:
+            case LIST_TYPE:
                 flag = cmp_list((List*)value, array->buffer[index].value.list) == 0;
             break;
-            case TREE_ELEM:
+            case TREE_TYPE:
                 flag = cmp_tree((Tree*)value, array->buffer[index].value.tree) == 0;
             break;
-            case HASHTAB_ELEM:
+            case HASHTAB_TYPE:
                 flag = cmp_hashtab((HashTab*)value, array->buffer[index].value.hashtab) == 0;
             break;
-            case ARRAY_ELEM:
+            case ARRAY_TYPE:
                 flag = cmp_array((Array*)value, array->buffer[index].value.array) == 0;
             break;
-            case BIGINT_ELEM:
+            case BIGINT_TYPE:
                 flag = cmp_bigint((BigInt*)value, array->buffer[index].value.bigint) == 0;
             break;
-            case DYNAMIC_ELEM:
+            case DYNAMIC_TYPE:
                 flag = cmp_dynamic((Dynamic*)value, array->buffer[index].value.dynamic) == 0;
             break;
         }
@@ -132,7 +132,7 @@ extern int32_t in_array(Array *array, void *value) {
             return index;
         }
     }
-    if(array->type == REAL_ELEM) {
+    if(array->type == REAL_TYPE) {
         free((double*)value);
     }
     return -1;
@@ -260,7 +260,7 @@ extern value_t pop_stack(Array *array) {
 
 extern void free_array(Array *array) {
     switch(array->type) {
-        case LIST_ELEM: case TREE_ELEM: case HASHTAB_ELEM: case ARRAY_ELEM: case BIGINT_ELEM:
+        case LIST_TYPE: case TREE_TYPE: case HASHTAB_TYPE: case ARRAY_TYPE: case BIGINT_TYPE:
             _free_array(array);
         break;
     }
@@ -270,31 +270,31 @@ extern void free_array(Array *array) {
 
 static void _print_node_array(Array *array, size_t index) {
     switch(array->type) {
-        case DECIMAL_ELEM:
+        case DECIMAL_TYPE:
             printf("%d", array->buffer[index].value.decimal);
         break;
-        case REAL_ELEM:
+        case REAL_TYPE:
             printf("%lf", array->buffer[index].value.real);
         break;
-        case STRING_ELEM:
+        case STRING_TYPE:
             printf("'%s'", array->buffer[index].value.string);
         break;
-        case LIST_ELEM:
+        case LIST_TYPE:
             print_list(array->buffer[index].value.list);
         break;
-        case TREE_ELEM:
+        case TREE_TYPE:
             print_tree(array->buffer[index].value.tree);
         break;
-        case HASHTAB_ELEM:
+        case HASHTAB_TYPE:
             print_hashtab(array->buffer[index].value.hashtab);
         break;
-        case ARRAY_ELEM:
+        case ARRAY_TYPE:
             print_array(array->buffer[index].value.array);
         break;
-        case BIGINT_ELEM:
+        case BIGINT_TYPE:
             print_bigint(array->buffer[index].value.bigint);
         break;
-        case DYNAMIC_ELEM:
+        case DYNAMIC_TYPE:
             print_dynamic(array->buffer[index].value.dynamic);
         break;
     }
@@ -305,32 +305,32 @@ static void _set_node_array(Array *array, size_t index, void *value) {
         _free_node_array(array, index);
     }
     switch(array->type) {
-        case DECIMAL_ELEM:
+        case DECIMAL_TYPE:
             array->buffer[index].value.decimal = (int32_t)(intptr_t)value;
         break;
-        case REAL_ELEM:
+        case REAL_TYPE:
             array->buffer[index].value.real = *(double*)value;
             free((double*)value);
         break;
-        case STRING_ELEM:
+        case STRING_TYPE:
             array->buffer[index].value.string = (uint8_t*)value;
         break;
-        case LIST_ELEM:
+        case LIST_TYPE:
             array->buffer[index].value.list = (struct List*)value;
         break;
-        case TREE_ELEM:
+        case TREE_TYPE:
             array->buffer[index].value.tree = (struct Tree*)value;
         break;
-        case HASHTAB_ELEM:
+        case HASHTAB_TYPE:
             array->buffer[index].value.hashtab = (struct HashTab*)value;
         break;
-        case ARRAY_ELEM:
+        case ARRAY_TYPE:
             array->buffer[index].value.array = (struct Array*)value;
         break;
-        case BIGINT_ELEM:
+        case BIGINT_TYPE:
             array->buffer[index].value.bigint = (struct BigInt*)value;
         break;
-        case DYNAMIC_ELEM:
+        case DYNAMIC_TYPE:
             array->buffer[index].value.dynamic = (struct Dynamic*)value;
         break;
     }
@@ -340,31 +340,31 @@ static void _set_node_array(Array *array, size_t index, void *value) {
 static _Bool _cmp_node_array(Array *x, Array *y, size_t ix, size_t iy) {
     _Bool flag = 0;
     switch(x->type) {
-        case DECIMAL_ELEM:
+        case DECIMAL_TYPE:
             flag = x->buffer[ix].value.decimal == y->buffer[iy].value.decimal;
         break;
-        case REAL_ELEM:
+        case REAL_TYPE:
             flag = x->buffer[ix].value.real == y->buffer[iy].value.real;
         break;
-        case STRING_ELEM:
+        case STRING_TYPE:
             flag = strcmp(x->buffer[ix].value.string, y->buffer[iy].value.string) == 0;
         break;
-        case LIST_ELEM:
+        case LIST_TYPE:
             flag = cmp_list(x->buffer[ix].value.list, y->buffer[iy].value.list) == 0;
         break;
-        case TREE_ELEM:
+        case TREE_TYPE:
             flag = cmp_tree(x->buffer[ix].value.tree, y->buffer[iy].value.tree) == 0;
         break;
-        case HASHTAB_ELEM:
+        case HASHTAB_TYPE:
             flag = cmp_hashtab(x->buffer[ix].value.hashtab, y->buffer[iy].value.hashtab) == 0;
         break;
-        case ARRAY_ELEM:
+        case ARRAY_TYPE:
             flag = cmp_array(x->buffer[ix].value.array, y->buffer[iy].value.array) == 0;
         break;
-        case BIGINT_ELEM:
+        case BIGINT_TYPE:
             flag = cmp_bigint(x->buffer[ix].value.bigint, y->buffer[iy].value.bigint) == 0;
         break;
-        case DYNAMIC_ELEM:
+        case DYNAMIC_TYPE:
             flag = cmp_dynamic(x->buffer[ix].value.dynamic, y->buffer[iy].value.dynamic) == 0;
         break;
     }
@@ -382,22 +382,22 @@ static void _free_array(Array *array) {
 
 static void _free_node_array(Array *array, size_t index) {
     switch(array->type) {
-        case LIST_ELEM:
+        case LIST_TYPE:
             free_list(array->buffer[index].value.list);
         break;
-        case TREE_ELEM: 
+        case TREE_TYPE: 
             free_tree(array->buffer[index].value.tree);
         break;
-        case HASHTAB_ELEM: 
+        case HASHTAB_TYPE: 
             free_hashtab(array->buffer[index].value.hashtab);
         break;
-        case ARRAY_ELEM: 
+        case ARRAY_TYPE: 
             free_array(array->buffer[index].value.array);
         break;
-        case BIGINT_ELEM:
+        case BIGINT_TYPE:
             free_bigint(array->buffer[index].value.bigint);
         break;
-        case DYNAMIC_ELEM:
+        case DYNAMIC_TYPE:
             free_dynamic(array->buffer[index].value.dynamic);
         break;
     }

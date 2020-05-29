@@ -5,7 +5,7 @@
 
 typedef struct Dynamic Dynamic;
 
-extern Dynamic *new_dynamic(char ctype, void *value);
+extern Dynamic *new_dynamic(vtype_t type, void *value);
 extern void free_dynamic(Dynamic *dynamic);
 
 extern value_t value_dynamic(Dynamic *dynamic);

@@ -6,11 +6,11 @@
 // gcc main.c extclib/extclib.o -o main
 
 int main(void) {
-    Array *array = new_array(3, LIST_ELEM);
+    Array *array = new_array(3, LIST_TYPE);
 
-    push_stack(array, list(new_list(DECIMAL_ELEM)));
-    push_stack(array, list(new_list(STRING_ELEM)));
-    push_stack(array, list(new_list(REAL_ELEM)));
+    push_stack(array, list(new_list(DECIMAL_TYPE)));
+    push_stack(array, list(new_list(STRING_TYPE)));
+    push_stack(array, list(new_list(REAL_TYPE)));
 
     List *list = get_array(array, 2).list;
     push_list(list, real(5.71));

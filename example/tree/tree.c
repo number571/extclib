@@ -5,7 +5,7 @@
 // gcc main.c extclib/tree.c extclib/type.c -o main
 
 int main(void) {
-    Tree *tree = new_tree(STRING_ELEM, DECIMAL_ELEM);
+    Tree *tree = new_tree(STRING_TYPE, DECIMAL_TYPE);
 
     set_tree(tree, string("B"), decimal(10));
     set_tree(tree, string("A"), decimal(20));

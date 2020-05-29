@@ -17,22 +17,22 @@ static uint32_t _strhash(uint8_t *s, size_t size);
 
 extern HashTab *new_hashtab(size_t size, vtype_t key, vtype_t value) {
     switch(key){
-        case DECIMAL_ELEM: case STRING_ELEM:
+        case DECIMAL_TYPE: case STRING_TYPE:
             break;
         default:
             fprintf(stderr, "%s\n", "key type not supported");
             return NULL;
     }
     switch(value) {
-        case DECIMAL_ELEM: 
-        case REAL_ELEM: 
-        case STRING_ELEM: 
-        case LIST_ELEM: 
-        case TREE_ELEM: 
-        case HASHTAB_ELEM: 
-        case ARRAY_ELEM:
-        case BIGINT_ELEM:
-        case DYNAMIC_ELEM:
+        case DECIMAL_TYPE: 
+        case REAL_TYPE: 
+        case STRING_TYPE: 
+        case LIST_TYPE: 
+        case TREE_TYPE: 
+        case HASHTAB_TYPE: 
+        case ARRAY_TYPE:
+        case BIGINT_TYPE:
+        case DYNAMIC_TYPE:
             break;
         default:
             fprintf(stderr, "%s\n", "value type not supported");
@@ -52,10 +52,10 @@ extern HashTab *new_hashtab(size_t size, vtype_t key, vtype_t value) {
 extern void del_hashtab(HashTab *hashtab, void *key) {
     uint32_t hash;
     switch(hashtab->type.key) {
-        case DECIMAL_ELEM:
+        case DECIMAL_TYPE:
             hash = (uint32_t)(intptr_t)key % hashtab->size;
         break;
-        case STRING_ELEM:
+        case STRING_TYPE:
             hash = _strhash((uint8_t*)key, hashtab->size);
         break;
     }
@@ -66,10 +66,10 @@ extern _Bool in_hashtab(HashTab *hashtab, void *key) {
     uint32_t hash;
     _Bool result;
     switch(hashtab->type.key) {
-        case DECIMAL_ELEM:
+        case DECIMAL_TYPE:
             hash = (uint32_t)(intptr_t)key % hashtab->size;
         break;
-        case STRING_ELEM:
+        case STRING_TYPE:
             hash = _strhash((uint8_t*)key, hashtab->size);
         break;
     }
@@ -81,10 +81,10 @@ extern value_t get_hashtab(HashTab *hashtab, void *key) {
     uint32_t hash;
     value_t result;
     switch(hashtab->type.key) {
-        case DECIMAL_ELEM:
+        case DECIMAL_TYPE:
             hash = (uint32_t)(intptr_t)key % hashtab->size;
         break;
-        case STRING_ELEM:
+        case STRING_TYPE:
             hash = _strhash((uint8_t*)key, hashtab->size);
         break;
     }
@@ -95,10 +95,10 @@ extern value_t get_hashtab(HashTab *hashtab, void *key) {
 extern void set_hashtab(HashTab *hashtab, void *key, void *value) {
     uint32_t hash;
     switch(hashtab->type.key) {
-        case DECIMAL_ELEM:
+        case DECIMAL_TYPE:
             hash = (uint32_t)(intptr_t)key % hashtab->size;
         break;
-        case STRING_ELEM:
+        case STRING_TYPE:
             hash = _strhash((uint8_t*)key, hashtab->size);
         break;
     }

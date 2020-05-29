@@ -5,9 +5,9 @@
 // gcc main.c extclib/array.c extclib/type.c -o main
 
 int main(void) {
-    Array *array = new_array(3, ARRAY_ELEM);
+    Array *array = new_array(3, ARRAY_TYPE);
     for (size_t i = 0; i < 3; ++i) {
-        push_stack(array, new_array(3, DECIMAL_ELEM));
+        push_stack(array, new_array(3, DECIMAL_TYPE));
         for (size_t j = 0; j < 3; ++j) {
             push_stack(get_array(array, i).array, 0);
         }

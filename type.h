@@ -4,15 +4,15 @@
 #include <stdint.h>
 
 typedef enum {
-    DECIMAL_ELEM,
-    REAL_ELEM,
-    STRING_ELEM,
-    LIST_ELEM,
-    TREE_ELEM,
-    HASHTAB_ELEM,
-    ARRAY_ELEM,
-    BIGINT_ELEM,
-    DYNAMIC_ELEM,
+    DECIMAL_TYPE,
+    REAL_TYPE,
+    STRING_TYPE,
+    LIST_TYPE,
+    TREE_TYPE,
+    HASHTAB_TYPE,
+    ARRAY_TYPE,
+    BIGINT_TYPE,
+    DYNAMIC_TYPE,
 } vtype_t;
 
 typedef union value_t {

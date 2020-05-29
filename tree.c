@@ -38,7 +38,7 @@ static void _free_tree(Tree *tree, tree_node *node);
 static void _free_node_tree(Tree *tree, tree_node *node);
 static void _print_tree(tree_node *node, vtype_t tkey, vtype_t tvalue);
 static void _print_tree_branches(tree_node *node, vtype_t tkey, vtype_t tvalue);
-static void _print_tree_elem(tree_node *node, vtype_t tkey, vtype_t tvalue);
+static void _print_TREE_TYPE(tree_node *node, vtype_t tkey, vtype_t tvalue);
 static tree_node *_get_tree(tree_node *node, vtype_t tkey, void *key);
 static tree_node *_del1_tree(Tree *tree, vtype_t tkey, void *key);
 static void _del2_tree(Tree *tree, tree_node *node);
@@ -47,22 +47,22 @@ static int8_t _cmp_tree(vtype_t tkey, vtype_t tvalue, tree_node *x, tree_node *y
 
 extern Tree *new_tree(vtype_t key, vtype_t value) {
     switch(key){
-        case DECIMAL_ELEM: case STRING_ELEM:
+        case DECIMAL_TYPE: case STRING_TYPE:
             break;
         default:
             fprintf(stderr, "%s\n", "key type not supported");
             return NULL;
     }
     switch(value) {
-        case DECIMAL_ELEM: 
-        case REAL_ELEM: 
-        case STRING_ELEM: 
-        case LIST_ELEM: 
-        case TREE_ELEM: 
-        case HASHTAB_ELEM: 
-        case ARRAY_ELEM:
-        case BIGINT_ELEM:
-        case DYNAMIC_ELEM:
+        case DECIMAL_TYPE: 
+        case REAL_TYPE: 
+        case STRING_TYPE: 
+        case LIST_TYPE: 
+        case TREE_TYPE: 
+        case HASHTAB_TYPE: 
+        case ARRAY_TYPE:
+        case BIGINT_TYPE:
+        case DYNAMIC_TYPE:
             break;
         default:
             fprintf(stderr, "%s\n", "value type not supported");
@@ -138,39 +138,39 @@ static int8_t _cmp_tree(vtype_t tkey, vtype_t tvalue, tree_node *x, tree_node *y
         _Bool fkey = 0;
         _Bool fval = 0;
         switch(tkey) {
-            case DECIMAL_ELEM:
+            case DECIMAL_TYPE:
                 fkey = x->data.key.decimal == y->data.key.decimal;
             break;
-            case STRING_ELEM:
+            case STRING_TYPE:
                 fkey = strcmp(x->data.key.string, y->data.key.string) == 0;
             break;
         }
         switch(tvalue) {
-            case DECIMAL_ELEM:
+            case DECIMAL_TYPE:
                 fval = x->data.value.decimal == y->data.value.decimal;
             break;
-            case REAL_ELEM:
+            case REAL_TYPE:
                 fval = x->data.value.real == y->data.value.real;
             break;
-            case STRING_ELEM:
+            case STRING_TYPE:
                 fval = strcmp(x->data.value.string, y->data.value.string) == 0;
             break;
-            case LIST_ELEM:
+            case LIST_TYPE:
                 fval = cmp_list(x->data.value.list, y->data.value.list) == 0;
             break;
-            case TREE_ELEM:
+            case TREE_TYPE:
                 fval = cmp_tree(x->data.value.tree, y->data.value.tree) == 0;
             break;
-            case HASHTAB_ELEM:
+            case HASHTAB_TYPE:
                 fval = cmp_hashtab(x->data.value.hashtab, y->data.value.hashtab) == 0;
             break;
-            case ARRAY_ELEM:
+            case ARRAY_TYPE:
                 fval = cmp_array(x->data.value.array, y->data.value.array) == 0;
             break;
-            case BIGINT_ELEM:
+            case BIGINT_TYPE:
                 fval = cmp_bigint(x->data.value.bigint, y->data.value.bigint) == 0;
             break;
-            case DYNAMIC_ELEM:
+            case DYNAMIC_TYPE:
                 fval = cmp_dynamic(x->data.value.dynamic, y->data.value.dynamic) == 0;
             break;
         }
@@ -220,10 +220,10 @@ static tree_node *_new_node(vtype_t tkey, vtype_t tvalue, void *key, void *value
 
 static void _set_key(tree_node *node, vtype_t tkey, void *key) {
     switch(tkey) {
-        case DECIMAL_ELEM:
+        case DECIMAL_TYPE:
             node->data.key.decimal = (int32_t)(intptr_t)key;
         break;
-        case STRING_ELEM:
+        case STRING_TYPE:
             node->data.key.string = (uint8_t*)key;
         break;
     }
@@ -231,47 +231,47 @@ static void _set_key(tree_node *node, vtype_t tkey, void *key) {
 
 static void _set_value(tree_node *node, vtype_t tvalue, void *value) {
     switch(tvalue) {
-        case DECIMAL_ELEM:
+        case DECIMAL_TYPE:
             node->data.value.decimal = (int32_t)(intptr_t)value;
         break;
-        case REAL_ELEM:
+        case REAL_TYPE:
             node->data.value.real = *(double*)value;
             free((double*)value);
         break;
-        case STRING_ELEM:
+        case STRING_TYPE:
             node->data.value.string = (uint8_t*)value;
         break;
-        case LIST_ELEM:
+        case LIST_TYPE:
             if (node->exist) {
                 free_list(node->data.value.list);
             }
             node->data.value.list = (struct List*)value;
         break;
-        case TREE_ELEM:
+        case TREE_TYPE:
             if (node->exist) {
                 free_tree(node->data.value.tree);
             }
             node->data.value.tree = (struct Tree*)value;
         break;
-        case HASHTAB_ELEM:
+        case HASHTAB_TYPE:
             if (node->exist) {
                 free_hashtab(node->data.value.hashtab);
             }
             node->data.value.hashtab = (struct HashTab*)value;
         break;
-        case ARRAY_ELEM:
+        case ARRAY_TYPE:
             if (node->exist) {
                 free_array(node->data.value.array);
             }
             node->data.value.array = (struct Array*)value;
         break;
-        case BIGINT_ELEM:
+        case BIGINT_TYPE:
             if (node->exist) {
                 free_bigint(node->data.value.bigint);
             }
             node->data.value.bigint = (struct BigInt*)value;
         break;
-        case DYNAMIC_ELEM:
+        case DYNAMIC_TYPE:
             if (node->exist) {
                 free_dynamic(node->data.value.dynamic);
             }
@@ -284,7 +284,7 @@ static void _set_value(tree_node *node, vtype_t tvalue, void *value) {
 static void _set_tree(Tree *tree, tree_node *node, vtype_t tkey, vtype_t tvalue, void *key, void *value) {
     int cond = 0;
     switch(tkey) {
-        case DECIMAL_ELEM:
+        case DECIMAL_TYPE:
             if ((int32_t)(intptr_t)key > node->data.key.decimal) {
                 if (node->right == NULL) {
                     node->right = _new_node(tkey, tvalue, key, value);
@@ -305,7 +305,7 @@ static void _set_tree(Tree *tree, tree_node *node, vtype_t tkey, vtype_t tvalue,
                 _set_value(node, tvalue, value);
             }
         break;
-        case STRING_ELEM:
+        case STRING_TYPE:
             cond = strcmp((uint8_t*)key, node->data.key.string);
             if (cond > 0) {
                 if (node->right == NULL) {
@@ -336,14 +336,14 @@ static tree_node *_get_tree(tree_node *node, vtype_t tkey, void *key) {
         return NULL;
     }
     switch(tkey) {
-        case DECIMAL_ELEM:
+        case DECIMAL_TYPE:
             if ((int32_t)(intptr_t)key > node->data.key.decimal) {
                 return _get_tree(node->right, tkey, key);
             } else if ((int32_t)(intptr_t)key < node->data.key.decimal) {
                 return _get_tree(node->left, tkey, key);
             }
         break;
-        case STRING_ELEM:
+        case STRING_TYPE:
             cond = strcmp((uint8_t*)key, node->data.key.string);
             if (cond > 0) {
                 return _get_tree(node->right, tkey, key);
@@ -417,41 +417,41 @@ static void _del3_tree(Tree *tree, tree_node *node) {
     free(ptr);
 }
 
-static void _print_tree_elem(tree_node *node, vtype_t tkey, vtype_t tvalue) {
+static void _print_TREE_TYPE(tree_node *node, vtype_t tkey, vtype_t tvalue) {
     switch(tkey) {
-        case DECIMAL_ELEM:
+        case DECIMAL_TYPE:
             printf("{%d => ", node->data.key.decimal);
         break;
-        case STRING_ELEM:
+        case STRING_TYPE:
             printf("{'%s' => ", node->data.key.string);
         break;
     }
     switch(tvalue) {
-        case DECIMAL_ELEM:
+        case DECIMAL_TYPE:
             printf("%d", node->data.value.decimal);
         break;
-        case REAL_ELEM:
+        case REAL_TYPE:
             printf("%lf", node->data.value.real);
         break;
-        case STRING_ELEM:
+        case STRING_TYPE:
             printf("'%s'", node->data.value.string);
         break;
-        case LIST_ELEM: 
+        case LIST_TYPE: 
             print_list(node->data.value.list);
         break;
-        case TREE_ELEM: 
+        case TREE_TYPE: 
             print_tree(node->data.value.tree);
         break;
-        case HASHTAB_ELEM: 
+        case HASHTAB_TYPE: 
             print_hashtab(node->data.value.hashtab);
         break;
-        case ARRAY_ELEM:
+        case ARRAY_TYPE:
             print_array(node->data.value.array);
         break;
-        case BIGINT_ELEM:
+        case BIGINT_TYPE:
             print_bigint(node->data.value.bigint);
         break;
-        case DYNAMIC_ELEM:
+        case DYNAMIC_TYPE:
             print_dynamic(node->data.value.dynamic);
         break;
     }
@@ -466,7 +466,7 @@ static void _print_tree_branches(tree_node *node, vtype_t tkey, vtype_t tvalue) 
     putchar('(');
     _print_tree_branches(node->left, tkey, tvalue);
     putchar(' ');
-    _print_tree_elem(node, tkey, tvalue);
+    _print_TREE_TYPE(node, tkey, tvalue);
     _print_tree_branches(node->right, tkey, tvalue);
     putchar(')');
 }
@@ -476,7 +476,7 @@ static void _print_tree(tree_node *node, vtype_t tkey, vtype_t tvalue) {
         return;
     }
     _print_tree(node->left, tkey, tvalue);
-    _print_tree_elem(node, tkey, tvalue);
+    _print_TREE_TYPE(node, tkey, tvalue);
     _print_tree(node->right, tkey, tvalue);
 }
 
@@ -492,22 +492,22 @@ static void _free_tree(Tree *tree, tree_node *node) {
 
 static void _free_node_tree(Tree *tree, tree_node *node) {
     switch(tree->type.value) {
-        case LIST_ELEM:
+        case LIST_TYPE:
             free_list(node->data.value.list);
         break;
-        case TREE_ELEM:
+        case TREE_TYPE:
             free_tree(node->data.value.tree);
         break;
-        case HASHTAB_ELEM:
+        case HASHTAB_TYPE:
             free_hashtab(node->data.value.hashtab);
         break;
-        case ARRAY_ELEM: 
+        case ARRAY_TYPE: 
             free_array(node->data.value.array);
         break;
-        case BIGINT_ELEM:
+        case BIGINT_TYPE:
             free_bigint(node->data.value.bigint);
         break;
-        case DYNAMIC_ELEM:
+        case DYNAMIC_TYPE:
             free_dynamic(node->data.value.dynamic);
         break;
     }

@@ -5,7 +5,7 @@
 // gcc main.c extclib/array.c extclib/type.c -o main
 
 int main(void) {
-    Array *array = new_array(1000, STRING_ELEM);
+    Array *array = new_array(1000, STRING_TYPE);
 
     set_stack(array, 10, 10, 30);
 

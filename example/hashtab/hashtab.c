@@ -5,7 +5,7 @@
 // gcc main.c extclib/hashtab.c extclib/type.c extclib/tree.c -o main
 
 int main(void) {
-    HashTab *hashtab = new_hashtab(10000, STRING_ELEM, DECIMAL_ELEM);
+    HashTab *hashtab = new_hashtab(10000, STRING_TYPE, DECIMAL_TYPE);
 
     set_hashtab(hashtab, string("A"), decimal(10));
     set_hashtab(hashtab, string("B"), decimal(20));
