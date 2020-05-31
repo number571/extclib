@@ -24,6 +24,7 @@ extern void and_bigint(BigInt *x, BigInt *y);
 extern void or_bigint(BigInt *x, BigInt *y);
 extern void not_bigint(BigInt *x);
 
+extern void set_bigint(BigInt *x, uint8_t *str);
 extern uint32_t get_bigint(BigInt *x);
 extern size_t sizeof_bigint(void);
 

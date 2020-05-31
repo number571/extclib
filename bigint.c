@@ -74,6 +74,10 @@ extern void not_bigint(BigInt *x) {
     bdNotBits(*x, *x);
 }
 
+extern void set_bigint(BigInt *x, uint8_t *str) {
+    bdConvFromDecimal(*x, (char*)str);
+}
+
 extern uint32_t get_bigint(BigInt *x) {
     return bdToShort(*x);
 }
