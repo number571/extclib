@@ -431,18 +431,19 @@ static void _print_node_tree(Tree *tree, tree_node *node, vtype_t tkey, vtype_t 
     putchar('{');
     switch(tkey) {
         case DECIMAL_TYPE:
-            printf("{%d => ", node->data.key.decimal);
+            printf("%d", node->data.key.decimal);
         break;
         case CHARS_TYPE:
-            printf("{'%s' => ", node->data.key.chars);
+            printf("'%s'", node->data.key.chars);
         break;
         case BIGINT_TYPE:
-            printf_io("%B => ", node->data.key.bigint);
+            print_bigint(node->data.key.bigint);
         break;
         case STRING_TYPE:
-            printf_io("{%S => ", node->data.key.string);
+            print_string(node->data.key.string);
         break;
     }
+    printf(" => ");
     switch(tvalue) {
         case DECIMAL_TYPE:
             printf("%d", node->data.value.decimal);
