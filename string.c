@@ -197,12 +197,26 @@ extern int8_t cpyn_string(String *x, String *y, size_t begin, size_t quan) {
     return 0;
 }
 
-extern int8_t cmp_string(String *x, String *y) {
+extern _Bool eq_string(String *x, String *y) {
     if (x->len != y->len) {
-        return -2;
+        return 0;
     }
     if (x->hash != y->hash) {
-        return -3;
+        return 0;
+    }
+    for (size_t i = 0; i < x->len; ++i) {
+        if (x->chars[i] != y->chars[i]) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+extern int8_t cmp_string(String *x, String *y) {
+    if (x->len > y->len) {
+        return 2;
+    } else if (x->len < y->len) {
+        return -2;
     }
     for (size_t i = 0; i < x->len; ++i) {
         if (x->chars[i] > y->chars[i]) {
@@ -211,6 +225,16 @@ extern int8_t cmp_string(String *x, String *y) {
         if (x->chars[i] < y->chars[i]) {
             return -1;
         }
+    }
+    return 0;
+}
+
+extern int8_t cmp_chars(uint8_t *x, uint8_t *y) {
+    int cond = strcmp(x, y);
+    if (cond > 0) {
+        return 1;
+    } else if (cond < 0) {
+        return -1;
     }
     return 0;
 }

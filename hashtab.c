@@ -3,7 +3,9 @@
 
 #include "type.h"
 #include "tree.h"
+#include "bigint.h"
 #include "dynamic.h"
+#include "string.h"
 
 typedef struct HashTab {
     struct {
@@ -14,11 +16,15 @@ typedef struct HashTab {
     Tree **table;
 } HashTab;
 
+static uint32_t _get_hash(HashTab *hashtab, void *key);
 static uint32_t _strhash(uint8_t *s, size_t size);
 
 extern HashTab *new_hashtab(size_t size, vtype_t key, vtype_t value) {
     switch(key){
-        case DECIMAL_TYPE: case CHARS_TYPE:
+        case DECIMAL_TYPE:
+        case CHARS_TYPE:
+        case BIGINT_TYPE:
+        case STRING_TYPE:
             break;
         default:
             fprintf(stderr, "%s\n", "key type not supported");
@@ -52,46 +58,18 @@ extern HashTab *new_hashtab(size_t size, vtype_t key, vtype_t value) {
 }
 
 extern void del_hashtab(HashTab *hashtab, void *key) {
-    uint32_t hash;
-    switch(hashtab->type.key) {
-        case DECIMAL_TYPE:
-            hash = (uint32_t)(intptr_t)key % hashtab->size;
-        break;
-        case CHARS_TYPE:
-            hash = _strhash((uint8_t*)key, hashtab->size);
-        break;
-    }
+    uint32_t hash = _get_hash(hashtab, key);
     del_tree(hashtab->table[hash], key);
 }
 
 extern _Bool in_hashtab(HashTab *hashtab, void *key) {
-    uint32_t hash;
-    _Bool result;
-    switch(hashtab->type.key) {
-        case DECIMAL_TYPE:
-            hash = (uint32_t)(intptr_t)key % hashtab->size;
-        break;
-        case CHARS_TYPE:
-            hash = _strhash((uint8_t*)key, hashtab->size);
-        break;
-    }
-    result = in_tree(hashtab->table[hash], key);
-    return result;
+    uint32_t hash = _get_hash(hashtab, key);
+    return in_tree(hashtab->table[hash], key);
 }
 
 extern value_t get_hashtab(HashTab *hashtab, void *key) {
-    uint32_t hash;
-    value_t result;
-    switch(hashtab->type.key) {
-        case DECIMAL_TYPE:
-            hash = (uint32_t)(intptr_t)key % hashtab->size;
-        break;
-        case CHARS_TYPE:
-            hash = _strhash((uint8_t*)key, hashtab->size);
-        break;
-    }
-    result = get_tree(hashtab->table[hash], key);
-    return result;
+    uint32_t hash = _get_hash(hashtab, key);
+    return get_tree(hashtab->table[hash], key);
 }
 
 extern int8_t set_hashtab(HashTab *hashtab, void *key, void *value) {
@@ -101,15 +79,7 @@ extern int8_t set_hashtab(HashTab *hashtab, void *key, void *value) {
             value_dynamic((Dynamic*)value).hashtab == hashtab)) {
         return -1;
     }
-    uint32_t hash;
-    switch(hashtab->type.key) {
-        case DECIMAL_TYPE:
-            hash = (uint32_t)(intptr_t)key % hashtab->size;
-        break;
-        case CHARS_TYPE:
-            hash = _strhash((uint8_t*)key, hashtab->size);
-        break;
-    }
+    uint32_t hash = _get_hash(hashtab, key);
     set_tree(hashtab->table[hash], key, value);
     return 0;
 }
@@ -185,6 +155,25 @@ extern void print_hashtab_format(HashTab *hashtab) {
 extern void println_hashtab_format(HashTab *hashtab) {
     print_hashtab_format(hashtab);
     putchar('\n');
+}
+
+static uint32_t _get_hash(HashTab *hashtab, void *key) {
+    uint32_t hash = 0;
+    switch(hashtab->type.key) {
+        case DECIMAL_TYPE:
+            hash = (uint32_t)(intptr_t)key % hashtab->size;
+        break;
+        case CHARS_TYPE:
+            hash = _strhash((uint8_t*)key, hashtab->size);
+        break;
+        case BIGINT_TYPE:
+            hash = get_bigint((BigInt*)key) % hashtab->size;
+        break;
+        case STRING_TYPE:
+            hash = hash_string((String*)key);
+        break;
+    }
+    return hash;
 }
 
 static uint32_t _strhash(uint8_t *s, size_t size) {

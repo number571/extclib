@@ -74,12 +74,26 @@ extern void not_bigint(BigInt *x) {
     bdNotBits(*x, *x);
 }
 
+extern uint32_t get_bigint(BigInt *x) {
+    return bdToShort(*x);
+}
+
+extern size_t sizeof_bigint(void) {
+    return sizeof(BigInt);
+}
+
 extern void cpy_bigint(BigInt *x, BigInt *y) {
     bdSetEqual(*x, *y);
 }
 
 extern int8_t cmp_bigint(BigInt *x, BigInt *y) {
-    return (int8_t)bdCompare(*x, *y);
+    int cond = bdCompare(*x, *y);
+    if (cond > 0) {
+        return 1;
+    } else if (cond < 0) {
+        return -1;
+    }
+    return 0;
 }
 
 extern void print_bigint(BigInt *x) {

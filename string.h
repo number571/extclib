@@ -10,7 +10,9 @@ extern String *new_string(uint8_t *str);
 extern void free_string(String *string);
 
 extern uint8_t get_string(String *string, size_t index);
+extern _Bool eq_string(String *x, String *y);
 extern int8_t cmp_string(String *x, String *y);
+extern int8_t cmp_chars(uint8_t *x, uint8_t *y);
 extern int8_t cmp_chars_string(String *x, uint8_t *y);
 
 extern void cat_string(String *x, String *y);

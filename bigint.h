@@ -24,6 +24,9 @@ extern void and_bigint(BigInt *x, BigInt *y);
 extern void or_bigint(BigInt *x, BigInt *y);
 extern void not_bigint(BigInt *x);
 
+extern uint32_t get_bigint(BigInt *x);
+extern size_t sizeof_bigint(void);
+
 extern void cpy_bigint(BigInt *x, BigInt *y);
 extern int8_t cmp_bigint(BigInt *x, BigInt *y);
 
