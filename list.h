@@ -10,7 +10,7 @@ typedef struct List List;
 extern List *new_list(vtype_t type);
 extern void free_list(List *list);
 
-extern void push_list(List *list, void *value);
+extern int8_t push_list(List *list, void *value);
 extern value_t pop_list(List *list);
 
 extern value_t get_list(List *list, size_t index);

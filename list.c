@@ -23,14 +23,14 @@ typedef struct List {
 } List;
 
 static list_node *_new_node(vtype_t type, void *value);
-static void _print_list(vtype_t type, list_node *node);
+static void _print_list(List *list, vtype_t type, list_node *node);
 static void _free_list(List *list, list_node *node);
 
 extern List *new_list(vtype_t type) {
     switch(type) {
         case DECIMAL_TYPE: 
         case REAL_TYPE: 
-        case STRING_TYPE: 
+        case CHARS_TYPE: 
         case LIST_TYPE: 
         case TREE_TYPE: 
         case HASHTAB_TYPE: 
@@ -64,8 +64,8 @@ extern int32_t in_list(List *list, void *value) {
                     free((double*)value);
                 }
             break;
-            case STRING_TYPE:
-                flag = strcmp((uint8_t*)value, node->value.string) == 0;
+            case CHARS_TYPE:
+                flag = strcmp((uint8_t*)value, node->value.chars) == 0;
             break;
             case LIST_TYPE:
                 flag = cmp_list((List*)value, node->value.list) == 0;
@@ -116,8 +116,8 @@ extern int8_t cmp_list(List *x, List *y) {
             case REAL_TYPE:
                 flag = ptrx->value.real == ptry->value.real;
             break;
-            case STRING_TYPE:
-                flag = strcmp(ptrx->value.string, ptry->value.string) == 0;
+            case CHARS_TYPE:
+                flag = strcmp(ptrx->value.chars, ptry->value.chars) == 0;
             break;
             case LIST_TYPE:
                 flag = cmp_list(ptrx->value.list, ptry->value.list) == 0;
@@ -185,6 +185,12 @@ extern int8_t set_list(List *list, size_t index, void *value) {
     if(index != 0) {
         return 1;
     }
+    if ((list->type == LIST_TYPE && (List*)value == list) ||
+        (list->type == DYNAMIC_TYPE && 
+            type_dynamic((Dynamic*)value) == LIST_TYPE && 
+            value_dynamic((Dynamic*)value).list == list)) {
+        return -1;
+    }
     if(prev_node == NULL) {
         list_node *temp = list->node;
         list->node = _new_node(list->type, value);
@@ -225,11 +231,17 @@ extern int8_t del_list(List *list, size_t index) {
     return 0;
 }
 
-extern void push_list(List *list, void *value) {
+extern int8_t push_list(List *list, void *value) {
+    if ((list->type == LIST_TYPE && (List*)value == list) ||
+        (list->type == DYNAMIC_TYPE && 
+            type_dynamic((Dynamic*)value) == LIST_TYPE && 
+            value_dynamic((Dynamic*)value).list == list)) {
+        return -1;
+    }
     if(list->node == NULL) {
         list->node = _new_node(list->type, value);
         list->size += 1;
-        return;
+        return 0;
     }
     list_node *node = list->node;
     while(node->next != NULL) {
@@ -237,7 +249,7 @@ extern void push_list(List *list, void *value) {
     }
     node->next = _new_node(list->type, value);
     list->size += 1;
-    return;
+    return 0;
 }
 
 extern value_t pop_list(List *list) {
@@ -268,11 +280,11 @@ extern value_t pop_list(List *list) {
 }
 
 extern void print_list(List *list) {
-    _print_list(list->type, list->node);
+    _print_list(list, list->type, list->node);
 }
 
 extern void println_list(List *list) {
-    _print_list(list->type, list->node);
+    _print_list(list, list->type, list->node);
     putchar('\n');
 }
 
@@ -322,8 +334,8 @@ static list_node *_new_node(vtype_t type, void *value) {
             node->value.real = *(double*)value;
             free((double*)value);
         break;
-        case STRING_TYPE:
-            node->value.string = (uint8_t*)value;
+        case CHARS_TYPE:
+            node->value.chars = (uint8_t*)value;
         break;
         case LIST_TYPE:
             node->value.list = (struct List*)value;
@@ -347,7 +359,7 @@ static list_node *_new_node(vtype_t type, void *value) {
     return node;
 }
 
-static void _print_list(vtype_t type, list_node *node) {
+static void _print_list(List *list, vtype_t type, list_node *node) {
     printf("#L[ ");
     while(node != NULL) {
         switch(type) {
@@ -357,8 +369,8 @@ static void _print_list(vtype_t type, list_node *node) {
             case REAL_TYPE:
                 printf("%lf", node->value.real);
             break;
-            case STRING_TYPE:
-                printf("'%s'", node->value.string);
+            case CHARS_TYPE:
+                printf("'%s'", node->value.chars);
             break;
             case LIST_TYPE:
                 print_list(node->value.list);

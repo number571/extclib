@@ -36,9 +36,9 @@ static void _set_key(tree_node *node, vtype_t tkey, void *key);
 static void _set_value(tree_node *node, vtype_t tvalue, void *value);
 static void _free_tree(Tree *tree, tree_node *node);
 static void _free_node_tree(Tree *tree, tree_node *node);
-static void _print_tree(tree_node *node, vtype_t tkey, vtype_t tvalue);
-static void _print_tree_branches(tree_node *node, vtype_t tkey, vtype_t tvalue);
-static void _print_TREE_TYPE(tree_node *node, vtype_t tkey, vtype_t tvalue);
+static void _print_tree(Tree *tree, tree_node *node, vtype_t tkey, vtype_t tvalue);
+static void _print_branches_tree(Tree *tree, tree_node *node, vtype_t tkey, vtype_t tvalue);
+static void _print_node_tree(Tree *tree, tree_node *node, vtype_t tkey, vtype_t tvalue);
 static tree_node *_get_tree(tree_node *node, vtype_t tkey, void *key);
 static tree_node *_del1_tree(Tree *tree, vtype_t tkey, void *key);
 static void _del2_tree(Tree *tree, tree_node *node);
@@ -47,7 +47,7 @@ static int8_t _cmp_tree(vtype_t tkey, vtype_t tvalue, tree_node *x, tree_node *y
 
 extern Tree *new_tree(vtype_t key, vtype_t value) {
     switch(key){
-        case DECIMAL_TYPE: case STRING_TYPE:
+        case DECIMAL_TYPE: case CHARS_TYPE:
             break;
         default:
             fprintf(stderr, "%s\n", "key type not supported");
@@ -56,7 +56,7 @@ extern Tree *new_tree(vtype_t key, vtype_t value) {
     switch(value) {
         case DECIMAL_TYPE: 
         case REAL_TYPE: 
-        case STRING_TYPE: 
+        case CHARS_TYPE: 
         case LIST_TYPE: 
         case TREE_TYPE: 
         case HASHTAB_TYPE: 
@@ -95,13 +95,20 @@ extern value_t get_tree(Tree *tree, void *key) {
     return node->data.value;
 }
 
-extern void set_tree(Tree *tree, void *key, void *value) {
+extern int8_t set_tree(Tree *tree, void *key, void *value) {
+    if ((tree->type.value == TREE_TYPE && (Tree*)value == tree) ||
+        (tree->type.value == DYNAMIC_TYPE && 
+            type_dynamic((Dynamic*)value) == TREE_TYPE && 
+            value_dynamic((Dynamic*)value).tree == tree)) {
+        return -1;
+    }
     if (tree->node == NULL) {
         tree->node = _new_node(tree->type.key, tree->type.value, key, value);
         tree->size += 1;
-        return;
+        return 0;
     }
     _set_tree(tree, tree->node, tree->type.key, tree->type.value, key, value);
+    return 0;
 }
 
 extern void del_tree(Tree *tree, void *key) {
@@ -141,8 +148,8 @@ static int8_t _cmp_tree(vtype_t tkey, vtype_t tvalue, tree_node *x, tree_node *y
             case DECIMAL_TYPE:
                 fkey = x->data.key.decimal == y->data.key.decimal;
             break;
-            case STRING_TYPE:
-                fkey = strcmp(x->data.key.string, y->data.key.string) == 0;
+            case CHARS_TYPE:
+                fkey = strcmp(x->data.key.chars, y->data.key.chars) == 0;
             break;
         }
         switch(tvalue) {
@@ -152,8 +159,8 @@ static int8_t _cmp_tree(vtype_t tkey, vtype_t tvalue, tree_node *x, tree_node *y
             case REAL_TYPE:
                 fval = x->data.value.real == y->data.value.real;
             break;
-            case STRING_TYPE:
-                fval = strcmp(x->data.value.string, y->data.value.string) == 0;
+            case CHARS_TYPE:
+                fval = strcmp(x->data.value.chars, y->data.value.chars) == 0;
             break;
             case LIST_TYPE:
                 fval = cmp_list(x->data.value.list, y->data.value.list) == 0;
@@ -189,7 +196,7 @@ extern size_t sizeof_tree(void) {
 
 extern void print_tree(Tree *tree) {
     printf("#T[ ");
-    _print_tree(tree->node, tree->type.key, tree->type.value);
+    _print_tree(tree, tree->node, tree->type.key, tree->type.value);
     putchar(']');
 }
 
@@ -199,11 +206,11 @@ extern void println_tree(Tree *tree) {
 }
 
 extern void print_tree_branches(Tree *tree) {
-    _print_tree_branches(tree->node, tree->type.key, tree->type.value);
+    _print_branches_tree(tree, tree->node, tree->type.key, tree->type.value);
 }
 
 extern void println_tree_branches(Tree *tree) {
-    _print_tree_branches(tree->node, tree->type.key, tree->type.value);
+    _print_branches_tree(tree, tree->node, tree->type.key, tree->type.value);
     putchar('\n');
 }
 
@@ -223,8 +230,8 @@ static void _set_key(tree_node *node, vtype_t tkey, void *key) {
         case DECIMAL_TYPE:
             node->data.key.decimal = (int32_t)(intptr_t)key;
         break;
-        case STRING_TYPE:
-            node->data.key.string = (uint8_t*)key;
+        case CHARS_TYPE:
+            node->data.key.chars = (uint8_t*)key;
         break;
     }
 }
@@ -238,8 +245,8 @@ static void _set_value(tree_node *node, vtype_t tvalue, void *value) {
             node->data.value.real = *(double*)value;
             free((double*)value);
         break;
-        case STRING_TYPE:
-            node->data.value.string = (uint8_t*)value;
+        case CHARS_TYPE:
+            node->data.value.chars = (uint8_t*)value;
         break;
         case LIST_TYPE:
             if (node->exist) {
@@ -286,47 +293,35 @@ static void _set_tree(Tree *tree, tree_node *node, vtype_t tkey, vtype_t tvalue,
     switch(tkey) {
         case DECIMAL_TYPE:
             if ((int32_t)(intptr_t)key > node->data.key.decimal) {
-                if (node->right == NULL) {
-                    node->right = _new_node(tkey, tvalue, key, value);
-                    node->right->parent = node;
-                    tree->size += 1;
-                } else {
-                    _set_tree(tree, node->right, tkey, tvalue, key, value);
-                }
+                cond = 1;
             } else if ((int32_t)(intptr_t)key < node->data.key.decimal) {
-                if (node->left == NULL) {
-                    node->left = _new_node(tkey, tvalue, key, value);
-                    node->left->parent = node;
-                    tree->size += 1;
-                } else {
-                    _set_tree(tree, node->left, tkey, tvalue, key, value);
-                }
+                cond = -1;
             } else {
-                _set_value(node, tvalue, value);
+                cond = 0;
             }
         break;
-        case STRING_TYPE:
-            cond = strcmp((uint8_t*)key, node->data.key.string);
-            if (cond > 0) {
-                if (node->right == NULL) {
-                    node->right = _new_node(tkey, tvalue, key, value);
-                    node->right->parent = node;
-                    tree->size += 1;
-                } else {
-                    _set_tree(tree, node->right, tkey, tvalue, key, value);
-                }
-            } else if (cond < 0) {
-                if (node->left == NULL) {
-                    node->left = _new_node(tkey, tvalue, key, value);
-                    node->left->parent = node;
-                    tree->size += 1;
-                } else {
-                    _set_tree(tree, node->left, tkey, tvalue, key, value);
-                }
-            } else {
-                _set_value(node, tvalue, value);
-            }
+        case CHARS_TYPE:
+            cond = strcmp((uint8_t*)key, node->data.key.chars);
         break;
+    }
+    if (cond > 0) {
+        if (node->right == NULL) {
+            node->right = _new_node(tkey, tvalue, key, value);
+            node->right->parent = node;
+            tree->size += 1;
+        } else {
+            _set_tree(tree, node->right, tkey, tvalue, key, value);
+        }
+    } else if (cond < 0) {
+        if (node->left == NULL) {
+            node->left = _new_node(tkey, tvalue, key, value);
+            node->left->parent = node;
+            tree->size += 1;
+        } else {
+            _set_tree(tree, node->left, tkey, tvalue, key, value);
+        }
+    } else {
+        _set_value(node, tvalue, value);
     }
 }
 
@@ -338,19 +333,19 @@ static tree_node *_get_tree(tree_node *node, vtype_t tkey, void *key) {
     switch(tkey) {
         case DECIMAL_TYPE:
             if ((int32_t)(intptr_t)key > node->data.key.decimal) {
-                return _get_tree(node->right, tkey, key);
+                cond = 1;
             } else if ((int32_t)(intptr_t)key < node->data.key.decimal) {
-                return _get_tree(node->left, tkey, key);
+                cond = -1;
             }
         break;
-        case STRING_TYPE:
-            cond = strcmp((uint8_t*)key, node->data.key.string);
-            if (cond > 0) {
-                return _get_tree(node->right, tkey, key);
-            } else if (cond < 0) {
-                return _get_tree(node->left, tkey, key);
-            }
+        case CHARS_TYPE:
+            cond = strcmp((uint8_t*)key, node->data.key.chars);
         break;
+    }
+    if (cond > 0) {
+        return _get_tree(node->right, tkey, key);
+    } else if (cond < 0) {
+        return _get_tree(node->left, tkey, key);
     }
     return node;
 }
@@ -417,13 +412,13 @@ static void _del3_tree(Tree *tree, tree_node *node) {
     free(ptr);
 }
 
-static void _print_TREE_TYPE(tree_node *node, vtype_t tkey, vtype_t tvalue) {
+static void _print_node_tree(Tree *tree, tree_node *node, vtype_t tkey, vtype_t tvalue) {
     switch(tkey) {
         case DECIMAL_TYPE:
             printf("{%d => ", node->data.key.decimal);
         break;
-        case STRING_TYPE:
-            printf("{'%s' => ", node->data.key.string);
+        case CHARS_TYPE:
+            printf("{'%s' => ", node->data.key.chars);
         break;
     }
     switch(tvalue) {
@@ -433,13 +428,13 @@ static void _print_TREE_TYPE(tree_node *node, vtype_t tkey, vtype_t tvalue) {
         case REAL_TYPE:
             printf("%lf", node->data.value.real);
         break;
-        case STRING_TYPE:
-            printf("'%s'", node->data.value.string);
+        case CHARS_TYPE:
+            printf("'%s'", node->data.value.chars);
         break;
         case LIST_TYPE: 
             print_list(node->data.value.list);
         break;
-        case TREE_TYPE: 
+        case TREE_TYPE:
             print_tree(node->data.value.tree);
         break;
         case HASHTAB_TYPE: 
@@ -458,26 +453,26 @@ static void _print_TREE_TYPE(tree_node *node, vtype_t tkey, vtype_t tvalue) {
     printf("} ");
 }
 
-static void _print_tree_branches(tree_node *node, vtype_t tkey, vtype_t tvalue) {
+static void _print_branches_tree(Tree *tree, tree_node *node, vtype_t tkey, vtype_t tvalue) {
     if (node == NULL) {
         printf("null");
         return;
     }
     putchar('(');
-    _print_tree_branches(node->left, tkey, tvalue);
+    _print_branches_tree(tree, node->left, tkey, tvalue);
     putchar(' ');
-    _print_TREE_TYPE(node, tkey, tvalue);
-    _print_tree_branches(node->right, tkey, tvalue);
+    _print_node_tree(tree, node, tkey, tvalue);
+    _print_branches_tree(tree, node->right, tkey, tvalue);
     putchar(')');
 }
 
-static void _print_tree(tree_node *node, vtype_t tkey, vtype_t tvalue) {
+static void _print_tree(Tree *tree, tree_node *node, vtype_t tkey, vtype_t tvalue) {
     if (node == NULL) {
         return;
     }
-    _print_tree(node->left, tkey, tvalue);
-    _print_TREE_TYPE(node, tkey, tvalue);
-    _print_tree(node->right, tkey, tvalue);
+    _print_tree(tree, node->left, tkey, tvalue);
+    _print_node_tree(tree, node, tkey, tvalue);
+    _print_tree(tree, node->right, tkey, tvalue);
 }
 
 static void _free_tree(Tree *tree, tree_node *node) {

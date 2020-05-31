@@ -3,17 +3,17 @@
 #include "extclib/tree.h"
 
 int main(void) {
-    Tree *tree = new_tree(STRING_TYPE, DECIMAL_TYPE);
+    Tree *tree = new_tree(CHARS_TYPE, DECIMAL_TYPE);
 
-    set_tree(tree, string("B"), decimal(10));
-    set_tree(tree, string("A"), decimal(20));
-    set_tree(tree, string("C"), decimal(30));
+    set_tree(tree, chars("B"), decimal(10));
+    set_tree(tree, chars("A"), decimal(20));
+    set_tree(tree, chars("C"), decimal(30));
 
-    del_tree(tree, string("B"));
+    del_tree(tree, chars("B"));
 
     uint8_t *elem = "A";
-    if (in_tree(tree, string(elem))) {
-        printf("%d\n", get_tree(tree, string(elem)).decimal);
+    if (in_tree(tree, chars(elem))) {
+        printf("%d\n", get_tree(tree, chars(elem)).decimal);
     }
 
     println_tree(tree);

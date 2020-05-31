@@ -8,6 +8,8 @@
 #include "hashtab.h"
 #include "array.h"
 #include "bigint.h"
+#include "dynamic.h"
+#include "string.h"
 
 #define INDEX(ptr, init) (ptr-init)
 
@@ -56,7 +58,9 @@ static void _printf_io(uint8_t *fmt, va_list args) {
         		case 'H': print_hashtab(va_arg(args, HashTab*)); break;
         		case 'B': print_bigint(va_arg(args, BigInt*)); break;
         		case 'A': print_array(va_arg(args, Array*)); break;
-        		case 'S': print_stack(va_arg(args, Array*)); break;
+        		case 'Z': print_stack(va_arg(args, Array*)); break;
+                case 'S': print_string(va_arg(args, String*)); break;
+                case 'D': print_dynamic(va_arg(args, Dynamic*)); break;
         	    default:  putchar(*fmt);
             }
         }

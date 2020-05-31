@@ -39,7 +39,7 @@ extern Array *new_array(size_t size, vtype_t type) {
     switch(type) {
         case DECIMAL_TYPE: 
         case REAL_TYPE: 
-        case STRING_TYPE: 
+        case CHARS_TYPE: 
         case LIST_TYPE: 
         case TREE_TYPE: 
         case HASHTAB_TYPE: 
@@ -76,6 +76,12 @@ extern int8_t set_array(Array *array, size_t index, void *value) {
         fprintf(stderr, "%s\n", "array overflow");
         return 1;
     }
+    if ((array->type == ARRAY_TYPE && (Array*)value == array) ||
+        (array->type == DYNAMIC_TYPE && 
+            type_dynamic((Dynamic*)value) == ARRAY_TYPE && 
+            value_dynamic((Dynamic*)value).array == array)) {
+        return -1;
+    }
     _set_node_array(array, index, value);
     return 0;
 }
@@ -106,8 +112,8 @@ extern int32_t in_array(Array *array, void *value) {
                     free((double*)value);
                 }
             break;
-            case STRING_TYPE:
-                flag = strcmp((uint8_t*)value, array->buffer[index].value.string) == 0;
+            case CHARS_TYPE:
+                flag = strcmp((uint8_t*)value, array->buffer[index].value.chars) == 0;
             break;
             case LIST_TYPE:
                 flag = cmp_list((List*)value, array->buffer[index].value.list) == 0;
@@ -244,6 +250,12 @@ extern int8_t push_stack(Array *array, void *value) {
         fprintf(stderr, "%s\n", "stack overflow");
         return 1;
     }
+    if ((array->type == ARRAY_TYPE && (Array*)value == array) ||
+        (array->type == DYNAMIC_TYPE && 
+            type_dynamic((Dynamic*)value) == ARRAY_TYPE && 
+            value_dynamic((Dynamic*)value).array == array)) {
+        return -1;
+    }
     _set_node_array(array, array->stack.top, value);
     array->stack.top += 1;
     return 0;
@@ -276,8 +288,8 @@ static void _print_node_array(Array *array, size_t index) {
         case REAL_TYPE:
             printf("%lf", array->buffer[index].value.real);
         break;
-        case STRING_TYPE:
-            printf("'%s'", array->buffer[index].value.string);
+        case CHARS_TYPE:
+            printf("'%s'", array->buffer[index].value.chars);
         break;
         case LIST_TYPE:
             print_list(array->buffer[index].value.list);
@@ -312,8 +324,8 @@ static void _set_node_array(Array *array, size_t index, void *value) {
             array->buffer[index].value.real = *(double*)value;
             free((double*)value);
         break;
-        case STRING_TYPE:
-            array->buffer[index].value.string = (uint8_t*)value;
+        case CHARS_TYPE:
+            array->buffer[index].value.chars = (uint8_t*)value;
         break;
         case LIST_TYPE:
             array->buffer[index].value.list = (struct List*)value;
@@ -346,8 +358,8 @@ static _Bool _cmp_node_array(Array *x, Array *y, size_t ix, size_t iy) {
         case REAL_TYPE:
             flag = x->buffer[ix].value.real == y->buffer[iy].value.real;
         break;
-        case STRING_TYPE:
-            flag = strcmp(x->buffer[ix].value.string, y->buffer[iy].value.string) == 0;
+        case CHARS_TYPE:
+            flag = strcmp(x->buffer[ix].value.chars, y->buffer[iy].value.chars) == 0;
         break;
         case LIST_TYPE:
             flag = cmp_list(x->buffer[ix].value.list, y->buffer[iy].value.list) == 0;
@@ -391,7 +403,7 @@ static void _free_node_array(Array *array, size_t index) {
         case HASHTAB_TYPE: 
             free_hashtab(array->buffer[index].value.hashtab);
         break;
-        case ARRAY_TYPE: 
+        case ARRAY_TYPE:
             free_array(array->buffer[index].value.array);
         break;
         case BIGINT_TYPE:

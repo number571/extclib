@@ -3,6 +3,7 @@
 
 #include "type.h"
 #include "tree.h"
+#include "dynamic.h"
 
 typedef struct HashTab {
     struct {
@@ -17,7 +18,7 @@ static uint32_t _strhash(uint8_t *s, size_t size);
 
 extern HashTab *new_hashtab(size_t size, vtype_t key, vtype_t value) {
     switch(key){
-        case DECIMAL_TYPE: case STRING_TYPE:
+        case DECIMAL_TYPE: case CHARS_TYPE:
             break;
         default:
             fprintf(stderr, "%s\n", "key type not supported");
@@ -26,7 +27,7 @@ extern HashTab *new_hashtab(size_t size, vtype_t key, vtype_t value) {
     switch(value) {
         case DECIMAL_TYPE: 
         case REAL_TYPE: 
-        case STRING_TYPE: 
+        case CHARS_TYPE: 
         case LIST_TYPE: 
         case TREE_TYPE: 
         case HASHTAB_TYPE: 
@@ -55,7 +56,7 @@ extern void del_hashtab(HashTab *hashtab, void *key) {
         case DECIMAL_TYPE:
             hash = (uint32_t)(intptr_t)key % hashtab->size;
         break;
-        case STRING_TYPE:
+        case CHARS_TYPE:
             hash = _strhash((uint8_t*)key, hashtab->size);
         break;
     }
@@ -69,7 +70,7 @@ extern _Bool in_hashtab(HashTab *hashtab, void *key) {
         case DECIMAL_TYPE:
             hash = (uint32_t)(intptr_t)key % hashtab->size;
         break;
-        case STRING_TYPE:
+        case CHARS_TYPE:
             hash = _strhash((uint8_t*)key, hashtab->size);
         break;
     }
@@ -84,7 +85,7 @@ extern value_t get_hashtab(HashTab *hashtab, void *key) {
         case DECIMAL_TYPE:
             hash = (uint32_t)(intptr_t)key % hashtab->size;
         break;
-        case STRING_TYPE:
+        case CHARS_TYPE:
             hash = _strhash((uint8_t*)key, hashtab->size);
         break;
     }
@@ -92,17 +93,24 @@ extern value_t get_hashtab(HashTab *hashtab, void *key) {
     return result;
 }
 
-extern void set_hashtab(HashTab *hashtab, void *key, void *value) {
+extern int8_t set_hashtab(HashTab *hashtab, void *key, void *value) {
+    if ((hashtab->type.value == HASHTAB_TYPE && (HashTab*)value == hashtab) ||
+        (hashtab->type.value == DYNAMIC_TYPE && 
+            type_dynamic((Dynamic*)value) == HASHTAB_TYPE && 
+            value_dynamic((Dynamic*)value).hashtab == hashtab)) {
+        return -1;
+    }
     uint32_t hash;
     switch(hashtab->type.key) {
         case DECIMAL_TYPE:
             hash = (uint32_t)(intptr_t)key % hashtab->size;
         break;
-        case STRING_TYPE:
+        case CHARS_TYPE:
             hash = _strhash((uint8_t*)key, hashtab->size);
         break;
     }
     set_tree(hashtab->table[hash], key, value);
+    return 0;
 }
 
 extern int8_t cmp_hashtab(HashTab *x, HashTab *y) {

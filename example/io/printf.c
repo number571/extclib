@@ -1,5 +1,3 @@
-#include <stdio.h>
-
 #include "extclib/io.h"
 #include "extclib/bigint.h"
 

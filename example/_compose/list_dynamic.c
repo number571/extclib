@@ -6,7 +6,7 @@
 int main(void) {
     List *list = new_list(DYNAMIC_TYPE);
 
-    push_list(list, dynamic(new_dynamic(STRING_TYPE, string("A"))));
+    push_list(list, dynamic(new_dynamic(CHARS_TYPE, chars("A"))));
     push_list(list, dynamic(new_dynamic(REAL_TYPE, real(5.71))));
     push_list(list, dynamic(new_dynamic(DECIMAL_TYPE, decimal(333))));
 

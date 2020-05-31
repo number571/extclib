@@ -7,12 +7,14 @@
 #include "hashtab.h"
 #include "array.h"
 #include "bigint.h"
+#include "dynamic.h"
+#include "string.h"
 
 extern void *decimal(int32_t x) {
     return (void*)(intptr_t)x;
 }
 
-extern void *string(uint8_t *x) {
+extern void *chars(uint8_t *x) {
     return (void*)x;
 }
 
@@ -43,5 +45,9 @@ extern void *array(struct Array *x) {
 }
 
 extern void *dynamic(struct Dynamic *x) {
+    return (void*)x;
+}
+
+extern void *string(struct String *x) {
     return (void*)x;
 }
