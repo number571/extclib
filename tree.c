@@ -9,6 +9,7 @@
 #include "array.h"
 #include "bigint.h"
 #include "dynamic.h"
+#include "string.h"
 
 typedef struct tree_node {
     struct {
@@ -35,7 +36,7 @@ static void _set_tree(Tree *tree, tree_node *node, vtype_t tkey, vtype_t tvalue,
 static void _set_key(tree_node *node, vtype_t tkey, void *key);
 static void _set_value(tree_node *node, vtype_t tvalue, void *value);
 static void _free_tree(Tree *tree, tree_node *node);
-static void _free_node_tree(Tree *tree, tree_node *node);
+static void _free_node_tree(vtype_t type, tree_node *node);
 static void _print_tree(Tree *tree, tree_node *node, vtype_t tkey, vtype_t tvalue);
 static void _print_branches_tree(Tree *tree, tree_node *node, vtype_t tkey, vtype_t tvalue);
 static void _print_node_tree(Tree *tree, tree_node *node, vtype_t tkey, vtype_t tvalue);
@@ -63,6 +64,7 @@ extern Tree *new_tree(vtype_t key, vtype_t value) {
         case ARRAY_TYPE:
         case BIGINT_TYPE:
         case DYNAMIC_TYPE:
+        case STRING_TYPE:
             break;
         default:
             fprintf(stderr, "%s\n", "value type not supported");
@@ -180,6 +182,9 @@ static int8_t _cmp_tree(vtype_t tkey, vtype_t tvalue, tree_node *x, tree_node *y
             case DYNAMIC_TYPE:
                 fval = cmp_dynamic(x->data.value.dynamic, y->data.value.dynamic) == 0;
             break;
+            case STRING_TYPE:
+                fval = cmp_string(x->data.value.string, y->data.value.string) == 0;
+            break;
         }
         return fkey && fval && _cmp_tree(tkey, tvalue, x->left, y->left) && _cmp_tree(tkey, tvalue, x->right, y->right);
     }
@@ -237,6 +242,9 @@ static void _set_key(tree_node *node, vtype_t tkey, void *key) {
 }
 
 static void _set_value(tree_node *node, vtype_t tvalue, void *value) {
+    if (node->exist) {
+        _free_node_tree(tvalue, node);
+    }
     switch(tvalue) {
         case DECIMAL_TYPE:
             node->data.value.decimal = (int32_t)(intptr_t)value;
@@ -249,40 +257,25 @@ static void _set_value(tree_node *node, vtype_t tvalue, void *value) {
             node->data.value.chars = (uint8_t*)value;
         break;
         case LIST_TYPE:
-            if (node->exist) {
-                free_list(node->data.value.list);
-            }
             node->data.value.list = (struct List*)value;
         break;
         case TREE_TYPE:
-            if (node->exist) {
-                free_tree(node->data.value.tree);
-            }
             node->data.value.tree = (struct Tree*)value;
         break;
         case HASHTAB_TYPE:
-            if (node->exist) {
-                free_hashtab(node->data.value.hashtab);
-            }
             node->data.value.hashtab = (struct HashTab*)value;
         break;
         case ARRAY_TYPE:
-            if (node->exist) {
-                free_array(node->data.value.array);
-            }
             node->data.value.array = (struct Array*)value;
         break;
         case BIGINT_TYPE:
-            if (node->exist) {
-                free_bigint(node->data.value.bigint);
-            }
             node->data.value.bigint = (struct BigInt*)value;
         break;
         case DYNAMIC_TYPE:
-            if (node->exist) {
-                free_dynamic(node->data.value.dynamic);
-            }
             node->data.value.dynamic = (struct Dynamic*)value;
+        break;
+        case STRING_TYPE:
+            node->data.value.string = (struct String*)value;
         break;
     }
     node->exist = 1;
@@ -368,7 +361,7 @@ static tree_node *_del1_tree(Tree *tree, vtype_t tkey, void *key) {
         parent->right = NULL;
     }
     tree->size -= 1;
-    _free_node_tree(tree, node);
+    _free_node_tree(tree->type.value, node);
     free(node);
     return NULL;
 }
@@ -390,7 +383,7 @@ static void _del2_tree(Tree *tree, tree_node *node) {
     }
     tree->size -= 1;
     temp->parent = parent;
-    _free_node_tree(tree, node);
+    _free_node_tree(tree->type.value, node);
     free(node);
 }
 
@@ -408,7 +401,7 @@ static void _del3_tree(Tree *tree, tree_node *node) {
         parent->right = NULL;
     }
     tree->size -= 1;
-    _free_node_tree(tree, ptr);
+    _free_node_tree(tree->type.value, ptr);
     free(ptr);
 }
 
@@ -449,6 +442,9 @@ static void _print_node_tree(Tree *tree, tree_node *node, vtype_t tkey, vtype_t 
         case DYNAMIC_TYPE:
             print_dynamic(node->data.value.dynamic);
         break;
+        case STRING_TYPE:
+            print_string(node->data.value.string);
+        break;
     }
     printf("} ");
 }
@@ -481,12 +477,12 @@ static void _free_tree(Tree *tree, tree_node *node) {
     }
     _free_tree(tree, node->left);
     _free_tree(tree, node->right);
-    _free_node_tree(tree, node);
+    _free_node_tree(tree->type.value, node);
     free(node);
 }
 
-static void _free_node_tree(Tree *tree, tree_node *node) {
-    switch(tree->type.value) {
+static void _free_node_tree(vtype_t type, tree_node *node) {
+    switch(type) {
         case LIST_TYPE:
             free_list(node->data.value.list);
         break;
@@ -504,6 +500,9 @@ static void _free_node_tree(Tree *tree, tree_node *node) {
         break;
         case DYNAMIC_TYPE:
             free_dynamic(node->data.value.dynamic);
+        break;
+        case STRING_TYPE:
+            free_string(node->data.value.string);
         break;
     }
 }

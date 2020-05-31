@@ -10,6 +10,7 @@
 #include "array.h"
 #include "bigint.h"
 #include "dynamic.h"
+#include "string.h"
 
 typedef struct list_node {
     value_t value;
@@ -37,6 +38,7 @@ extern List *new_list(vtype_t type) {
         case ARRAY_TYPE:
         case BIGINT_TYPE:
         case DYNAMIC_TYPE:
+        case STRING_TYPE:
             break;
         default:
             fprintf(stderr, "%s\n", "value type not supported");
@@ -84,6 +86,9 @@ extern int32_t in_list(List *list, void *value) {
             break;
             case DYNAMIC_TYPE:
                 flag = cmp_dynamic((Dynamic*)value, node->value.dynamic) == 0;
+            break;
+            case STRING_TYPE:
+                flag = cmp_string((String*)value, node->value.string) == 0;
             break;
         }
         if (flag) {
@@ -136,6 +141,9 @@ extern int8_t cmp_list(List *x, List *y) {
             break;
             case DYNAMIC_TYPE:
                 flag = cmp_dynamic(ptrx->value.dynamic, ptrx->value.dynamic) == 0;
+            break;
+            case STRING_TYPE:
+                flag = cmp_string(ptrx->value.string, ptrx->value.string) == 0;
             break;
         }
         if (!flag) {
@@ -320,6 +328,9 @@ static void _free_list(List *list, list_node *node) {
         case DYNAMIC_TYPE:
             free_dynamic(node->value.dynamic);
         break;
+        case STRING_TYPE:
+            free_string(node->value.string);
+        break;
     }
 }
 
@@ -355,6 +366,9 @@ static list_node *_new_node(vtype_t type, void *value) {
         case DYNAMIC_TYPE:
             node->value.dynamic = (struct Dynamic*)value;
         break;
+        case STRING_TYPE:
+            node->value.string = (struct String*)value;
+        break;
     }
     return node;
 }
@@ -389,6 +403,9 @@ static void _print_list(List *list, vtype_t type, list_node *node) {
             break;
             case DYNAMIC_TYPE:
                 print_dynamic(node->value.dynamic);
+            break;
+            case STRING_TYPE:
+                print_string(node->value.string);
             break;
         }
         putchar(' ');

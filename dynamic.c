@@ -10,6 +10,7 @@
 #include "array.h"
 #include "bigint.h"
 #include "dynamic.h"
+#include "string.h"
 
 typedef struct Dynamic {
     vtype_t type;
@@ -29,6 +30,7 @@ extern Dynamic *new_dynamic(vtype_t type, void *value) {
         case HASHTAB_TYPE: 
         case ARRAY_TYPE:
         case BIGINT_TYPE:
+        case STRING_TYPE:
             break;
         default:
             fprintf(stderr, "%s\n", "type not supported");
@@ -61,6 +63,9 @@ extern Dynamic *new_dynamic(vtype_t type, void *value) {
         break;
         case BIGINT_TYPE: 
             dynamic->value.bigint = (struct BigInt*)value;
+        break;
+        case STRING_TYPE: 
+            dynamic->value.string = (struct String*)value;
         break;
     }
     return dynamic;
@@ -113,6 +118,9 @@ extern int8_t cmp_dynamic(Dynamic *x, Dynamic *y) {
         case BIGINT_TYPE:
             flag = cmp_bigint(x->value.bigint, y->value.bigint) == 0;
         break;
+        case STRING_TYPE:
+            flag = cmp_string(x->value.string, y->value.string) == 0;
+        break;
     }
     return !flag;
 }
@@ -143,6 +151,9 @@ extern void print_dynamic(Dynamic *dynamic) {
         case BIGINT_TYPE:
             print_bigint(dynamic->value.bigint);
         break;
+        case STRING_TYPE:
+            print_string(dynamic->value.string);
+        break;
     }
 }
 
@@ -167,6 +178,9 @@ static void _free_dynamic(Dynamic *dynamic) {
         break;
         case BIGINT_TYPE:
             free_bigint(dynamic->value.bigint);
+        break;
+        case STRING_TYPE:
+            free_string(dynamic->value.string);
         break;
     }
 }

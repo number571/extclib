@@ -240,9 +240,11 @@ extern uint8_t get_string(String *string, size_t index) {
 }
 
 extern void print_string(String *string) {
+    putchar('"');
     for (size_t i = 0; i < string->len; ++i) {
         putchar(string->chars[i]);
     }
+    putchar('"');
 }
 
 extern void println_string(String *string) {

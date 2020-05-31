@@ -34,6 +34,7 @@ extern HashTab *new_hashtab(size_t size, vtype_t key, vtype_t value) {
         case ARRAY_TYPE:
         case BIGINT_TYPE:
         case DYNAMIC_TYPE:
+        case STRING_TYPE:
             break;
         default:
             fprintf(stderr, "%s\n", "value type not supported");

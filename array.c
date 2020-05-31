@@ -10,6 +10,7 @@
 #include "array.h"
 #include "bigint.h"
 #include "dynamic.h"
+#include "string.h"
 
 typedef struct array_value {
     value_t value;
@@ -46,6 +47,7 @@ extern Array *new_array(size_t size, vtype_t type) {
         case ARRAY_TYPE:
         case BIGINT_TYPE:
         case DYNAMIC_TYPE:
+        case STRING_TYPE:
             break;
         default:
             fprintf(stderr, "%s\n", "type not supported");
@@ -132,6 +134,9 @@ extern int32_t in_array(Array *array, void *value) {
             break;
             case DYNAMIC_TYPE:
                 flag = cmp_dynamic((Dynamic*)value, array->buffer[index].value.dynamic) == 0;
+            break;
+            case STRING_TYPE:
+                flag = cmp_string((String*)value, array->buffer[index].value.string) == 0;
             break;
         }
         if (flag) {
@@ -272,7 +277,13 @@ extern value_t pop_stack(Array *array) {
 
 extern void free_array(Array *array) {
     switch(array->type) {
-        case LIST_TYPE: case TREE_TYPE: case HASHTAB_TYPE: case ARRAY_TYPE: case BIGINT_TYPE:
+        case LIST_TYPE: 
+        case TREE_TYPE: 
+        case HASHTAB_TYPE: 
+        case ARRAY_TYPE: 
+        case BIGINT_TYPE: 
+        case DYNAMIC_TYPE: 
+        case STRING_TYPE:
             _free_array(array);
         break;
     }
@@ -308,6 +319,9 @@ static void _print_node_array(Array *array, size_t index) {
         break;
         case DYNAMIC_TYPE:
             print_dynamic(array->buffer[index].value.dynamic);
+        break;
+        case STRING_TYPE:
+            print_string(array->buffer[index].value.string);
         break;
     }
 }
@@ -345,6 +359,9 @@ static void _set_node_array(Array *array, size_t index, void *value) {
         case DYNAMIC_TYPE:
             array->buffer[index].value.dynamic = (struct Dynamic*)value;
         break;
+        case STRING_TYPE:
+            array->buffer[index].value.string = (struct String*)value;
+        break;
     }
     array->buffer[index].exist = 1;
 }
@@ -379,6 +396,9 @@ static _Bool _cmp_node_array(Array *x, Array *y, size_t ix, size_t iy) {
         case DYNAMIC_TYPE:
             flag = cmp_dynamic(x->buffer[ix].value.dynamic, y->buffer[iy].value.dynamic) == 0;
         break;
+        case STRING_TYPE:
+            flag = cmp_string(x->buffer[ix].value.string, y->buffer[iy].value.string) == 0;
+        break;
     }
     return flag;
 }
@@ -411,6 +431,9 @@ static void _free_node_array(Array *array, size_t index) {
         break;
         case DYNAMIC_TYPE:
             free_dynamic(array->buffer[index].value.dynamic);
+        break;
+        case STRING_TYPE:
+            free_string(array->buffer[index].value.string);
         break;
     }
 }
