@@ -7,6 +7,11 @@ $ make -C extclib/
 $ cc main.c extclib/extclib.o -o main
 ```
 
+### Usage restrictions:
+1. Recursive hash tables, trees, lists, arrays are not allowed. Cross-recursive is dangerous.
+2. Values (and/or keys) in hash tables, trees, lists, arrays are freed up automatically when deleting or replacing an object.
+3. Type BigInt can store only unsigned integers.
+
 ### Used libraries:
 1. bigdigits: [di-mgt.com.au/bigdigits.html](https://di-mgt.com.au/bigdigits.html);
 
