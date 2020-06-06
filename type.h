@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-typedef enum {
+typedef enum vtype_t {
     DECIMAL_TYPE,
     REAL_TYPE,
     CHARS_TYPE,

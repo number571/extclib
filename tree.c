@@ -2,7 +2,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "io.h"
 #include "type.h"
 #include "tree.h"
 #include "list.h"

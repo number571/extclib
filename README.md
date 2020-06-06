@@ -9,7 +9,7 @@ $ cc main.c extclib/extclib.o -o main
 
 ### Usage restrictions:
 1. Recursive hash tables, trees, lists, arrays are not allowed. Cross-recursive is dangerous.
-2. Values (and/or keys) in hash tables, trees, lists, arrays are freed up automatically when deleting or replacing an object.
+2. Values (and/or keys) in hash tables, trees, lists, arrays are freed up automatically when deleting or replacing an object's value.
 3. Type BigInt can store only unsigned integers.
 
 ### Used libraries:
