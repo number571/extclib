@@ -55,7 +55,7 @@ static const uint32_t Rcon[11] = {
     0x36000000,
 };
 
-static void _key_expansion(uint32_t * Wkey, uint8_t * key, uint8_t Nb, uint8_t Nk, uint8_t Nr);
+static void _key_expansion(uint32_t * Wkey, uint8_t * key, uint8_t Nb, uint8_t Nk, uint8_t Nr, uint8_t Nw);
 
 static void _inv_sub_bytes(uint8_t * block);
 static void _sub_bytes(uint8_t * block);
@@ -81,17 +81,17 @@ extern int8_t aes(Crypto *params) {
     if (params->option != ENCRYPT_OPTION && params->option != DECRYPT_OPTION) {
         return 1;
     }
-    if (params->keysize != 128 && params->keysize != 192 && params->keysize != 256) {
+    if (params->keysize != 16 && params->keysize != 24 && params->keysize != 32) {
         return 2;
     }
 
     const uint8_t Nb = 4; // standart
     const uint8_t Nk = params->keysize / Nb;
-    const uint8_t Nr = (params->keysize == 128) ? 10 : ((params->keysize == 192) ? 12 : 14);
+    const uint8_t Nr = (params->keysize == 16) ? 10 : ((params->keysize == 24) ? 12 : 14);
     const uint8_t Nw = Nb * (Nr + 1);
 
     uint32_t Wkey[Nw];
-    _key_expansion(Wkey, params->key, Nb, Nk, Nr);
+    _key_expansion(Wkey, params->key, Nb, Nk, Nr, Nw);
 
     uint8_t block[16];
     
@@ -129,12 +129,12 @@ extern int8_t aes(Crypto *params) {
     return 0;
 }
 
-static void _key_expansion(uint32_t * Wkey, uint8_t * key, uint8_t Nb, uint8_t Nk, uint8_t Nr) {
+static void _key_expansion(uint32_t * Wkey, uint8_t * key, uint8_t Nb, uint8_t Nk, uint8_t Nr, uint8_t Nw) {
     for (uint8_t i = 0; i < Nk; ++i) {
         Wkey[i] = join_8bits_to_32bits(key + (4 * i));
     }
     uint32_t T;
-    for (size_t i = Nk; i < (Nb * (Nr + 1)); ++i) {
+    for (size_t i = Nk; i < Nw; ++i) {
         T = Wkey[i-1];
         if (i % Nk == 0) {
             T = _sub_word(_rot_word(T)) ^ Rcon[i/Nk];

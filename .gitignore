@@ -1,3 +1,4 @@
 # Clean object files
-bigint/*.o
 *.o
+bigint/*.o
+crypto/*.o

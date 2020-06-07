@@ -21,7 +21,7 @@ typedef struct Crypto {
     uint8_t *key;
     cipher_t cipher;
     option_t option; 
-    uint16_t keysize; // in bits
+    uint8_t keysize; // in bytes
 } Crypto;
 
 // MODES

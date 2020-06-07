@@ -2,6 +2,7 @@
 #define EXTCLIB_CRYPTO_AES_H_
 
 #include <stdint.h>
+#include "../crypto.h"
 
 extern int8_t aes(Crypto *params);
 
