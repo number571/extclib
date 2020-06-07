@@ -167,7 +167,7 @@ static uint32_t _get_hash(HashTab *hashtab, void *key) {
             hash = _strhash((uint8_t*)key, hashtab->size);
         break;
         case BIGINT_TYPE:
-            hash = get_bigint((BigInt*)key) % hashtab->size;
+            hash = getnum_bigint((BigInt*)key) % hashtab->size;
         break;
         case STRING_TYPE:
             hash = hash_string((String*)key);

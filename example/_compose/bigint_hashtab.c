@@ -11,10 +11,10 @@ int main(void) {
     set_hashtab(hashtab, bigint(new_bigint("513425353464565475676787978978675")), decimal(20));
     set_hashtab(hashtab, bigint(new_bigint("1092386412934213087123912498173")), decimal(30));
 
-    set_bigint(elem, "513425353464565475676787978978675");
+    cpystr_bigint(elem, "513425353464565475676787978978675");
     del_hashtab(hashtab, bigint(elem));
 
-    set_bigint(elem, "9327139817249812739812649821");
+    cpystr_bigint(elem, "9327139817249812739812649821");
     if (in_hashtab(hashtab, bigint(elem))) {
         printf("%d\n", get_hashtab(hashtab, bigint(elem)).decimal);
     }

@@ -81,13 +81,13 @@ extern int8_t aes(Crypto *params) {
     if (params->option != ENCRYPT_OPTION && params->option != DECRYPT_OPTION) {
         return 1;
     }
-    if (params->keysize != 16 && params->keysize != 24 && params->keysize != 32) {
+    if (params->keysize != 128 && params->keysize != 192 && params->keysize != 256) {
         return 2;
     }
 
     const uint8_t Nb = 4; // standart
-    const uint8_t Nk = params->keysize / Nb;
-    const uint8_t Nr = (params->keysize == 16) ? 10 : ((params->keysize == 24) ? 12 : 14);
+    const uint8_t Nk = (uint8_t)(params->keysize / 8) / Nb;
+    const uint8_t Nr = (params->keysize == 128) ? 10 : ((params->keysize == 192) ? 12 : 14);
     const uint8_t Nw = Nb * (Nr + 1);
 
     uint32_t Wkey[Nw];
