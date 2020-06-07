@@ -16,7 +16,7 @@ int main(void) {
         .to = buffer,
         .from = buffer,
         .cipher = AES_CIPHER,
-        .keysize = (KEY_SIZE * 8),
+        .keysize = KEY_SIZE,
         .key = keystr,
         .size = strlen(buffer),
     };
