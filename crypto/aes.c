@@ -97,7 +97,7 @@ extern int8_t aes(Crypto *params) {
     
     switch(params->option) {
         case ENCRYPT_OPTION: {
-            _copy_transpose_block(block, params->data.from);
+            _copy_transpose_block(block, params->data.bytes);
             _add_round_key(block, Wkey);
             for (uint8_t round = 1; round <= Nr; ++round) {
                 _sub_bytes(block);
@@ -107,11 +107,11 @@ extern int8_t aes(Crypto *params) {
                 }
                 _add_round_key(block, Wkey + (Nb * round));
             }
-            _copy_transpose_block(params->data.to, block);
+            _copy_transpose_block(params->data.bytes, block);
         }
         break;
         case DECRYPT_OPTION: {
-            _copy_transpose_block(block, params->data.from);
+            _copy_transpose_block(block, params->data.bytes);
             _add_round_key(block, Wkey + (Nb * Nr));
             for (int8_t round = Nr - 1; round >= 0; --round) {
                 _inv_shift_rows(block);
@@ -121,7 +121,7 @@ extern int8_t aes(Crypto *params) {
                     _inv_mix_columns(block);
                 }
             }
-            _copy_transpose_block(params->data.to, block);
+            _copy_transpose_block(params->data.bytes, block);
         }
         break;
     }

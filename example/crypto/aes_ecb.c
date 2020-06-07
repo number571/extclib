@@ -9,19 +9,17 @@
 void print_bytes(uint8_t * array, size_t length);
 
 int main(void) {
-    uint8_t keystr[KEY_SIZE+1] = "AES_key_128_bits";
-    uint8_t buffer[MAX_SIZE+1] = "1234567890abcdefghij";
+    uint8_t buffer[BUFSIZ] = "1234567890abcdefghij";
 
     Crypto params = {
         .mode = ECB_MODE,
         .data = {
             .size = strlen(buffer),
-            .to = buffer,
-            .from = buffer,
+            .bytes = buffer,
         },
         .key = {
-            .size = (KEY_SIZE*8),
-            .bytes = keystr,
+            .size = KEY_SIZE * 8, // 128 bit
+            .bytes = "AES_key_128_bits",
         },
     };
 

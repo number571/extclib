@@ -20,8 +20,7 @@ typedef struct Crypto {
     option_t option;
     struct {
         uint32_t size; // in bytes
-        uint8_t *to;
-        uint8_t *from;
+        uint8_t *bytes;
     } data;
     struct {
         uint16_t size; // in bits

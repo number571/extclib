@@ -32,8 +32,7 @@ static int8_t _ecb_crypto(cipher_t cipher, Crypto *params) {
             const uint8_t bsize = 16;
             for (uint32_t i = 0; i < params->data.size && code == 0; i += bsize) {
                 code = aes(params);
-                params->data.from += bsize;
-                params->data.to   += bsize;
+                params->data.bytes += bsize;
             }
         }
         break;
@@ -51,12 +50,11 @@ static int8_t _cbc_crypto(cipher_t cipher, Crypto *params) {
                 case ENCRYPT_OPTION: {
                     for (uint32_t i = 0; i < params->data.size && code == 0; i += bsize) {
                         for (uint8_t j = 0; j < bsize; ++j) {
-                            params->data.from[j] ^= params->key.iv[j];
+                            params->data.bytes[j] ^= params->key.iv[j];
                         }
                         code = aes(params);
-                        params->key.iv = params->data.to;
-                        params->data.from += bsize;
-                        params->data.to   += bsize;
+                        params->key.iv = params->data.bytes;
+                        params->data.bytes += bsize;
                     }
                 }
                 break;
@@ -65,13 +63,12 @@ static int8_t _cbc_crypto(cipher_t cipher, Crypto *params) {
                     uint8_t block[bsize];
                     memcpy(ivect, params->key.iv, bsize);
                     for (uint32_t i = 0; i < params->data.size && code == 0; i += bsize) {
-                        memcpy(block, params->data.from, bsize);
+                        memcpy(block, params->data.bytes, bsize);
                         code = aes(params);
                         for (uint8_t j = 0; j < bsize; ++j) {
-                            params->data.to[j] ^= ivect[j];
+                            params->data.bytes[j] ^= ivect[j];
                         }
-                        params->data.from += bsize;
-                        params->data.to   += bsize;
+                        params->data.bytes += bsize;
                         memcpy(ivect, block, bsize);
                     }
                 }
