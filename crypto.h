@@ -9,28 +9,26 @@ typedef enum option_t {
     DECRYPT_OPTION,
 } option_t;
 
-typedef enum cipher_t {
-    AES_CIPHER,
-} cipher_t;
-
 typedef enum encmode_t {
+    DEF_MODE,
     ECB_MODE,
+    CBC_MODE,
 } encmode_t;
 
 typedef struct Crypto {
-    size_t size; // in bytes
-    uint8_t *iv; // init vector
-    uint8_t *to;
-    uint8_t *from;
-    uint8_t *key;
     encmode_t mode;
-    cipher_t cipher;
-    option_t option; 
-    uint16_t keysize; // in bits
+    option_t option;
+    struct {
+        uint32_t size; // in bytes
+        uint8_t *to;
+        uint8_t *from;
+    } data;
+    struct {
+        uint16_t size; // in bits
+        uint8_t *iv; // init vector
+        uint8_t *bytes;
+    } key;
 } Crypto;
-
-// MODES
-extern int8_t ecb_crypto(Crypto params);
 
 // CIPHERS
 extern int8_t aes_crypto(Crypto params);

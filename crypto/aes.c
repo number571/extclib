@@ -81,23 +81,23 @@ extern int8_t aes(Crypto *params) {
     if (params->option != ENCRYPT_OPTION && params->option != DECRYPT_OPTION) {
         return 1;
     }
-    if (params->keysize != 128 && params->keysize != 192 && params->keysize != 256) {
+    if (params->key.size != 128 && params->key.size != 192 && params->key.size != 256) {
         return 2;
     }
 
     const uint8_t Nb = 4; // standart
-    const uint8_t Nk = (uint8_t)(params->keysize / 8) / Nb;
-    const uint8_t Nr = (params->keysize == 128) ? 10 : ((params->keysize == 192) ? 12 : 14);
+    const uint8_t Nk = (uint8_t)(params->key.size / 8) / Nb;
+    const uint8_t Nr = (params->key.size == 128) ? 10 : ((params->key.size == 192) ? 12 : 14);
     const uint8_t Nw = Nb * (Nr + 1);
 
     uint32_t Wkey[Nw];
-    _key_expansion(Wkey, params->key, Nb, Nk, Nr, Nw);
+    _key_expansion(Wkey, params->key.bytes, Nb, Nk, Nr, Nw);
 
     uint8_t block[16];
     
     switch(params->option) {
         case ENCRYPT_OPTION: {
-            _copy_transpose_block(block, params->from);
+            _copy_transpose_block(block, params->data.from);
             _add_round_key(block, Wkey);
             for (uint8_t round = 1; round <= Nr; ++round) {
                 _sub_bytes(block);
@@ -107,11 +107,11 @@ extern int8_t aes(Crypto *params) {
                 }
                 _add_round_key(block, Wkey + (Nb * round));
             }
-            _copy_transpose_block(params->to, block);
+            _copy_transpose_block(params->data.to, block);
         }
         break;
         case DECRYPT_OPTION: {
-            _copy_transpose_block(block, params->from);
+            _copy_transpose_block(block, params->data.from);
             _add_round_key(block, Wkey + (Nb * Nr));
             for (int8_t round = Nr - 1; round >= 0; --round) {
                 _inv_shift_rows(block);
@@ -121,7 +121,7 @@ extern int8_t aes(Crypto *params) {
                     _inv_mix_columns(block);
                 }
             }
-            _copy_transpose_block(params->to, block);
+            _copy_transpose_block(params->data.to, block);
         }
         break;
     }

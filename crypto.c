@@ -1,34 +1,85 @@
 #include <stddef.h>
+#include <string.h>
 
 #include "crypto.h"
 #include "crypto/aes.h"
 
-extern int8_t ecb_crypto(Crypto params) {
+typedef enum cipher_t {
+    AES_CIPHER,
+} cipher_t;
+
+static int8_t _ecb_crypto(cipher_t cipher, Crypto *params);
+static int8_t _cbc_crypto(cipher_t cipher, Crypto *params);
+
+extern int8_t aes_crypto(Crypto params) {
     int8_t code = 0;
-    params.mode = ECB_MODE;
-    switch(params.cipher){
-        case AES_CIPHER: {
-            const uint8_t bsize = 16;
-            for (size_t i = 0; i < params.size && code == 0; i += bsize) {
-                code = aes(&params);
-                params.from += bsize;
-                params.to   += bsize;
-            }
-        }
+    switch(params.mode) {
+        case DEF_MODE: case ECB_MODE:
+            code = _ecb_crypto(AES_CIPHER, &params);
+        break;
+        case CBC_MODE:
+            code = _cbc_crypto(AES_CIPHER, &params);
         break;
         default: return -1;
     }
     return code;
 }
 
-extern int8_t aes_crypto(Crypto params) {
+static int8_t _ecb_crypto(cipher_t cipher, Crypto *params) {
     int8_t code = 0;
-    params.cipher = AES_CIPHER;
-    switch(params.mode) {
-        case ECB_MODE:
-            code = ecb_crypto(params);
+    switch(cipher){
+        case AES_CIPHER: {
+            const uint8_t bsize = 16;
+            for (uint32_t i = 0; i < params->data.size && code == 0; i += bsize) {
+                code = aes(params);
+                params->data.from += bsize;
+                params->data.to   += bsize;
+            }
+        }
         break;
-        default: return -1;
+        default: return -2;
+    }
+    return code;
+}
+
+static int8_t _cbc_crypto(cipher_t cipher, Crypto *params) {
+    int8_t code = 0;
+    switch(cipher){
+        case AES_CIPHER: {
+            const uint8_t bsize = 16;
+            switch(params->option) {
+                case ENCRYPT_OPTION: {
+                    for (uint32_t i = 0; i < params->data.size && code == 0; i += bsize) {
+                        for (uint8_t j = 0; j < bsize; ++j) {
+                            params->data.from[j] ^= params->key.iv[j];
+                        }
+                        code = aes(params);
+                        params->key.iv = params->data.to;
+                        params->data.from += bsize;
+                        params->data.to   += bsize;
+                    }
+                }
+                break;
+                case DECRYPT_OPTION: {
+                    uint8_t ivect[bsize];
+                    uint8_t block[bsize];
+                    memcpy(ivect, params->key.iv, bsize);
+                    for (uint32_t i = 0; i < params->data.size && code == 0; i += bsize) {
+                        memcpy(block, params->data.from, bsize);
+                        code = aes(params);
+                        for (uint8_t j = 0; j < bsize; ++j) {
+                            params->data.to[j] ^= ivect[j];
+                        }
+                        params->data.from += bsize;
+                        params->data.to   += bsize;
+                        memcpy(ivect, block, bsize);
+                    }
+                }
+                break;
+            }
+        }
+        break;
+        default: return -2;
     }
     return code;
 }

@@ -13,22 +13,26 @@ int main(void) {
     uint8_t buffer[MAX_SIZE+1] = "1234567890abcdefghij";
 
     Crypto params = {
-        .to = buffer,
-        .from = buffer,
-        .cipher = AES_CIPHER,
-        .keysize = (KEY_SIZE*8),
-        .key = keystr,
-        .size = strlen(buffer),
+        .mode = ECB_MODE,
+        .data = {
+            .size = strlen(buffer),
+            .to = buffer,
+            .from = buffer,
+        },
+        .key = {
+            .size = (KEY_SIZE*8),
+            .bytes = keystr,
+        },
     };
 
     print_bytes(buffer, MAX_SIZE);
 
     params.option = ENCRYPT_OPTION;
-    ecb_crypto(params);
+    aes_crypto(params);
     print_bytes(buffer, MAX_SIZE);
 
     params.option = DECRYPT_OPTION;
-    ecb_crypto(params);
+    aes_crypto(params);
     print_bytes(buffer, MAX_SIZE);
     return 0;
 }
