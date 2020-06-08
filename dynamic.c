@@ -67,6 +67,7 @@ extern Dynamic *new_dynamic(vtype_t type, void *value) {
         case STRING_TYPE: 
             dynamic->value.string = (struct String*)value;
         break;
+        default: ;
     }
     return dynamic;
 }
@@ -101,7 +102,7 @@ extern int8_t cmp_dynamic(Dynamic *x, Dynamic *y) {
             flag = x->value.real == y->value.real;
         break;
         case CHARS_TYPE:
-            flag = strcmp(x->value.chars, y->value.chars) == 0;
+            flag = strcmp((char*)x->value.chars, (char*)y->value.chars) == 0;
         break;
         case LIST_TYPE:
             flag = cmp_list(x->value.list, y->value.list) == 0;
@@ -121,6 +122,7 @@ extern int8_t cmp_dynamic(Dynamic *x, Dynamic *y) {
         case STRING_TYPE:
             flag = cmp_string(x->value.string, y->value.string) == 0;
         break;
+        default: ;
     }
     return !flag;
 }
@@ -154,6 +156,7 @@ extern void print_dynamic(Dynamic *dynamic) {
         case STRING_TYPE:
             print_string(dynamic->value.string);
         break;
+        default: ;
     }
 }
 
@@ -182,5 +185,6 @@ static void _free_dynamic(Dynamic *dynamic) {
         case STRING_TYPE:
             free_string(dynamic->value.string);
         break;
+        default: ;
     }
 }

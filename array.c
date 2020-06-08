@@ -67,7 +67,9 @@ extern Array *new_array(size_t size, vtype_t type) {
 extern value_t get_array(Array *array, size_t index) {
     if (index >= array->size) {
         fprintf(stderr, "%s\n", "array overflow");
-        value_t none;
+        value_t none = {
+            .decimal = 0,
+        };
         return none;
     }
     return array->buffer[index].value;
@@ -115,7 +117,7 @@ extern int32_t in_array(Array *array, void *value) {
                 }
             break;
             case CHARS_TYPE:
-                flag = strcmp((uint8_t*)value, array->buffer[index].value.chars) == 0;
+                flag = strcmp((char*)value, (char*)array->buffer[index].value.chars) == 0;
             break;
             case LIST_TYPE:
                 flag = cmp_list((List*)value, array->buffer[index].value.list) == 0;
@@ -238,7 +240,7 @@ extern void print_array(Array *array) {
         if (!array->buffer[i].exist) {
             continue;
         }
-        printf("(%d :: ", i);
+        printf("(%ld :: ", i);
         _print_node_array(array, i);
         printf(") ");
     }
@@ -269,7 +271,9 @@ extern int8_t push_stack(Array *array, void *value) {
 extern value_t pop_stack(Array *array) {
     if (array->stack.top == array->stack.begin) {
         fprintf(stderr, "%s\n", "stack overflow");
-        value_t none;
+        value_t none = {
+            .decimal = 0,
+        };
         return none;
     }
     return array->buffer[--array->stack.top].value;
@@ -286,6 +290,7 @@ extern void free_array(Array *array) {
         case STRING_TYPE:
             _free_array(array);
         break;
+        default: ;
     }
     free(array->buffer);
     free(array);
@@ -376,7 +381,7 @@ static _Bool _cmp_node_array(Array *x, Array *y, size_t ix, size_t iy) {
             flag = x->buffer[ix].value.real == y->buffer[iy].value.real;
         break;
         case CHARS_TYPE:
-            flag = strcmp(x->buffer[ix].value.chars, y->buffer[iy].value.chars) == 0;
+            flag = strcmp((char*)x->buffer[ix].value.chars, (char*)y->buffer[iy].value.chars) == 0;
         break;
         case LIST_TYPE:
             flag = cmp_list(x->buffer[ix].value.list, y->buffer[iy].value.list) == 0;
@@ -435,5 +440,6 @@ static void _free_node_array(Array *array, size_t index) {
         case STRING_TYPE:
             free_string(array->buffer[index].value.string);
         break;
+        default: ;
     }
 }

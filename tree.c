@@ -97,7 +97,9 @@ extern value_t get_tree(Tree *tree, void *key) {
     tree_node *node = _get_tree(tree->node, tree->type.key, key);
     if (node == NULL) {
         fprintf(stderr, "%s\n", "value undefined");
-        value_t none;
+        value_t none = {
+            .decimal = 0,
+        };
         return none;
     }
     return node->data.value;
@@ -157,8 +159,9 @@ static int8_t _cmp_tree(vtype_t tkey, vtype_t tvalue, tree_node *x, tree_node *y
                 fkey = x->data.key.decimal == y->data.key.decimal;
             break;
             case CHARS_TYPE:
-                fkey = strcmp(x->data.key.chars, y->data.key.chars) == 0;
+                fkey = strcmp((char*)x->data.key.chars, (char*)y->data.key.chars) == 0;
             break;
+            default: ;
         }
         switch(tvalue) {
             case DECIMAL_TYPE:
@@ -168,7 +171,7 @@ static int8_t _cmp_tree(vtype_t tkey, vtype_t tvalue, tree_node *x, tree_node *y
                 fval = x->data.value.real == y->data.value.real;
             break;
             case CHARS_TYPE:
-                fval = strcmp(x->data.value.chars, y->data.value.chars) == 0;
+                fval = strcmp((char*)x->data.value.chars, (char*)y->data.value.chars) == 0;
             break;
             case LIST_TYPE:
                 fval = cmp_list(x->data.value.list, y->data.value.list) == 0;
@@ -253,6 +256,7 @@ static void _set_key(tree_node *node, vtype_t tkey, void *key) {
         case STRING_TYPE:
             node->data.key.string = (struct String*)key;
         break;
+        default: ;
     }
 }
 
@@ -348,6 +352,7 @@ static int8_t _cmp_tkey_tree(tree_node *node, vtype_t tkey, void *key) {
         case STRING_TYPE:
             cond = cmp_string((String*)key, node->data.key.string);
         break;
+        default: ;
     }
     return cond;
 }
@@ -441,6 +446,7 @@ static void _print_node_tree(Tree *tree, tree_node *node, vtype_t tkey, vtype_t 
         case STRING_TYPE:
             print_string(node->data.key.string);
         break;
+        default: ;
     }
     printf(" => ");
     switch(tvalue) {
@@ -519,6 +525,7 @@ static void _free_key_tree(vtype_t type, tree_node *node) {
         case STRING_TYPE:
             free_string(node->data.key.string);
         break;
+        default: ;
     }
 }
 
@@ -545,5 +552,6 @@ static void _free_value_tree(vtype_t type, tree_node *node) {
         case STRING_TYPE:
             free_string(node->data.value.string);
         break;
+        default: ;
     }
 }

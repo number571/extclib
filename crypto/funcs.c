@@ -17,7 +17,7 @@ extern uint8_t gf8_mul(uint8_t a, uint8_t b) {
 }
 
 extern uint32_t join_8bits_to_32bits(uint8_t * blocks8b) {
-    uint64_t block32b;
+    uint32_t block32b;
     for (uint8_t *p = blocks8b; p < blocks8b + 4; ++p) {
         block32b = (block32b << 8) | *p;
     }

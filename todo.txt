@@ -1,2 +1,2 @@
 - add json.h;
-- add rsa, cbc-mode to crypto.h
+- add rsa, rand to crypto.h

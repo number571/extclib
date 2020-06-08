@@ -67,7 +67,7 @@ extern int32_t in_list(List *list, void *value) {
                 }
             break;
             case CHARS_TYPE:
-                flag = strcmp((uint8_t*)value, node->value.chars) == 0;
+                flag = strcmp((char*)value, (char*)node->value.chars) == 0;
             break;
             case LIST_TYPE:
                 flag = cmp_list((List*)value, node->value.list) == 0;
@@ -122,7 +122,7 @@ extern int8_t cmp_list(List *x, List *y) {
                 flag = ptrx->value.real == ptry->value.real;
             break;
             case CHARS_TYPE:
-                flag = strcmp(ptrx->value.chars, ptry->value.chars) == 0;
+                flag = strcmp((char*)ptrx->value.chars, (char*)ptry->value.chars) == 0;
             break;
             case LIST_TYPE:
                 flag = cmp_list(ptrx->value.list, ptry->value.list) == 0;
@@ -171,12 +171,16 @@ extern value_t get_list(List *list, size_t index) {
     }
     if(index != 0) {
         fprintf(stderr, "%s\n", "index > size");
-        value_t none;
+        value_t none = {
+            .decimal = 0,
+        };
         return none;
     }
     if(node == NULL) {
         fprintf(stderr, "%s\n", "undefined");
-        value_t none;
+        value_t none = {
+            .decimal = 0,
+        };
         return none;
     }
     return node->value;
@@ -264,7 +268,9 @@ extern value_t pop_list(List *list) {
     list_node *curr_node = list->node;
     if(curr_node == NULL) {
         fprintf(stderr, "%s\n", "stack overflow");
-        value_t none;
+        value_t none = {
+            .decimal = 0,
+        };
         return none;
     }
     if(curr_node->next == NULL) {
@@ -331,6 +337,7 @@ static void _free_list(List *list, list_node *node) {
         case STRING_TYPE:
             free_string(node->value.string);
         break;
+        default: ;
     }
 }
 

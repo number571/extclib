@@ -23,8 +23,8 @@ typedef struct Crypto {
         uint8_t *bytes;
     } data;
     struct {
-        uint16_t size; // in bits
         uint8_t *iv; // init vector
+        uint16_t size; // in bits
         uint8_t *bytes;
     } key;
 } Crypto;

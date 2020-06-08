@@ -28,7 +28,7 @@ extern String *new_string(uint8_t *str) {
 }
 
 extern void cat_in_string(String *x, uint8_t *y) {
-    size_t y_len = strlen(y);
+    size_t y_len = strlen((char*)y);
     size_t new_len = x->len + y_len;
     if (new_len >= x->cap) {
         _realloc_string(x, new_len);
@@ -53,7 +53,7 @@ extern void cpy_in_string(String *x, uint8_t *y) {
 }
 
 extern int8_t catn_in_string(String *x, uint8_t *y, size_t quan) {
-    size_t y_len = strlen(y);
+    size_t y_len = strlen((char*)y);
     if (quan > y_len) {
         return 1;
     }
@@ -107,11 +107,11 @@ extern int8_t cmp_chars_string(String *x, uint8_t *y) {
 }
 
 extern void cat_out_string(uint8_t *x, String *y) {
-    strncat(x, y->chars, y->len);
+    strncat((char*)x, (char*)y->chars, y->len);
 }
 
 extern void cpy_out_string(uint8_t *x, String *y) {
-    strncpy(x, y->chars, y->len);
+    strncpy((char*)x, (char*)y->chars, y->len);
 }
 
 extern int8_t catn_out_string(uint8_t *x, String *y, size_t begin, size_t quan) {
@@ -121,7 +121,7 @@ extern int8_t catn_out_string(uint8_t *x, String *y, size_t begin, size_t quan) 
     if (begin + quan > y->len) {
         return 2;
     }
-    strncat(x, y->chars + begin, quan);
+    strncat((char*)x, (char*)(y->chars + begin), quan);
     return 0;
 }
 
@@ -132,7 +132,8 @@ extern int8_t cpyn_out_string(uint8_t *x, String *y, size_t begin, size_t quan) 
     if (begin + quan > y->len) {
         return 2;
     }
-    strncpy(x, y->chars + begin, quan);
+    strncpy((char*)x, (char*)(y->chars + begin), quan);
+    return 0;
 }
 
 extern void cat_string(String *x, String *y) {
@@ -230,7 +231,7 @@ extern int8_t cmp_string(String *x, String *y) {
 }
 
 extern int8_t cmp_chars(uint8_t *x, uint8_t *y) {
-    int cond = strcmp(x, y);
+    int cond = strcmp((char*)x, (char*)y);
     if (cond > 0) {
         return 1;
     } else if (cond < 0) {

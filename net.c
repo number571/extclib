@@ -1,3 +1,5 @@
+#include <stddef.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <arpa/inet.h>
@@ -23,8 +25,8 @@ extern int listen_net(uint8_t *address) {
 
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
-    addr.sin_port = htons(atoi(port));
-    addr.sin_addr.s_addr = inet_addr(ipv4);
+    addr.sin_port = htons(atoi((char*)port));
+    addr.sin_addr.s_addr = inet_addr((char*)ipv4);
 
     if (bind(listener, (struct sockaddr*)&addr, sizeof(addr))) {
         return -3;
@@ -52,8 +54,8 @@ extern int connect_net(uint8_t *address) {
 
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
-    addr.sin_port = htons(atoi(port));
-    addr.sin_addr.s_addr = inet_addr(ipv4);
+    addr.sin_port = htons(atoi((char*)port));
+    addr.sin_addr.s_addr = inet_addr((char*)ipv4);
 
     if (connect(conn, (struct sockaddr *)&addr, sizeof(addr))) {
         return -3;

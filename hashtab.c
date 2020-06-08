@@ -127,7 +127,7 @@ extern void print_hashtab(HashTab *hashtab) {
         if (size_tree(hashtab->table[i]) == 0) {
             continue;
         }
-        printf("(%d :: ", i);
+        printf("(%ld :: ", i);
         print_tree(hashtab->table[i]);
         printf(") ");
     }
@@ -145,7 +145,7 @@ extern void print_hashtab_format(HashTab *hashtab) {
         if (size_tree(hashtab->table[i]) == 0) {
             continue;
         }
-        printf("\t(%d :: ", i);
+        printf("\t(%ld :: ", i);
         print_tree(hashtab->table[i]);
         printf(")\n");
     }
@@ -172,6 +172,7 @@ static uint32_t _get_hash(HashTab *hashtab, void *key) {
         case STRING_TYPE:
             hash = hash_string((String*)key);
         break;
+        default: ;
     }
     return hash;
 }
