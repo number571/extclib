@@ -1,8 +1,6 @@
-#include <stddef.h>
-#include <string.h>
-
 #include "crypto.h"
 #include "crypto/aes.h"
+#include "crypto/sha256.h"
 
 typedef enum cipher_t {
     AES_CIPHER,
@@ -12,71 +10,76 @@ static int8_t _ecb_crypto(cipher_t cipher, Crypto *params);
 static int8_t _cbc_crypto(cipher_t cipher, Crypto *params);
 
 extern int8_t aes_crypto(Crypto params) {
-    int8_t code = 0;
     switch(params.mode) {
         case DEF_MODE: case ECB_MODE:
-            code = _ecb_crypto(AES_CIPHER, &params);
+            return _ecb_crypto(AES_CIPHER, &params);
         break;
         case CBC_MODE:
-            code = _cbc_crypto(AES_CIPHER, &params);
+            return _cbc_crypto(AES_CIPHER, &params);
         break;
-        default: return -1;
     }
-    return code;
+    return 0;
+}
+
+extern void sha256_crypto(Crypto params) {
+    SHA256_CTX ctx;
+    sha256_init(&ctx);
+    sha256_update(&ctx, params.data.in, params.data.size);
+    sha256_final(&ctx, params.data.out);
 }
 
 static int8_t _ecb_crypto(cipher_t cipher, Crypto *params) {
-    int8_t code = 0;
-    switch(cipher){
+    switch(cipher) {
         case AES_CIPHER: {
             const uint8_t bsize = 16;
-            for (uint32_t i = 0; i < params->data.size && code == 0; i += bsize) {
-                code = aes(params);
-                params->data.bytes += bsize;
+            uint32_t w[64]; 
+            switch(params->key.size){
+                case 128: case 192: case 256: break;
+                default: return 1;
+            }
+            aes_key_setup(params->key.bytes, w, params->key.size);
+            switch(params->option) {
+                case ENCRYPT_OPTION:
+                    for (size_t i = 0; i < params->data.size; i += bsize) {
+                        aes_encrypt(params->data.in + i, params->data.out + i, w, params->key.size);
+                    }
+                break;
+                case DECRYPT_OPTION:
+                    for (size_t i = 0; i < params->data.size; i += bsize) {
+                        aes_decrypt(params->data.in + i, params->data.out + i, w, params->key.size);
+                    }
+                break;
             }
         }
         break;
-        default: return -2;
+        default: return -1;
     }
-    return code;
+    return 0;
 }
 
 static int8_t _cbc_crypto(cipher_t cipher, Crypto *params) {
-    int8_t code = 0;
-    switch(cipher){
+    switch(cipher) {
         case AES_CIPHER: {
             const uint8_t bsize = 16;
+            uint32_t w[64]; 
+            switch(params->key.size){
+                case 128: case 192: case 256: break;
+                default: return 1;
+            }
+            aes_key_setup(params->key.bytes, w, params->key.size);
+            params->data.size = params->data.size + (bsize - params->data.size % bsize);
             switch(params->option) {
-                case ENCRYPT_OPTION: {
-                    for (uint32_t i = 0; i < params->data.size && code == 0; i += bsize) {
-                        for (uint8_t j = 0; j < bsize; ++j) {
-                            params->data.bytes[j] ^= params->key.iv[j];
-                        }
-                        code = aes(params);
-                        params->key.iv = params->data.bytes;
-                        params->data.bytes += bsize;
-                    }
-                }
+                case ENCRYPT_OPTION:
+                    aes_encrypt_cbc(params->data.in, params->data.size, params->data.out, w, params->key.size, params->key.iv);
                 break;
-                case DECRYPT_OPTION: {
-                    uint8_t ivect[bsize];
-                    uint8_t block[bsize];
-                    memcpy(ivect, params->key.iv, bsize);
-                    for (uint32_t i = 0; i < params->data.size && code == 0; i += bsize) {
-                        memcpy(block, params->data.bytes, bsize);
-                        code = aes(params);
-                        for (uint8_t j = 0; j < bsize; ++j) {
-                            params->data.bytes[j] ^= ivect[j];
-                        }
-                        params->data.bytes += bsize;
-                        memcpy(ivect, block, bsize);
-                    }
-                }
+                case DECRYPT_OPTION:
+                    aes_decrypt_cbc(params->data.in, params->data.size, params->data.out, w, params->key.size, params->key.iv);
                 break;
             }
         }
         break;
-        default: return -2;
+        default: return -1;
     }
-    return code;
+    return 0;
 }
+

@@ -14,6 +14,7 @@ $ cc main.c extclib/extclib.o -o main
 
 ### Used libraries:
 1. bigdigits: [di-mgt.com.au/bigdigits.html](https://di-mgt.com.au/bigdigits.html);
+2. crypto-algorithms: [github.com/B-Con/crypto-algorithms](https://github.com/B-Con/crypto-algorithms);
 
 ### Example (IO, HashTab, BigInt):
 ```c

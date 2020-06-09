@@ -3,36 +3,36 @@
 
 #include "extclib/crypto.h"
 
-#define KEY_SIZE 16 // 128 bit for AES key
 #define MAX_SIZE 32 // multiple 128 bit for AES block
 
 void print_bytes(uint8_t * array, size_t length);
 
 int main(void) {
-    uint8_t buffer[BUFSIZ] = "1234567890abcdefghij";
+    uint8_t in[BUFSIZ] = "1234567890abcdefghij";
 
     Crypto params = {
         .mode = CBC_MODE,
         .data = {
-            .size = strlen(buffer),
-            .bytes = buffer,
+            .size = strlen(in),
+            .in = in,
+            .out = in,
         },
         .key = {
-            .iv = "qwertyuiopasdfgh",
-            .size = KEY_SIZE * 8, // 128 bit
+            .size = 128,
             .bytes = "AES_key_128_bits",
+            .iv = "abcdefghijklmnop",
         },
     };
 
-    print_bytes(buffer, MAX_SIZE);
+    print_bytes(in, MAX_SIZE);
 
     params.option = ENCRYPT_OPTION;
     aes_crypto(params);
-    print_bytes(buffer, MAX_SIZE);
+    print_bytes(in, MAX_SIZE);
 
     params.option = DECRYPT_OPTION;
     aes_crypto(params);
-    print_bytes(buffer, MAX_SIZE);
+    print_bytes(in, MAX_SIZE);
     return 0;
 }
 

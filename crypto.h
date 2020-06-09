@@ -19,17 +19,21 @@ typedef struct Crypto {
     encmode_t mode;
     option_t option;
     struct {
-        uint32_t size; // in bytes
-        uint8_t *bytes;
+        uint32_t size; // bytes
+        uint8_t *in;
+        uint8_t *out;
     } data;
     struct {
-        uint8_t *iv; // init vector
-        uint16_t size; // in bits
+        uint16_t size; // bits
         uint8_t *bytes;
+        uint8_t *iv; // init vector
     } key;
 } Crypto;
 
 // CIPHERS
 extern int8_t aes_crypto(Crypto params);
+
+// HASH FUNCTIONS
+extern void sha256_crypto(Crypto params);
 
 #endif /* EXTCLIB_CRYPTO_H_ */
