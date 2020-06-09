@@ -35,5 +35,6 @@ extern int8_t aes_crypto(Crypto params);
 
 // HASH FUNCTIONS
 extern void sha256_crypto(Crypto params);
+extern void hmac256_crypto(Crypto params);
 
 #endif /* EXTCLIB_CRYPTO_H_ */

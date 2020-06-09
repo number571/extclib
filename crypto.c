@@ -1,3 +1,5 @@
+#include <string.h>
+
 #include "crypto.h"
 #include "crypto/aes.h"
 #include "crypto/sha256.h"
@@ -26,6 +28,49 @@ extern void sha256_crypto(Crypto params) {
     sha256_init(&ctx);
     sha256_update(&ctx, params.data.in, params.data.size);
     sha256_final(&ctx, params.data.out);
+}
+
+extern void hmac256_crypto(Crypto params) {
+    const uint8_t hsize = 32; // sha256 size
+    const uint8_t bsize = 64; // hmac block size RFC 2104
+    const uint8_t ipad = 0x36;
+    const uint8_t opad = 0x5c;
+
+    Crypto temp_params;
+    uint8_t keybuff[bsize];
+    uint8_t ikeypad[bsize];
+    uint8_t okeypad[bsize];
+    uint8_t result[params.data.size+bsize+hsize];
+
+    if (params.key.size > bsize) {
+        temp_params.data.size = params.key.size;
+        temp_params.data.in = params.key.bytes;
+        temp_params.data.out = keybuff;
+        sha256_crypto(temp_params);
+    }
+    if (params.key.size < bsize) {
+        memcpy(keybuff, params.key.bytes, params.key.size);
+        memset(keybuff + params.key.size, 0, bsize - params.key.size);
+    }
+
+    for (uint8_t i = 0; i < bsize; ++i) {
+        ikeypad[i] = keybuff[i] ^ ipad;
+        okeypad[i] = keybuff[i] ^ opad;
+    }
+
+    memcpy(result, ikeypad, bsize);
+    memcpy(result + bsize, params.data.in, params.data.size);
+    temp_params.data.size = params.data.size + bsize;
+    temp_params.data.in = result;
+    temp_params.data.out = keybuff;
+    sha256_crypto(temp_params);
+
+    memcpy(result, okeypad, bsize);
+    memcpy(result + bsize, keybuff, hsize);
+    temp_params.data.size = bsize + hsize;
+    temp_params.data.in = result;
+    temp_params.data.out = params.data.out;
+    sha256_crypto(temp_params);
 }
 
 static int8_t _ecb_crypto(cipher_t cipher, Crypto *params) {
