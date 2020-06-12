@@ -9,7 +9,7 @@ int main(void) {
     uint8_t in[BUFSIZ] = "1234567890abcdefghij";
     uint8_t hash[32] = {0};
 
-    Crypto params = {
+    Context params = {
         .data = {
             .size = strlen(in),
             .in = in,

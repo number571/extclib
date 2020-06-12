@@ -11,15 +11,15 @@ int main(void) {
 
     uint8_t hash[32] = {0};
 
-    Crypto params = {
+    Context params = {
         .data = {
             .size = strlen(in),
             .in = in,
             .out = hash,
         },
-        .key = {
+        .desc = {
             .size = strlen(key),
-            .bytes = key,
+            .vec1 = key,
         },
     };
 

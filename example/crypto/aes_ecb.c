@@ -10,27 +10,25 @@ void print_bytes(uint8_t * array, size_t length);
 int main(void) {
     uint8_t in[BUFSIZ] = "1234567890abcdefghij";
 
-    Crypto params = {
+    Context params = {
         .mode = ECB_MODE,
         .data = {
             .size = strlen(in),
             .in = in,
             .out = in,
         },
-        .key = {
+        .desc = {
             .size = 128,
-            .bytes = "AES_key_128_bits",
+            .vec1 = "AES_key_128_bits", // key
         },
     };
 
     print_bytes(in, MAX_SIZE);
 
-    params.option = ENCRYPT_OPTION;
-    aes_crypto(params);
+    aes_crypto(ENCRYPT_OPTION, params);
     print_bytes(in, MAX_SIZE);
 
-    params.option = DECRYPT_OPTION;
-    aes_crypto(params);
+    aes_crypto(DECRYPT_OPTION, params);
     print_bytes(in, MAX_SIZE);
     return 0;
 }
