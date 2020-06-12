@@ -240,7 +240,7 @@ extern void print_array(Array *array) {
         if (!array->buffer[i].exist) {
             continue;
         }
-        printf("(%ld :: ", i);
+        printf("(%u :: ", (uint32_t)i);
         _print_node_array(array, i);
         printf(") ");
     }

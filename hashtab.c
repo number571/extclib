@@ -127,7 +127,7 @@ extern void print_hashtab(HashTab *hashtab) {
         if (size_tree(hashtab->table[i]) == 0) {
             continue;
         }
-        printf("(%ld :: ", i);
+        printf("(%u :: ", (uint32_t)i);
         print_tree(hashtab->table[i]);
         printf(") ");
     }
@@ -145,7 +145,7 @@ extern void print_hashtab_format(HashTab *hashtab) {
         if (size_tree(hashtab->table[i]) == 0) {
             continue;
         }
-        printf("\t(%ld :: ", i);
+        printf("\t(%u :: ", (uint32_t)i);
         print_tree(hashtab->table[i]);
         printf(")\n");
     }

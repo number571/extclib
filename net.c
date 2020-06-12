@@ -1,8 +1,13 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include <arpa/inet.h>
+
+#ifdef __linux__
+    #include <unistd.h>
+    #include <arpa/inet.h>
+#elif __WIN32
+    #include <winsock2.h>
+#endif
 
 #include "net.h"
 
@@ -11,6 +16,13 @@
 static int8_t _parse_address(uint8_t *address, uint8_t *ipv4, uint8_t *port);
 
 extern int listen_net(uint8_t *address) {
+#ifdef __WIN32
+    WSADATA wsa;
+    if (WSAStartup(MAKEWORD(2,2), &wsa) != 0) {
+        return -5;
+    }
+#endif
+
     int listener = socket(AF_INET, SOCK_STREAM, 0);
     if (listener < 0) {
         return -1;
@@ -40,6 +52,13 @@ extern int listen_net(uint8_t *address) {
 }
 
 extern int connect_net(uint8_t *address) {
+#ifdef __WIN32
+    WSADATA wsa;
+    if (WSAStartup(MAKEWORD(2,2), &wsa) != 0) {
+        return -5;
+    }
+#endif
+
     int conn = socket(AF_INET, SOCK_STREAM, 0);
     if (conn < 0) {
         return -1;
@@ -69,17 +88,21 @@ extern int accept_net(int listener) {
 }
 
 extern int send_net(int conn, uint8_t *buffer, size_t size) {
-    // return send(conn, (char*)buffer, (int)size, 0);
-    return write(conn, (char*)buffer, (int)size);
+    return send(conn, (char*)buffer, (int)size, 0);
+    // return write(conn, (char*)buffer, (int)size);
 }
 
 extern int recv_net(int conn, uint8_t *buffer, size_t size) {
-    // return recv(conn, (char*)buffer, (int)size, 0);
-    return read(conn, (char*)buffer, (int)size);
+    return recv(conn, (char*)buffer, (int)size, 0);
+    // return read(conn, (char*)buffer, (int)size);
 }
 
 extern int close_net(int conn) {
+#ifdef __linux__
     return close(conn);
+#elif __WIN32
+    return closesocket(conn);
+#endif
 }
 
 static int8_t _parse_address(uint8_t *address, uint8_t *ipv4, uint8_t *port) {

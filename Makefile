@@ -1,5 +1,10 @@
-LN=ld
+## use [gcc main.c extclib/extclib.o -lws2_32] when compile for windows (winsock2.h);
+# CC=i686-w64-mingw32-gcc
+# LN=ld -m i386pe
+
 CC=gcc
+LN=ld
+
 CFLAGS=-Wall -std=c99
 
 HEADERS=array.h bigint/bigd.h bigint/bigdigits.h bigint.h list.h hashtab.h io.h net.h dynamic.h tree.h string.h crypto.h crypto/aes.h crypto/sha256.h type.h
@@ -25,6 +30,6 @@ link: $(OBJECTS)
 	# extclib.o
 	$(LN) -r $(OBJECTS) -o extclib.o
 clean:
-	rm -f *.o 
-	rm -f bigint/*.o
-	rm -f crypto/*.o
+	rm -f *.o *.i *.s
+	rm -f bigint/*.o bigint/*.i bigint/*.s
+	rm -f crypto/*.o crypto/*.i crypto/*.s

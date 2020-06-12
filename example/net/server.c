@@ -7,7 +7,7 @@
 #define BUFF 256
 
 int main (void) {
-    int listener = listen_net("0.0.0.0:8080");
+    int listener = listen_net((uint8_t*)"0.0.0.0:8080");
     if (listener < 0) {
         fprintf(stderr, "%d\n", listener);
         return 1;
