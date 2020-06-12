@@ -2,14 +2,7 @@
 #include <stdarg.h>
 
 #include "io.h"
-#include "type.h"
-#include "tree.h"
-#include "list.h"
-#include "hashtab.h"
-#include "array.h"
-#include "bigint.h"
-#include "dynamic.h"
-#include "string.h"
+#include "types.h"
 
 #define INDEX(ptr, init) (ptr-init)
 

@@ -1,7 +1,6 @@
 #include <stdio.h>
 
-#include "extclib/list.h"
-#include "extclib/dynamic.h"
+#include "extclib/types.h"
 
 int main(void) {
     List *list = new_list(DYNAMIC_TYPE);
@@ -10,7 +9,7 @@ int main(void) {
     push_list(list, dynamic(new_dynamic(REAL_TYPE, real(5.71))));
     push_list(list, dynamic(new_dynamic(DECIMAL_TYPE, decimal(333))));
 
-    printf("%d\n", size_list(list));
+    printf("%lu\n", size_list(list));
     println_list(list);
 
     Dynamic *dynamic = get_list(list, 2).dynamic;

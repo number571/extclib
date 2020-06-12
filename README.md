@@ -19,8 +19,7 @@ $ cc main.c extclib/extclib.o -o main
 ### Example (IO, HashTab, BigInt):
 ```c
 #include "extclib/io.h"
-#include "extclib/hashtab.h"
-#include "extclib/bigint.h"
+#include "extclib/types.h"
 
 // gcc main.c extclib/extclib.o -o main
 

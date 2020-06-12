@@ -2,3 +2,16 @@
 *.o
 bigint/*.o
 crypto/*.o
+types/*.o
+
+# Clean preprocessor files
+*.i
+bigint/*.i
+crypto/*.i
+types/*.i
+
+# Clean asm files
+*.s
+bigint/*.s
+crypto/*.s
+types/*.s

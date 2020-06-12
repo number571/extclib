@@ -1,5 +1,4 @@
-#include "extclib/array.h"
-#include "extclib/list.h"
+#include "extclib/types.h"
 
 int main(void) {
     Array *array = new_array(3, LIST_TYPE);

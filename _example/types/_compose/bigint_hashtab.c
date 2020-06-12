@@ -1,7 +1,6 @@
 #include <stdio.h>
 
-#include "extclib/bigint.h"
-#include "extclib/hashtab.h"
+#include "extclib/types.h"
 
 int main(void) {
     HashTab *hashtab = new_hashtab(10000, BIGINT_TYPE, DECIMAL_TYPE);

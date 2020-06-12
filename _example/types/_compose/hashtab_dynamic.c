@@ -1,7 +1,4 @@
-#include "extclib/hashtab.h"
-#include "extclib/dynamic.h"
-#include "extclib/bigint.h"
-#include "extclib/list.h"
+#include "extclib/types.h"
 
 int main(void) {
     HashTab *hashtab = new_hashtab(100, CHARS_TYPE, DYNAMIC_TYPE);

@@ -1,6 +1,5 @@
 #include "extclib/io.h"
-#include "extclib/hashtab.h"
-#include "extclib/bigint.h"
+#include "extclib/types.h"
 
 int main(void) {
     HashTab *hashtab = new_hashtab(250, CHARS_TYPE, BIGINT_TYPE);
