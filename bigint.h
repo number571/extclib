@@ -6,7 +6,7 @@
 
 typedef struct BigInt BigInt;
 
-extern BigInt *new_bigint(uint8_t *str);
+extern BigInt *new_bigint(char *str);
 extern void free_bigint(BigInt *x);
 
 extern void mul_bigint(BigInt *z, BigInt *x, BigInt *y);
@@ -34,7 +34,7 @@ extern size_t sizeof_bigint(void);
 
 extern void cpy_bigint(BigInt *x, BigInt *y);
 extern void cpynum_bigint(BigInt *x, uint32_t str);
-extern void cpystr_bigint(BigInt *x, uint8_t *str);
+extern void cpystr_bigint(BigInt *x, char *str);
 
 extern int8_t cmp_bigint(BigInt *x, BigInt *y);
 extern int8_t cmpnum_bigint(BigInt *x, uint32_t y);

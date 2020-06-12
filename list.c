@@ -353,7 +353,7 @@ static list_node *_new_node(vtype_t type, void *value) {
             free((double*)value);
         break;
         case CHARS_TYPE:
-            node->value.chars = (uint8_t*)value;
+            node->value.chars = (char*)value;
         break;
         case LIST_TYPE:
             node->value.list = (struct List*)value;

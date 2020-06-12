@@ -13,9 +13,9 @@
 
 #define INDEX(ptr, init) (ptr-init)
 
-static int8_t _parse_address(uint8_t *address, uint8_t *ipv4, uint8_t *port);
+static int8_t _parse_address(char *address, char *ipv4, char *port);
 
-extern int listen_net(uint8_t *address) {
+extern int listen_net(char *address) {
 #ifdef __WIN32
     WSADATA wsa;
     if (WSAStartup(MAKEWORD(2,2), &wsa) != 0) {
@@ -28,8 +28,8 @@ extern int listen_net(uint8_t *address) {
         return -1;
     }
 
-    uint8_t ipv4[16];
-    uint8_t port[6];
+    char ipv4[16];
+    char port[6];
 
     if (_parse_address(address, ipv4, port) != 0) {
         return -2;
@@ -37,8 +37,8 @@ extern int listen_net(uint8_t *address) {
 
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
-    addr.sin_port = htons(atoi((char*)port));
-    addr.sin_addr.s_addr = inet_addr((char*)ipv4);
+    addr.sin_port = htons(atoi(port));
+    addr.sin_addr.s_addr = inet_addr(ipv4);
 
     if (bind(listener, (struct sockaddr*)&addr, sizeof(addr))) {
         return -3;
@@ -51,7 +51,7 @@ extern int listen_net(uint8_t *address) {
     return listener;
 }
 
-extern int connect_net(uint8_t *address) {
+extern int connect_net(char *address) {
 #ifdef __WIN32
     WSADATA wsa;
     if (WSAStartup(MAKEWORD(2,2), &wsa) != 0) {
@@ -64,8 +64,8 @@ extern int connect_net(uint8_t *address) {
         return -1;
     }
 
-    uint8_t ipv4[16];
-    uint8_t port[6];
+    char ipv4[16];
+    char port[6];
 
     if (_parse_address(address, ipv4, port) != 0) {
         return -2;
@@ -87,14 +87,12 @@ extern int accept_net(int listener) {
     return accept(listener, NULL, NULL);
 }
 
-extern int send_net(int conn, uint8_t *buffer, size_t size) {
-    return send(conn, (char*)buffer, (int)size, 0);
-    // return write(conn, (char*)buffer, (int)size);
+extern int send_net(int conn, char *buffer, size_t size) {
+    return send(conn, buffer, (int)size, 0);
 }
 
-extern int recv_net(int conn, uint8_t *buffer, size_t size) {
-    return recv(conn, (char*)buffer, (int)size, 0);
-    // return read(conn, (char*)buffer, (int)size);
+extern int recv_net(int conn, char *buffer, size_t size) {
+    return recv(conn, buffer, (int)size, 0);
 }
 
 extern int close_net(int conn) {
@@ -105,8 +103,8 @@ extern int close_net(int conn) {
 #endif
 }
 
-static int8_t _parse_address(uint8_t *address, uint8_t *ipv4, uint8_t *port) {
-    uint8_t *ptr = address;
+static int8_t _parse_address(char *address, char *ipv4, char *port) {
+    char *ptr = address;
     while(*ptr != ':') {
         if (*ptr == '\0') {
             return 1;

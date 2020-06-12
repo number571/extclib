@@ -5,10 +5,10 @@
 
 typedef BIGD BigInt;
 
-extern BigInt *new_bigint(uint8_t *str) {
+extern BigInt *new_bigint(char *str) {
     BigInt *bignum = (BigInt*)malloc(sizeof(BigInt));
     *bignum = bdNew();
-    bdConvFromDecimal(*bignum, (char*)str);
+    bdConvFromDecimal(*bignum, str);
     return bignum;
 }
 
@@ -87,8 +87,8 @@ extern void cpynum_bigint(BigInt *x, uint32_t y) {
     bdSetShort(*x, y);
 }
 
-extern void cpystr_bigint(BigInt *x, uint8_t *y) {
-    bdConvFromDecimal(*x, (char*)y);
+extern void cpystr_bigint(BigInt *x, char *y) {
+    bdConvFromDecimal(*x, y);
 }
 
 extern BigInt *load_bigint(BigInt *x) {

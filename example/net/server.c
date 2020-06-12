@@ -7,14 +7,14 @@
 #define BUFF 256
 
 int main (void) {
-    int listener = listen_net((uint8_t*)"0.0.0.0:8080");
+    int listener = listen_net("0.0.0.0:8080");
     if (listener < 0) {
         fprintf(stderr, "%d\n", listener);
         return 1;
     }
 
     printf("Server is listening ...\n");
-    uint8_t buffer[BUFF];
+    char buffer[BUFF];
 
     while (1) {
         int conn = accept_net(listener);
@@ -27,7 +27,7 @@ int main (void) {
             if (length <= 0) {
                 break;
             }
-            for (uint8_t *p = buffer; *p != '\0'; ++p) {
+            for (char *p = buffer; *p != '\0'; ++p) {
                 *p = toupper(*p);
             }
             send_net(conn, buffer, BUFF);

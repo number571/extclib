@@ -14,7 +14,7 @@ extern void *decimal(int32_t x) {
     return (void*)(intptr_t)x;
 }
 
-extern void *chars(uint8_t *x) {
+extern void *chars(char *x) {
     return (void*)x;
 }
 

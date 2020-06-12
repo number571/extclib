@@ -1,4 +1,5 @@
 ## use [gcc main.c extclib/extclib.o -lws2_32] when compile for windows (winsock2.h);
+
 # CC=i686-w64-mingw32-gcc
 # LN=ld -m i386pe
 

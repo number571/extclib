@@ -248,7 +248,7 @@ static void _set_key(tree_node *node, vtype_t tkey, void *key) {
             node->data.key.decimal = (int32_t)(intptr_t)key;
         break;
         case CHARS_TYPE:
-            node->data.key.chars = (uint8_t*)key;
+            node->data.key.chars = (char*)key;
         break;
         case BIGINT_TYPE:
             node->data.key.bigint = (struct BigInt*)key;
@@ -273,7 +273,7 @@ static void _set_value(tree_node *node, vtype_t tvalue, void *value) {
             free((double*)value);
         break;
         case CHARS_TYPE:
-            node->data.value.chars = (uint8_t*)value;
+            node->data.value.chars = (char*)value;
         break;
         case LIST_TYPE:
             node->data.value.list = (struct List*)value;
@@ -344,7 +344,7 @@ static int8_t _cmp_tkey_tree(tree_node *node, vtype_t tkey, void *key) {
             cond = _cmp_int32((int32_t)(intptr_t)key, node->data.key.decimal);
         break;
         case CHARS_TYPE:
-            cond = cmp_chars((uint8_t*)key, node->data.key.chars);
+            cond = cmp_chars((char*)key, node->data.key.chars);
         break;
         case BIGINT_TYPE:
             cond = cmp_bigint((BigInt*)key, node->data.key.bigint);

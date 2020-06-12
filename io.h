@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-extern void printf_io(uint8_t *fmt, ...);
-extern void inputs_io(uint8_t *buffer, size_t size);
+extern void printf_io(char *fmt, ...);
+extern void inputs_io(char *buffer, size_t size);
 
 #endif /* EXTCLIB_IO_H_ */

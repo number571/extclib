@@ -17,7 +17,7 @@ typedef struct HashTab {
 } HashTab;
 
 static uint32_t _get_hash(HashTab *hashtab, void *key);
-static uint32_t _strhash(uint8_t *s, size_t size);
+static uint32_t _strhash(char *s, size_t size);
 
 extern HashTab *new_hashtab(size_t size, vtype_t key, vtype_t value) {
     switch(key){
@@ -164,7 +164,7 @@ static uint32_t _get_hash(HashTab *hashtab, void *key) {
             hash = (uint32_t)(intptr_t)key % hashtab->size;
         break;
         case CHARS_TYPE:
-            hash = _strhash((uint8_t*)key, hashtab->size);
+            hash = _strhash((char*)key, hashtab->size);
         break;
         case BIGINT_TYPE:
             hash = getnum_bigint((BigInt*)key) % hashtab->size;
@@ -177,7 +177,7 @@ static uint32_t _get_hash(HashTab *hashtab, void *key) {
     return hash;
 }
 
-static uint32_t _strhash(uint8_t *s, size_t size) {
+static uint32_t _strhash(char *s, size_t size) {
     uint32_t hashval;
     for (hashval = 0; *s != '\0'; ++s) {
         hashval = *s + 31 * hashval;

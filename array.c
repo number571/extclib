@@ -344,7 +344,7 @@ static void _set_node_array(Array *array, size_t index, void *value) {
             free((double*)value);
         break;
         case CHARS_TYPE:
-            array->buffer[index].value.chars = (uint8_t*)value;
+            array->buffer[index].value.chars = (char*)value;
         break;
         case LIST_TYPE:
             array->buffer[index].value.list = (struct List*)value;

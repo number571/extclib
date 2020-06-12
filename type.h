@@ -19,7 +19,7 @@ typedef enum vtype_t {
 typedef union value_t {
     int32_t decimal;
     double real;
-    uint8_t *chars;
+    char *chars;
     struct List *list;
     struct Tree *tree;
     struct HashTab *hashtab;
@@ -30,7 +30,7 @@ typedef union value_t {
 } value_t;
 
 extern void *decimal(int32_t x);
-extern void *chars(uint8_t *x);
+extern void *chars(char *x);
 extern void *real(double x);
 extern void *list(struct List *x);
 extern void *tree(struct Tree *x);

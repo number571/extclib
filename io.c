@@ -13,27 +13,27 @@
 
 #define INDEX(ptr, init) (ptr-init)
 
-static void _printf_io(uint8_t *fmt, va_list args);
+static void _printf_io(char *fmt, va_list args);
 
-extern void printf_io(uint8_t *fmt, ...) {
+extern void printf_io(char *fmt, ...) {
 	va_list factor;
     va_start(factor, fmt);
 	_printf_io(fmt, factor);
 	va_end(factor);
 }
 
-extern void inputs_io(uint8_t *buffer, size_t size) {
+extern void inputs_io(char *buffer, size_t size) {
 	if (size == 0) {
 		return;
 	}
-    uint8_t *ptr = buffer;
+    char *ptr = buffer;
     while((*ptr = getchar()) != '\n' && INDEX(ptr, buffer) < (size-1)) {
         ++ptr;
     }
     *ptr = '\0';
 }
 
-static void _printf_io(uint8_t *fmt, va_list args) {
+static void _printf_io(char *fmt, va_list args) {
 	_Bool flag = 0;
     while(*fmt) {
         switch(*fmt) {

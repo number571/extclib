@@ -47,7 +47,7 @@ extern Dynamic *new_dynamic(vtype_t type, void *value) {
             free((double*)value);  
         break;
         case CHARS_TYPE: 
-            dynamic->value.chars = (uint8_t*)value;
+            dynamic->value.chars = (char*)value;
         break;
         case LIST_TYPE: 
             dynamic->value.list = (struct List*)value;
