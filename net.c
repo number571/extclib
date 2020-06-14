@@ -17,41 +17,43 @@
 
 #define INDEX(ptr, init) (ptr-init)
 
+typedef enum error_t {
+    SOCKET_ERR  = -1,
+    PARSE_ERR   = -2,
+    CONNECT_ERR = -3,
+    BIND_ERR    = -4,
+    LISTEN_ERR  = -5,
+    WINSOCK_ERR = -6,
+} error_t;
+
 static int8_t _parse_address(char *address, char *ipv4, char *port);
 
 extern int listen_net(char *address) {
 #ifdef __WIN32
     WSADATA wsa;
     if (WSAStartup(MAKEWORD(2,2), &wsa) != 0) {
-        return -5;
+        return WINSOCK_ERR;
     }
 #endif
-
     int listener = socket(AF_INET, SOCK_STREAM, 0);
     if (listener < 0) {
-        return -1;
+        return SOCKET_ERR;
     }
-
     char ipv4[16];
     char port[6];
-
     if (_parse_address(address, ipv4, port) != 0) {
-        return -2;
+        return PARSE_ERR;
     }
-
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
     addr.sin_port = htons(atoi(port));
     addr.sin_addr.s_addr = inet_addr(ipv4);
-
     if (bind(listener, (struct sockaddr*)&addr, sizeof(addr))) {
-        return -3;
+        return BIND_ERR;
     }
-
     if (listen(listener, SOMAXCONN) != 0) {
-        return -4;
+        return LISTEN_ERR;
     }
-
     return listener;
 }
 
@@ -59,31 +61,25 @@ extern int connect_net(char *address) {
 #ifdef __WIN32
     WSADATA wsa;
     if (WSAStartup(MAKEWORD(2,2), &wsa) != 0) {
-        return -5;
+        return WINSOCK_ERR;
     }
 #endif
-
     int conn = socket(AF_INET, SOCK_STREAM, 0);
     if (conn < 0) {
-        return -1;
+        return SOCKET_ERR;
     }
-
     char ipv4[16];
     char port[6];
-
     if (_parse_address(address, ipv4, port) != 0) {
-        return -2;
+        return PARSE_ERR;
     }
-
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
     addr.sin_port = htons(atoi((char*)port));
     addr.sin_addr.s_addr = inet_addr((char*)ipv4);
-
     if (connect(conn, (struct sockaddr *)&addr, sizeof(addr))) {
-        return -3;
+        return CONNECT_ERR;
     }
-
     return conn;
 }
 

@@ -15,8 +15,10 @@
 #include "crypto.h"
 #include "crypto/aes.h"
 #include "crypto/sha256.h"
-
 #include "context.h"
+
+#define AES_KSIZE 32 // key size = 32 byte = 256 bit
+#define AES_BSIZE 16 // block size = 16 byte = 128 bit
 
 typedef enum cipher_t {
     AES_CIPHER,
@@ -28,9 +30,6 @@ static void _increment_ctr(uint8_t *counter, size_t size);
 static void _sha256_crypto(Context *ctx);
 static int8_t _ecb_crypto(cipher_t cipher, option_t option, Context *ctx);
 static int8_t _cbc_crypto(cipher_t cipher, option_t option, Context *ctx);
-
-#define AES_KSIZE 32 // key size = 32 byte = 256 bit
-#define AES_BSIZE 16 // block size = 16 byte = 128 bit
 
 // rand = Fortuna (Practical Cryptography, Niels Ferguson & Bruce Schneier)
 static struct {
