@@ -11,21 +11,9 @@ $ cc main.c extclib/extclib.o -o main -lws2_32
 ```
 
 ### Implemented:
-1. Types: 
-- Array;
-- BigInt;
-- Dynamic;
-- HashTab;
-- List;
-- String;
-- Tree;
-2. Crypto: 
-- AES[ECB, CBC];
-- HMAC[SHA256];
-- RAND[Fortuna(AES-256)];
-3. Net: 
-- linux[arpa/inet.h];
-- windows[winsock2.h];
+1. Types: Array, BigInt, Dynamic, HashTab, List, String, Tree;
+2. Crypto: AES[ECB, CBC], HMAC[SHA256], RAND[Fortuna(AES-256)];
+3. Net: Linux[arpa/inet.h], Windows[winsock2.h];
 
 ### Used libraries:
 1. bigdigits: [di-mgt.com.au/bigdigits.html](https://di-mgt.com.au/bigdigits.html);
