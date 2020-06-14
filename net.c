@@ -1,13 +1,17 @@
-#include <stddef.h>
-#include <stdint.h>
-#include <stdlib.h>
-
 #ifdef __linux__
     #include <unistd.h>
     #include <arpa/inet.h>
 #elif __WIN32
     #include <winsock2.h>
+#else
+    #warning "net.h: platform not supported"
 #endif
+
+#if defined(__linux__) || defined(__WIN32)
+
+#include <stddef.h>
+#include <stdint.h>
+#include <stdlib.h>
 
 #include "net.h"
 
@@ -127,3 +131,5 @@ static int8_t _parse_address(char *address, char *ipv4, char *port) {
     *port = '\0';
     return 0;
 }
+
+#endif /* defined(__linux__) || defined(__WIN32) */

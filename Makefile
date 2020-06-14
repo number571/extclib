@@ -1,4 +1,4 @@
-## use [gcc main.c extclib/extclib.o -lws2_32] when compile for windows (winsock2.h);
+## use [-lws2_32] when compile for windows (winsock2.h);
 
 # CC=i686-w64-mingw32-gcc
 # LN=ld -m i386pe
@@ -6,7 +6,7 @@
 CC=gcc
 LN=ld
 
-CFLAGS=-Wall -std=c99 -save-temps
+CFLAGS=-Wall -std=c99 # -save-temps
 
 HEADERS=types/array.h types/bigint/bigd.h types/bigint/bigdigits.h types/bigint.h types/list.h \
 	types/hashtab.h types/type.h types/dynamic.h types/tree.h types/string.h io.h net.h crypto.h \

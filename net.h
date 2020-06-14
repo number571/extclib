@@ -2,7 +2,6 @@
 #define EXTCLIB_NET_H_
 
 #include <stddef.h>
-#include <stdint.h>
 
 extern int listen_net(char *address);
 extern int accept_net(int listener);

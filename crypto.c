@@ -1,3 +1,15 @@
+#ifdef __linux__
+    #include <stdio.h>
+#elif __WIN32
+    #include <windows.h>
+    #include <wincrypt.h>
+#else
+    #warning crypto.h: used insecure entropy generator
+    #include <stdlib.h>
+    #include <time.h>
+#endif
+
+#include <stdint.h>
 #include <string.h>
 
 #include "crypto.h"
@@ -21,33 +33,18 @@ static int8_t _cbc_crypto(cipher_t cipher, option_t option, Context *ctx);
 #define AES_BSIZE 16 // block size = 16 byte = 128 bit
 
 // rand = Fortuna (Practical Cryptography, Niels Ferguson & Bruce Schneier)
-static _Bool srand_used = 0;
-static uint8_t mainkey[AES_KSIZE] = {0};
-static uint8_t counter[AES_BSIZE] = {0};
+static struct {
+    _Bool seed_used;
+    uint8_t mainkey[AES_KSIZE];
+    uint8_t counter[AES_BSIZE];
+} generator = {
+    .seed_used = 0,
+    .mainkey   = {0},
+    .counter   = {0},
+};
 
-extern void srand_crypto(Context ctx) {
-    ctx.data.out = mainkey;
-    ctx.desc.size = AES_KSIZE;
-    ctx.desc.vec1 = mainkey;
-    hmac256_crypto(ctx);
-    memset(counter, 0, AES_BSIZE);
-    srand_used = 1;
-}
-
-extern int8_t rand_crypto(Context ctx) {
-    const size_t maxvalue = (1 << 20); // MAX = 1MiB
-    if (ctx.data.size >= maxvalue) {
-        return 1;
-    }
-    if (srand_used == 0) {
-        return 2;
-    }
-    // generate [ctx.data.size] bytes
-    _rand_blocks_crypto(&ctx);
-    // then update key
-    ctx.data.size = AES_KSIZE;
-    ctx.data.out = mainkey;
-    _rand_blocks_crypto(&ctx);
+extern int8_t rsa_crypto(option_t option, Context ctx) {
+    
     return 0;
 }
 
@@ -106,14 +103,67 @@ extern void hmac256_crypto(Context ctx) {
     _sha256_crypto(&temp_ctx);
 }
 
+extern int8_t entropy_crypto(Context ctx) {
+#ifdef __linux__
+    FILE *file = fopen("/dev/random", "rb");
+    if (file == NULL) {
+        // fprintf(stderr, "%s\n", "failed open: '/dev/random'");
+        return 1;
+    }
+    fread(ctx.data.out, sizeof(uint8_t), ctx.data.size, file);
+    fclose(file);
+#elif __WIN32
+    HCRYPTPROV hCryptProv;
+    CryptAcquireContext(&hCryptProv, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT);
+    BOOL result = CryptGenRandom(hCryptProv, sizeof(uint8_t) * ctx.data.size, ctx.data.out);
+    if (result == 0) {
+        // fprintf(stderr, "%s\n", "failed call: 'CryptGenRandom'");
+        return 1;
+    }
+    CryptReleaseContext(hCryptProv, 0);
+#else
+    srand(time(NULL));
+    for (size_t i = 0; i < ctx.data.size; ++i) {
+        ctx.data.out[i] = rand() % UINT8_MAX;
+    }
+#endif
+    return 0;
+}
+
+extern void srand_crypto(Context ctx) {
+    ctx.data.out = generator.mainkey;
+    ctx.desc.size = AES_KSIZE;
+    ctx.desc.vec1 = generator.mainkey;
+    hmac256_crypto(ctx);
+    memset(generator.counter, 0, AES_BSIZE);
+    generator.seed_used = 1;
+}
+
+extern int8_t rand_crypto(Context ctx) {
+    const size_t maxvalue = (1 << 20); // MAX = 1MiB
+    if (ctx.data.size >= maxvalue) {
+        return 1;
+    }
+    if (generator.seed_used == 0) {
+        return 2;
+    }
+    // generate [ctx.data.size] bytes
+    _rand_blocks_crypto(&ctx);
+    // then update key
+    ctx.data.size = AES_KSIZE;
+    ctx.data.out = generator.mainkey;
+    _rand_blocks_crypto(&ctx);
+    return 0;
+}
+
 static void _rand_blocks_crypto(Context *ctx) {
     const size_t ksize = AES_KSIZE * 8; // 256 bit key
     uint32_t wkeys[60];
     uint8_t buffer[AES_BSIZE];
-    aes_key_setup(mainkey, wkeys, ksize);
+    aes_key_setup(generator.mainkey, wkeys, ksize);
     for (size_t i = 0; i < ctx->data.size; i += AES_BSIZE) {
-        aes_encrypt(counter, buffer, wkeys, ksize);
-        _increment_ctr(counter, AES_BSIZE);
+        aes_encrypt(generator.counter, buffer, wkeys, ksize);
+        _increment_ctr(generator.counter, AES_BSIZE);
         if (i + AES_BSIZE > ctx->data.size) {
             memcpy(ctx->data.out + i, buffer, ctx->data.size - i);
             break;

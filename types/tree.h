@@ -1,6 +1,9 @@
 #ifndef EXTCLIB_TREE_H_
 #define EXTCLIB_TREE_H_
 
+#include <stddef.h>
+#include <stdint.h>
+
 #include "type.h"
 
 typedef struct Tree Tree;

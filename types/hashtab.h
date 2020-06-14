@@ -2,8 +2,8 @@
 #define EXTCLIB_HASHTAB_H_
 
 #include <stddef.h>
+#include <stdint.h>
 
-#include "tree.h"
 #include "type.h"
 
 typedef struct HashTab HashTab;

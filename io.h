@@ -2,7 +2,6 @@
 #define EXTCLIB_IO_H_
 
 #include <stddef.h>
-#include <stdint.h>
 
 extern void printf_io(char *fmt, ...);
 extern void inputs_io(char *buffer, size_t size);

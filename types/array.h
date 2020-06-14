@@ -2,6 +2,7 @@
 #define EXTCLIB_ARRAY_H_
 
 #include <stddef.h>
+#include <stdint.h>
 
 #include "type.h"
 
