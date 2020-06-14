@@ -4,19 +4,39 @@
 ### Compile library:
 ```
 $ make -C extclib/
+# linux compile:
 $ cc main.c extclib/extclib.o -o main
+# windows compile:
+$ cc main.c extclib/extclib.o -o main -lws2_32
 ```
 
-### Usage restrictions:
-1. Recursive hash tables, trees, lists, arrays are not allowed. Cross-recursive is dangerous.
-2. Values (and/or keys) in hash tables, trees, lists, arrays are freed up automatically when deleting or replacing an object's value.
-3. Type BigInt can store only unsigned integers.
+### Implemented:
+1. Types: 
+- Array;
+- BigInt;
+- Dynamic;
+- HashTab;
+- List;
+- String;
+- Tree;
+2. Crypto: 
+- AES[ECB, CBC];
+- HMAC[SHA256];
+- RAND[Fortuna(AES-256)];
+3. Net: 
+- linux[arpa/inet.h];
+- windows[winsock2.h];
 
 ### Used libraries:
 1. bigdigits: [di-mgt.com.au/bigdigits.html](https://di-mgt.com.au/bigdigits.html);
 2. crypto-algorithms: [github.com/B-Con/crypto-algorithms](https://github.com/B-Con/crypto-algorithms);
 
-### Example (IO, HashTab, BigInt):
+### Usage restrictions:
+1. Recursive hash tables, trees, lists, arrays are not allowed. Cross-recursive is dangerous;
+2. Values (and/or keys) in hash tables, trees, lists, arrays are freed up automatically when deleting or replacing an object's value;
+3. Type BigInt can store only unsigned integers;
+
+### Example (IO, Types):
 ```c
 #include "extclib/io.h"
 #include "extclib/types.h"
