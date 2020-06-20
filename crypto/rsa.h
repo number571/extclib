@@ -1,6 +1,7 @@
 #ifndef EXTCLIB_RSA_H_
 #define EXTCLIB_RSA_H_
 
+#include <stdio.h>
 #include <stdint.h>
 
 #include "context.h"
