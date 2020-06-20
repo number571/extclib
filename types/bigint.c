@@ -79,7 +79,7 @@ extern void fact_bigint(BigInt *z, uint32_t x) {
     mpz_fac_ui(z->decimal, x);
 }
 
-extern _Bool is_prime_bigint(BigInt *z, size_t q) {
+extern _Bool isprime_bigint(BigInt *z, size_t q) {
     return mpz_probab_prime_p(z->decimal, q);
 }
 
