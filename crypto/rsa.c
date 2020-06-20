@@ -41,19 +41,35 @@ extern size_t sizeof_rsa(void) {
     return sizeof(KeysRSA);
 }
 
-extern void pemsize_rsa(KeysRSA *rsa, size_t *priv, size_t *pub) {
-    if (priv != NULL) {
-        BIO *d = BIO_new(BIO_s_mem());
-        PEM_write_bio_RSAPrivateKey(d, rsa->keys, NULL, NULL, 0, NULL, NULL);
-        *priv = BIO_pending(d);
-        BIO_free_all(d);
+extern KeysRSA *pemin_rsa(FILE *stream) {
+    KeysRSA *rsa = (KeysRSA*)malloc(sizeof(KeysRSA));
+    rsa->keys = PEM_read_RSAPrivateKey(stream, NULL, 0, NULL);
+    if (rsa->keys == NULL) {
+        free(rsa);
+        return NULL;
     }
-    if (pub != NULL) {
-        BIO *e = BIO_new(BIO_s_mem());
-        PEM_write_bio_RSAPublicKey(e, rsa->keys);
-        *pub = BIO_pending(e);
-        BIO_free_all(e);
+    return rsa;
+}
+
+extern void pemout_rsa(KeysRSA *rsa, FILE *stream, _Bool ispriv) {
+    if (ispriv) {
+        PEM_write_RSAPrivateKey(stream, rsa->keys, NULL, NULL, 0, NULL, NULL);
+        return;
     }
+    PEM_write_RSAPublicKey(stream, rsa->keys);
+}
+
+extern KeysRSA *pemload_rsa(uint8_t *priv) {
+    BIO *bio = BIO_new_mem_buf(priv, strlen((char*)priv));
+    KeysRSA *rsa = (KeysRSA*)malloc(sizeof(KeysRSA));
+    rsa->keys = PEM_read_bio_RSAPrivateKey(bio, NULL, 0, NULL);
+    if (rsa->keys == NULL) {
+        BIO_free_all(bio);
+        free(rsa);
+        return NULL;
+    }
+    BIO_free_all(bio);
+    return rsa;
 }
 
 extern void pemstore_rsa(KeysRSA *rsa, uint8_t *priv, uint8_t *pub) {
@@ -75,17 +91,19 @@ extern void pemstore_rsa(KeysRSA *rsa, uint8_t *priv, uint8_t *pub) {
     }
 }
 
-extern KeysRSA *pemload_rsa(uint8_t *priv) {
-    BIO *bio = BIO_new_mem_buf(priv, strlen((char*)priv));
-    KeysRSA *rsa = (KeysRSA*)malloc(sizeof(KeysRSA));
-    rsa->keys = PEM_read_bio_RSAPrivateKey(bio, NULL, 0, NULL);
-    if (rsa->keys == NULL) {
-        BIO_free_all(bio);
-        free(rsa);
-        return NULL;
+extern void pemsize_rsa(KeysRSA *rsa, size_t *priv, size_t *pub) {
+    if (priv != NULL) {
+        BIO *d = BIO_new(BIO_s_mem());
+        PEM_write_bio_RSAPrivateKey(d, rsa->keys, NULL, NULL, 0, NULL, NULL);
+        *priv = BIO_pending(d);
+        BIO_free_all(d);
     }
-    BIO_free_all(bio);
-    return rsa;
+    if (pub != NULL) {
+        BIO *e = BIO_new(BIO_s_mem());
+        PEM_write_bio_RSAPublicKey(e, rsa->keys);
+        *pub = BIO_pending(e);
+        BIO_free_all(e);
+    }
 }
 
 extern int8_t encrypt_rsa(Context ctx, KeysRSA *rsa) {
