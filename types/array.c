@@ -10,7 +10,6 @@
 #include "array.h"
 #include "bigint.h"
 #include "dynamic.h"
-#include "string.h"
 
 typedef struct array_value {
     value_t value;
@@ -32,7 +31,7 @@ typedef struct Array {
 
 static void _print_node_array(Array *array, size_t index);
 static void _set_node_array(Array *array, size_t index, void *value);
-static _Bool _cmp_node_array(Array *x, Array *y, size_t ix, size_t iy);
+static _Bool _eq_node_array(Array *x, Array *y, size_t ix, size_t iy);
 static void _free_array(Array *array);
 static void _free_node_array(Array *array, size_t index);
 
@@ -47,7 +46,6 @@ extern Array *new_array(size_t size, vtype_t type) {
         case ARRAY_TYPE:
         case BIGINT_TYPE:
         case DYNAMIC_TYPE:
-        case STRING_TYPE:
             break;
         default:
             fprintf(stderr, "%s\n", "type not supported");
@@ -120,25 +118,22 @@ extern int32_t in_array(Array *array, void *value) {
                 flag = strcmp((char*)value, (char*)array->buffer[index].value.chars) == 0;
             break;
             case LIST_TYPE:
-                flag = cmp_list((List*)value, array->buffer[index].value.list) == 0;
+                flag = eq_list((List*)value, array->buffer[index].value.list);
             break;
             case TREE_TYPE:
-                flag = cmp_tree((Tree*)value, array->buffer[index].value.tree) == 0;
+                flag = eq_tree((Tree*)value, array->buffer[index].value.tree);
             break;
             case HASHTAB_TYPE:
-                flag = cmp_hashtab((HashTab*)value, array->buffer[index].value.hashtab) == 0;
+                flag = eq_hashtab((HashTab*)value, array->buffer[index].value.hashtab);
             break;
             case ARRAY_TYPE:
-                flag = cmp_array((Array*)value, array->buffer[index].value.array) == 0;
+                flag = eq_array((Array*)value, array->buffer[index].value.array);
             break;
             case BIGINT_TYPE:
-                flag = cmp_bigint((BigInt*)value, array->buffer[index].value.bigint) == 0;
+                flag = eq_bigint((BigInt*)value, array->buffer[index].value.bigint);
             break;
             case DYNAMIC_TYPE:
-                flag = cmp_dynamic((Dynamic*)value, array->buffer[index].value.dynamic) == 0;
-            break;
-            case STRING_TYPE:
-                flag = cmp_string((String*)value, array->buffer[index].value.string) == 0;
+                flag = eq_dynamic((Dynamic*)value, array->buffer[index].value.dynamic);
             break;
         }
         if (flag) {
@@ -151,45 +146,45 @@ extern int32_t in_array(Array *array, void *value) {
     return -1;
 }
 
-extern int8_t cmp_stack(Array *x, Array *y) {
+extern _Bool eq_stack(Array *x, Array *y) {
     if (x->type != y->type) {
-        return -1;
+        return 0;
     }
     if (x->stack.end - x->stack.begin != y->stack.end - y->stack.begin) {
-        return -2;
+        return 0;
     }
     if (x->stack.top - x->stack.begin != y->stack.top - y->stack.begin) {
-        return -3;
+        return 0;
     }
     size_t i = x->stack.begin;
     size_t j = y->stack.begin;
     for (; i < x->stack.top; ++i, ++j) {
-        if (!_cmp_node_array(x, y, i, j)) {
-            return 1;
+        if (!_eq_node_array(x, y, i, j)) {
+            return 0;
         }
     }
-    return 0;
+    return 1;
 }
 
-extern int8_t cmp_array(Array *x, Array *y) {
+extern _Bool eq_array(Array *x, Array *y) {
     if (x->type != y->type) {
-        return -1;
+        return 0;
     }
     if (x->size != y->size) {
-        return -2;
+        return 0;
     }
     for (size_t i = 0; i < x->size; ++i) {
         if (!x->buffer[i].exist && !y->buffer[i].exist) {
             continue;
         }
         if (!x->buffer[i].exist || !y->buffer[i].exist) {
-            return 2;
+            return 0;
         }
-        if (!_cmp_node_array(x, y, i, i)) {
-            return 1;
+        if (!_eq_node_array(x, y, i, i)) {
+            return 0;
         }
     }
-    return 0;
+    return 1;
 }
 
 extern size_t size_stack(Array *array) {
@@ -286,8 +281,7 @@ extern void free_array(Array *array) {
         case HASHTAB_TYPE: 
         case ARRAY_TYPE: 
         case BIGINT_TYPE: 
-        case DYNAMIC_TYPE: 
-        case STRING_TYPE:
+        case DYNAMIC_TYPE:
             _free_array(array);
         break;
         default: ;
@@ -325,9 +319,6 @@ static void _print_node_array(Array *array, size_t index) {
         case DYNAMIC_TYPE:
             print_dynamic(array->buffer[index].value.dynamic);
         break;
-        case STRING_TYPE:
-            print_string(array->buffer[index].value.string);
-        break;
     }
 }
 
@@ -364,14 +355,11 @@ static void _set_node_array(Array *array, size_t index, void *value) {
         case DYNAMIC_TYPE:
             array->buffer[index].value.dynamic = (struct Dynamic*)value;
         break;
-        case STRING_TYPE:
-            array->buffer[index].value.string = (struct String*)value;
-        break;
     }
     array->buffer[index].exist = 1;
 }
 
-static _Bool _cmp_node_array(Array *x, Array *y, size_t ix, size_t iy) {
+static _Bool _eq_node_array(Array *x, Array *y, size_t ix, size_t iy) {
     _Bool flag = 0;
     switch(x->type) {
         case DECIMAL_TYPE:
@@ -384,25 +372,22 @@ static _Bool _cmp_node_array(Array *x, Array *y, size_t ix, size_t iy) {
             flag = strcmp((char*)x->buffer[ix].value.chars, (char*)y->buffer[iy].value.chars) == 0;
         break;
         case LIST_TYPE:
-            flag = cmp_list(x->buffer[ix].value.list, y->buffer[iy].value.list) == 0;
+            flag = eq_list(x->buffer[ix].value.list, y->buffer[iy].value.list);
         break;
         case TREE_TYPE:
-            flag = cmp_tree(x->buffer[ix].value.tree, y->buffer[iy].value.tree) == 0;
+            flag = eq_tree(x->buffer[ix].value.tree, y->buffer[iy].value.tree);
         break;
         case HASHTAB_TYPE:
-            flag = cmp_hashtab(x->buffer[ix].value.hashtab, y->buffer[iy].value.hashtab) == 0;
+            flag = eq_hashtab(x->buffer[ix].value.hashtab, y->buffer[iy].value.hashtab);
         break;
         case ARRAY_TYPE:
-            flag = cmp_array(x->buffer[ix].value.array, y->buffer[iy].value.array) == 0;
+            flag = eq_array(x->buffer[ix].value.array, y->buffer[iy].value.array);
         break;
         case BIGINT_TYPE:
-            flag = cmp_bigint(x->buffer[ix].value.bigint, y->buffer[iy].value.bigint) == 0;
+            flag = eq_bigint(x->buffer[ix].value.bigint, y->buffer[iy].value.bigint);
         break;
         case DYNAMIC_TYPE:
-            flag = cmp_dynamic(x->buffer[ix].value.dynamic, y->buffer[iy].value.dynamic) == 0;
-        break;
-        case STRING_TYPE:
-            flag = cmp_string(x->buffer[ix].value.string, y->buffer[iy].value.string) == 0;
+            flag = eq_dynamic(x->buffer[ix].value.dynamic, y->buffer[iy].value.dynamic);
         break;
     }
     return flag;
@@ -436,9 +421,6 @@ static void _free_node_array(Array *array, size_t index) {
         break;
         case DYNAMIC_TYPE:
             free_dynamic(array->buffer[index].value.dynamic);
-        break;
-        case STRING_TYPE:
-            free_string(array->buffer[index].value.string);
         break;
         default: ;
     }

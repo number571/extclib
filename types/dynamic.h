@@ -15,7 +15,7 @@ extern value_t value_dynamic(Dynamic *dynamic);
 extern vtype_t type_dynamic(Dynamic *dynamic);
 
 extern size_t sizeof_dynamic(void);
-extern int8_t cmp_dynamic(Dynamic *x, Dynamic *y);
+extern _Bool eq_dynamic(Dynamic *x, Dynamic *y);
 
 extern void print_dynamic(Dynamic *dynamic);
 extern void println_dynamic(Dynamic *dynamic);

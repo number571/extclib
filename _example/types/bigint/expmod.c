@@ -1,5 +1,5 @@
 #include "extclib/io.h"
-#include "extclib/bigint.h"
+#include "extclib/types/bigint.h"
 
 int main(void) {
     BigInt *r = new_bigint("0");

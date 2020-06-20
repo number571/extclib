@@ -16,7 +16,7 @@ extern int8_t set_hashtab(HashTab *hashtab, void *key, void *value);
 extern void del_hashtab(HashTab *hashtab, void *key);
 extern _Bool in_hashtab(HashTab *hashtab, void *key);
 
-extern int8_t cmp_hashtab(HashTab *x, HashTab *y);
+extern _Bool eq_hashtab(HashTab *x, HashTab *y);
 extern size_t size_hashtab(HashTab *hashtab);
 extern size_t sizeof_hashtab(void);
 

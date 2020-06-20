@@ -16,7 +16,7 @@ extern int8_t set_tree(Tree *tree, void *key, void *value);
 extern void del_tree(Tree *tree, void *key);
 extern _Bool in_tree(Tree *tree, void *key);
 
-extern int8_t cmp_tree(Tree *x, Tree *y);
+extern _Bool eq_tree(Tree *x, Tree *y);
 extern size_t size_tree(Tree *tree);
 extern size_t sizeof_tree(void);
 

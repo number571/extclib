@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include "extclib/array.h"
+#include "extclib/types/array.h"
 
 int main(void) {
     Array *array = new_array(1000, CHARS_TYPE);

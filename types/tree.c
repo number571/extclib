@@ -9,7 +9,6 @@
 #include "array.h"
 #include "bigint.h"
 #include "dynamic.h"
-#include "string.h"
 
 typedef struct tree_node {
     struct {
@@ -47,14 +46,13 @@ static int8_t _cmp_int32(int32_t x, int32_t y);
 static tree_node *_del1_tree(Tree *tree, vtype_t tkey, void *key);
 static void _del2_tree(Tree *tree, tree_node *node);
 static void _del3_tree(Tree *tree, tree_node *node);
-static int8_t _cmp_tree(vtype_t tkey, vtype_t tvalue, tree_node *x, tree_node *y);
+static _Bool _eq_tree(vtype_t tkey, vtype_t tvalue, tree_node *x, tree_node *y);
 
 extern Tree *new_tree(vtype_t key, vtype_t value) {
     switch(key){
         case DECIMAL_TYPE: 
         case CHARS_TYPE:
         case BIGINT_TYPE:
-        case STRING_TYPE:
             break;
         default:
             fprintf(stderr, "%s\n", "key type not supported");
@@ -70,7 +68,6 @@ extern Tree *new_tree(vtype_t key, vtype_t value) {
         case ARRAY_TYPE:
         case BIGINT_TYPE:
         case DYNAMIC_TYPE:
-        case STRING_TYPE:
             break;
         default:
             fprintf(stderr, "%s\n", "value type not supported");
@@ -134,20 +131,20 @@ extern void del_tree(Tree *tree, void *key) {
     return;
 }
 
-extern int8_t cmp_tree(Tree *x, Tree *y) {
+extern _Bool eq_tree(Tree *x, Tree *y) {
     if (x->type.key != y->type.key) {
-        return -1;
+        return 0;
     }
     if (x->type.value != y->type.value) {
-        return -2;
+        return 0;
     }
     if (x->size != y->size) {
-        return 2;
+        return 0;
     }
-    return !_cmp_tree(x->type.key, x->type.value, x->node, y->node);
+    return _eq_tree(x->type.key, x->type.value, x->node, y->node);
 }
 
-static int8_t _cmp_tree(vtype_t tkey, vtype_t tvalue, tree_node *x, tree_node *y) {
+static _Bool _eq_tree(vtype_t tkey, vtype_t tvalue, tree_node *x, tree_node *y) {
     if (x == NULL && y == NULL) {
         return 1;
     }
@@ -174,28 +171,25 @@ static int8_t _cmp_tree(vtype_t tkey, vtype_t tvalue, tree_node *x, tree_node *y
                 fval = strcmp((char*)x->data.value.chars, (char*)y->data.value.chars) == 0;
             break;
             case LIST_TYPE:
-                fval = cmp_list(x->data.value.list, y->data.value.list) == 0;
+                fval = eq_list(x->data.value.list, y->data.value.list);
             break;
             case TREE_TYPE:
-                fval = cmp_tree(x->data.value.tree, y->data.value.tree) == 0;
+                fval = eq_tree(x->data.value.tree, y->data.value.tree);
             break;
             case HASHTAB_TYPE:
-                fval = cmp_hashtab(x->data.value.hashtab, y->data.value.hashtab) == 0;
+                fval = eq_hashtab(x->data.value.hashtab, y->data.value.hashtab);
             break;
             case ARRAY_TYPE:
-                fval = cmp_array(x->data.value.array, y->data.value.array) == 0;
+                fval = eq_array(x->data.value.array, y->data.value.array);
             break;
             case BIGINT_TYPE:
-                fval = cmp_bigint(x->data.value.bigint, y->data.value.bigint) == 0;
+                fval = eq_bigint(x->data.value.bigint, y->data.value.bigint);
             break;
             case DYNAMIC_TYPE:
-                fval = cmp_dynamic(x->data.value.dynamic, y->data.value.dynamic) == 0;
-            break;
-            case STRING_TYPE:
-                fval = cmp_string(x->data.value.string, y->data.value.string) == 0;
+                fval = eq_dynamic(x->data.value.dynamic, y->data.value.dynamic);
             break;
         }
-        return fkey && fval && _cmp_tree(tkey, tvalue, x->left, y->left) && _cmp_tree(tkey, tvalue, x->right, y->right);
+        return fkey && fval && _eq_tree(tkey, tvalue, x->left, y->left) && _eq_tree(tkey, tvalue, x->right, y->right);
     }
     return 0;
 }
@@ -253,9 +247,6 @@ static void _set_key(tree_node *node, vtype_t tkey, void *key) {
         case BIGINT_TYPE:
             node->data.key.bigint = (struct BigInt*)key;
         break;
-        case STRING_TYPE:
-            node->data.key.string = (struct String*)key;
-        break;
         default: ;
     }
 }
@@ -292,9 +283,6 @@ static void _set_value(tree_node *node, vtype_t tvalue, void *value) {
         break;
         case DYNAMIC_TYPE:
             node->data.value.dynamic = (struct Dynamic*)value;
-        break;
-        case STRING_TYPE:
-            node->data.value.string = (struct String*)value;
         break;
     }
     node->exist = 1;
@@ -344,13 +332,10 @@ static int8_t _cmp_tkey_tree(tree_node *node, vtype_t tkey, void *key) {
             cond = _cmp_int32((int32_t)(intptr_t)key, node->data.key.decimal);
         break;
         case CHARS_TYPE:
-            cond = cmp_chars((char*)key, node->data.key.chars);
+            cond = strcmp((char*)key, node->data.key.chars);
         break;
         case BIGINT_TYPE:
             cond = cmp_bigint((BigInt*)key, node->data.key.bigint);
-        break;
-        case STRING_TYPE:
-            cond = cmp_string((String*)key, node->data.key.string);
         break;
         default: ;
     }
@@ -443,9 +428,6 @@ static void _print_node_tree(Tree *tree, tree_node *node, vtype_t tkey, vtype_t 
         case BIGINT_TYPE:
             print_bigint(node->data.key.bigint);
         break;
-        case STRING_TYPE:
-            print_string(node->data.key.string);
-        break;
         default: ;
     }
     printf(" => ");
@@ -476,9 +458,6 @@ static void _print_node_tree(Tree *tree, tree_node *node, vtype_t tkey, vtype_t 
         break;
         case DYNAMIC_TYPE:
             print_dynamic(node->data.value.dynamic);
-        break;
-        case STRING_TYPE:
-            print_string(node->data.value.string);
         break;
     }
     printf("} ");
@@ -522,9 +501,6 @@ static void _free_key_tree(vtype_t type, tree_node *node) {
         case BIGINT_TYPE:
             free_bigint(node->data.key.bigint);
         break;
-        case STRING_TYPE:
-            free_string(node->data.key.string);
-        break;
         default: ;
     }
 }
@@ -548,9 +524,6 @@ static void _free_value_tree(vtype_t type, tree_node *node) {
         break;
         case DYNAMIC_TYPE:
             free_dynamic(node->data.value.dynamic);
-        break;
-        case STRING_TYPE:
-            free_string(node->data.value.string);
         break;
         default: ;
     }

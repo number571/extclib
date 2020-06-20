@@ -1,5 +1,5 @@
 #include "extclib/io.h"
-#include "extclib/bigint.h"
+#include "extclib/types/bigint.h"
 
 int main(void) {
     BigInt *x = new_bigint("8921739812739812738971298312");

@@ -30,12 +30,13 @@ typedef struct Context {
 } Context;
 
 // crypto.h
-#define DEF_MODE A_MODE_CTX
-#define ECB_MODE B_MODE_CTX
-#define CBC_MODE C_MODE_CTX
-
 #define ENCRYPT_OPTION A_OPTION_CTX
 #define DECRYPT_OPTION B_OPTION_CTX
+// #define GENERATE_OPTION C_OPTION_CTX
+
+#define ECB_MODE  A_MODE_CTX // AES
+#define CBC_MODE  B_MODE_CTX // AES
+#define OAEP_MODE C_MODE_CTX // RSA
 
 // encoding.h
 #define ENCODE_OPTION A_OPTION_CTX

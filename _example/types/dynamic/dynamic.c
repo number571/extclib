@@ -1,4 +1,4 @@
-#include "extclib/dynamic.h"
+#include "extclib/types/dynamic.h"
 
 int main(void) {
     Dynamic *dynamic = new_dynamic(CHARS_TYPE, chars("hello, world!"));

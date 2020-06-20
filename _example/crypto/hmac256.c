@@ -13,12 +13,12 @@ int main(void) {
 
     Context params = {
         .data = {
-            .size = strlen(in),
+            .size = strlen((char*)in),
             .in = in,
             .out = hash,
         },
         .desc = {
-            .size = strlen(key),
+            .size = strlen((char*)key),
             .vec1 = key,
         },
     };

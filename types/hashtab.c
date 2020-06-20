@@ -6,7 +6,6 @@
 #include "tree.h"
 #include "bigint.h"
 #include "dynamic.h"
-#include "string.h"
 
 typedef struct HashTab {
     struct {
@@ -25,7 +24,6 @@ extern HashTab *new_hashtab(size_t size, vtype_t key, vtype_t value) {
         case DECIMAL_TYPE:
         case CHARS_TYPE:
         case BIGINT_TYPE:
-        case STRING_TYPE:
             break;
         default:
             fprintf(stderr, "%s\n", "key type not supported");
@@ -41,7 +39,6 @@ extern HashTab *new_hashtab(size_t size, vtype_t key, vtype_t value) {
         case ARRAY_TYPE:
         case BIGINT_TYPE:
         case DYNAMIC_TYPE:
-        case STRING_TYPE:
             break;
         default:
             fprintf(stderr, "%s\n", "value type not supported");
@@ -85,25 +82,25 @@ extern int8_t set_hashtab(HashTab *hashtab, void *key, void *value) {
     return 0;
 }
 
-extern int8_t cmp_hashtab(HashTab *x, HashTab *y) {
+extern _Bool eq_hashtab(HashTab *x, HashTab *y) {
     if (x->type.key != y->type.key) {
-        return -1;
+        return 0;
     }
     if (x->type.value != y->type.value) {
-        return -2;
+        return 0;
     }
     if (x->size != y->size) {
-        return 2;
+        return 0;
     }
     for (size_t i = 0; i < x->size; ++i) {
         if (size_tree(x->table[i]) != size_tree(y->table[i])) {
-            return 1;
+            return 0;
         }
-        if (cmp_tree(x->table[i], y->table[i]) != 0) {
-            return 1;
+        if (eq_tree(x->table[i], y->table[i]) != 0) {
+            return 0;
         }
     }
-    return 0;
+    return 1;
 }
 
 extern size_t size_hashtab(HashTab *hashtab) {
@@ -169,9 +166,6 @@ static uint32_t _get_hash(HashTab *hashtab, void *key) {
         break;
         case BIGINT_TYPE:
             hash = getnum_bigint((BigInt*)key) % hashtab->size;
-        break;
-        case STRING_TYPE:
-            hash = hash_string((String*)key);
         break;
         default: ;
     }

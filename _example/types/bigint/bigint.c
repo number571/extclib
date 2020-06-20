@@ -1,4 +1,4 @@
-#include "extclib/bigint.h"
+#include "extclib/types/bigint.h"
 
 int main(void) {
     BigInt *x = new_bigint("1");

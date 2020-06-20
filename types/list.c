@@ -10,7 +10,6 @@
 #include "array.h"
 #include "bigint.h"
 #include "dynamic.h"
-#include "string.h"
 
 typedef struct list_node {
     value_t value;
@@ -38,7 +37,6 @@ extern List *new_list(vtype_t type) {
         case ARRAY_TYPE:
         case BIGINT_TYPE:
         case DYNAMIC_TYPE:
-        case STRING_TYPE:
             break;
         default:
             fprintf(stderr, "%s\n", "value type not supported");
@@ -70,25 +68,22 @@ extern int32_t in_list(List *list, void *value) {
                 flag = strcmp((char*)value, (char*)node->value.chars) == 0;
             break;
             case LIST_TYPE:
-                flag = cmp_list((List*)value, node->value.list) == 0;
+                flag = eq_list((List*)value, node->value.list);
             break;
             case TREE_TYPE:
-                flag = cmp_tree((Tree*)value, node->value.tree) == 0;
+                flag = eq_tree((Tree*)value, node->value.tree);
             break;
             case HASHTAB_TYPE:
-                flag = cmp_hashtab((HashTab*)value, node->value.hashtab) == 0;
+                flag = eq_hashtab((HashTab*)value, node->value.hashtab);
             break;
             case ARRAY_TYPE:
-                flag = cmp_array((Array*)value, node->value.array) == 0;
+                flag = eq_array((Array*)value, node->value.array);
             break;
             case BIGINT_TYPE:
-                flag = cmp_bigint((BigInt*)value, node->value.bigint) == 0;
+                flag = eq_bigint((BigInt*)value, node->value.bigint);
             break;
             case DYNAMIC_TYPE:
-                flag = cmp_dynamic((Dynamic*)value, node->value.dynamic) == 0;
-            break;
-            case STRING_TYPE:
-                flag = cmp_string((String*)value, node->value.string) == 0;
+                flag = eq_dynamic((Dynamic*)value, node->value.dynamic);
             break;
         }
         if (flag) {
@@ -103,12 +98,12 @@ extern int32_t in_list(List *list, void *value) {
     return -1;
 }
 
-extern int8_t cmp_list(List *x, List *y) {
+extern _Bool eq_list(List *x, List *y) {
     if (x->type != y->type) {
-        return -1;
+        return 0;
     }
     if (x->size != y->size) {
-        return 2;
+        return 0;
     }
     list_node *ptrx = x->node;
     list_node *ptry = y->node;
@@ -125,34 +120,31 @@ extern int8_t cmp_list(List *x, List *y) {
                 flag = strcmp((char*)ptrx->value.chars, (char*)ptry->value.chars) == 0;
             break;
             case LIST_TYPE:
-                flag = cmp_list(ptrx->value.list, ptry->value.list) == 0;
+                flag = eq_list(ptrx->value.list, ptry->value.list);
             break;
             case TREE_TYPE:
-                flag = cmp_tree(ptrx->value.tree, ptry->value.tree) == 0;
+                flag = eq_tree(ptrx->value.tree, ptry->value.tree);
             break;
             case HASHTAB_TYPE:
-                flag = cmp_hashtab(ptrx->value.hashtab, ptry->value.hashtab) == 0;
+                flag = eq_hashtab(ptrx->value.hashtab, ptry->value.hashtab);
             break;
             case ARRAY_TYPE:
-                flag = cmp_array(ptrx->value.array, ptrx->value.array) == 0;
+                flag = eq_array(ptrx->value.array, ptrx->value.array);
             break;
             case BIGINT_TYPE:
-                flag = cmp_bigint(ptrx->value.bigint, ptrx->value.bigint) == 0;
+                flag = eq_bigint(ptrx->value.bigint, ptrx->value.bigint);
             break;
             case DYNAMIC_TYPE:
-                flag = cmp_dynamic(ptrx->value.dynamic, ptrx->value.dynamic) == 0;
-            break;
-            case STRING_TYPE:
-                flag = cmp_string(ptrx->value.string, ptrx->value.string) == 0;
+                flag = eq_dynamic(ptrx->value.dynamic, ptrx->value.dynamic);
             break;
         }
         if (!flag) {
-            return 1;
+            return 0;
         }
         ptrx = ptrx->next;
         ptry = ptry->next;
     }
-    return 0;
+    return 1;
 }
 
 extern size_t size_list(List *list) {
@@ -334,9 +326,6 @@ static void _free_list(List *list, list_node *node) {
         case DYNAMIC_TYPE:
             free_dynamic(node->value.dynamic);
         break;
-        case STRING_TYPE:
-            free_string(node->value.string);
-        break;
         default: ;
     }
 }
@@ -373,9 +362,6 @@ static list_node *_new_node(vtype_t type, void *value) {
         case DYNAMIC_TYPE:
             node->value.dynamic = (struct Dynamic*)value;
         break;
-        case STRING_TYPE:
-            node->value.string = (struct String*)value;
-        break;
     }
     return node;
 }
@@ -410,9 +396,6 @@ static void _print_list(List *list, vtype_t type, list_node *node) {
             break;
             case DYNAMIC_TYPE:
                 print_dynamic(node->value.dynamic);
-            break;
-            case STRING_TYPE:
-                print_string(node->value.string);
             break;
         }
         putchar(' ');

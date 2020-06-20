@@ -13,7 +13,7 @@ int main(void) {
     Context params = {
         .mode = ECB_MODE,
         .data = {
-            .size = strlen(in),
+            .size = strlen((char*)in),
             .in = in,
             .out = in,
         },

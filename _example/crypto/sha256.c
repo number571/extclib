@@ -1,26 +1,24 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 #include "extclib/crypto.h"
 
-#define SEEDSIZE 32
-#define BUFFSIZE 20
-
 void print_bytes(uint8_t * array, size_t length);
 
 int main(void) {
-    uint8_t buffer[BUFFSIZE] = {0};
-    Context ctx = {
+    uint8_t in[BUFSIZ] = "abcdefghijklmnopqrstuvwxyz";
+    uint8_t hash[32] = {0};
+
+    Context params = {
         .data = {
-            .size = BUFFSIZE,
-            .out = buffer,
+            .size = strlen((char*)in),
+            .in = in,
+            .out = hash,
         },
     };
-    for (size_t i = 0; i < 10; ++i) {
-        rand_crypto(ctx);
-        print_bytes(buffer, BUFFSIZE);
-    }
+
+    sha256_crypto(params);
+    print_bytes(hash, 32);
     return 0;
 }
 

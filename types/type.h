@@ -13,7 +13,6 @@ typedef enum vtype_t {
     ARRAY_TYPE,
     BIGINT_TYPE,
     DYNAMIC_TYPE,
-    STRING_TYPE,
 } vtype_t;
 
 typedef union value_t {
@@ -26,7 +25,6 @@ typedef union value_t {
     struct Array *array;
     struct BigInt *bigint;
     struct Dynamic *dynamic;
-    struct String *string;
 } value_t;
 
 extern void *decimal(int32_t x);
@@ -38,6 +36,5 @@ extern void *hashtab(struct HashTab *x);
 extern void *bigint(struct BigInt *x);
 extern void *array(struct Array *x);
 extern void *dynamic(struct Dynamic *x);
-extern void *string(struct String *x);
 
 #endif /* EXTCLIB_TYPE_H_ */

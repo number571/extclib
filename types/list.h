@@ -19,7 +19,7 @@ extern int8_t set_list(List *list, size_t index, void *value);
 extern int8_t del_list(List *list, size_t index);
 extern int32_t in_list(List *list, void *value);
 
-extern int8_t cmp_list(List *x, List *y);
+extern _Bool eq_list(List *x, List *y);
 extern size_t size_list(List *list);
 extern size_t sizeof_list(void);
 

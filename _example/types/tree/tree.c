@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include "extclib/tree.h"
+#include "extclib/types/tree.h"
 
 int main(void) {
     Tree *tree = new_tree(CHARS_TYPE, DECIMAL_TYPE);
@@ -11,7 +11,7 @@ int main(void) {
 
     del_tree(tree, chars("B"));
 
-    uint8_t *elem = "A";
+    char *elem = "A";
     if (in_tree(tree, chars(elem))) {
         printf("%d\n", get_tree(tree, chars(elem)).decimal);
     }

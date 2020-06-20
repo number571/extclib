@@ -10,7 +10,6 @@
 #include "array.h"
 #include "bigint.h"
 #include "dynamic.h"
-#include "string.h"
 
 typedef struct Dynamic {
     vtype_t type;
@@ -30,7 +29,6 @@ extern Dynamic *new_dynamic(vtype_t type, void *value) {
         case HASHTAB_TYPE: 
         case ARRAY_TYPE:
         case BIGINT_TYPE:
-        case STRING_TYPE:
             break;
         default:
             fprintf(stderr, "%s\n", "type not supported");
@@ -64,9 +62,6 @@ extern Dynamic *new_dynamic(vtype_t type, void *value) {
         case BIGINT_TYPE: 
             dynamic->value.bigint = (struct BigInt*)value;
         break;
-        case STRING_TYPE: 
-            dynamic->value.string = (struct String*)value;
-        break;
         default: ;
     }
     return dynamic;
@@ -89,7 +84,7 @@ extern vtype_t type_dynamic(Dynamic *dynamic) {
     return dynamic->type;
 }
 
-extern int8_t cmp_dynamic(Dynamic *x, Dynamic *y) {
+extern _Bool eq_dynamic(Dynamic *x, Dynamic *y) {
     if (x->type != y->type) {
         return -1;
     }
@@ -105,26 +100,23 @@ extern int8_t cmp_dynamic(Dynamic *x, Dynamic *y) {
             flag = strcmp((char*)x->value.chars, (char*)y->value.chars) == 0;
         break;
         case LIST_TYPE:
-            flag = cmp_list(x->value.list, y->value.list) == 0;
+            flag = eq_list(x->value.list, y->value.list);
         break;
         case TREE_TYPE:
-            flag = cmp_tree(x->value.tree, y->value.tree) == 0;
+            flag = eq_tree(x->value.tree, y->value.tree);
         break;
         case HASHTAB_TYPE:
-            flag = cmp_hashtab(x->value.hashtab, y->value.hashtab) == 0;
+            flag = eq_hashtab(x->value.hashtab, y->value.hashtab);
         break;
         case ARRAY_TYPE:
-            flag = cmp_array(x->value.array, y->value.array) == 0;
+            flag = eq_array(x->value.array, y->value.array);
         break;
         case BIGINT_TYPE:
-            flag = cmp_bigint(x->value.bigint, y->value.bigint) == 0;
-        break;
-        case STRING_TYPE:
-            flag = cmp_string(x->value.string, y->value.string) == 0;
+            flag = eq_bigint(x->value.bigint, y->value.bigint);
         break;
         default: ;
     }
-    return !flag;
+    return flag;
 }
 
 extern void print_dynamic(Dynamic *dynamic) {
@@ -153,9 +145,6 @@ extern void print_dynamic(Dynamic *dynamic) {
         case BIGINT_TYPE:
             print_bigint(dynamic->value.bigint);
         break;
-        case STRING_TYPE:
-            print_string(dynamic->value.string);
-        break;
         default: ;
     }
 }
@@ -181,9 +170,6 @@ static void _free_dynamic(Dynamic *dynamic) {
         break;
         case BIGINT_TYPE:
             free_bigint(dynamic->value.bigint);
-        break;
-        case STRING_TYPE:
-            free_string(dynamic->value.string);
         break;
         default: ;
     }

@@ -17,7 +17,7 @@ extern int8_t set_array(Array *array, size_t index, void *value);
 extern int8_t del_array(Array *array, size_t index);
 extern int32_t in_array(Array *array, void *value);
 
-extern int8_t cmp_array(Array *x, Array *y);
+extern _Bool eq_array(Array *x, Array *y);
 extern size_t size_array(Array *array);
 extern size_t sizeof_array(void);
 
@@ -28,7 +28,7 @@ extern void println_array(Array *array);
 extern int8_t push_stack(Array *array, void *value);
 extern value_t pop_stack(Array *array);
 
-extern int8_t cmp_stack(Array *x, Array *y);
+extern _Bool eq_stack(Array *x, Array *y);
 
 extern size_t size_stack(Array *array);
 extern int8_t set_stack(Array *array, size_t top, size_t begin, size_t end);

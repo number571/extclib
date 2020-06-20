@@ -1,4 +1,4 @@
-#include "extclib/array.h"
+#include "extclib/types/array.h"
 
 int main(void) {
     Array *array = new_array(3, ARRAY_TYPE);

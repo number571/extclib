@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include "extclib/list.h"
+#include "extclib/types/list.h"
 
 int main(void) {
     List *list = new_list(CHARS_TYPE);
@@ -9,7 +9,7 @@ int main(void) {
     set_list(list, 0, chars("B"));
     push_list(list, chars("C"));
 
-    printf("%d\n", size_list(list));
+    printf("%ld\n", size_list(list));
 
     int32_t index = 0;
     if ((index = in_list(list, chars("B"))) != -1) {

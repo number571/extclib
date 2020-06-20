@@ -7,7 +7,6 @@
 #include "types/dynamic.h"
 #include "types/hashtab.h"
 #include "types/list.h"
-#include "types/string.h"
 #include "types/tree.h"
 
 #endif /* EXTCLIB_TYPES_H_ */
