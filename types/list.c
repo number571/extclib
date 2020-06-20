@@ -3,13 +3,13 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "type.h"
-#include "list.h"
-#include "tree.h"
-#include "hashtab.h"
 #include "array.h"
 #include "bigint.h"
 #include "dynamic.h"
+#include "hashtab.h"
+#include "list.h"
+#include "tree.h"
+#include "type.h"
 
 typedef struct list_node {
     value_t value;
@@ -47,55 +47,6 @@ extern List *new_list(vtype_t type) {
     list->size = 0;
     list->node = NULL;
     return list;
-}
-
-extern int32_t in_list(List *list, void *value) {
-    int32_t index = 0;
-    list_node *node = list->node;
-    while(node != NULL) {
-        _Bool flag = 0;
-        switch(list->type) {
-            case DECIMAL_TYPE:
-                flag = (int32_t)(intptr_t)value == node->value.decimal;
-            break;
-            case REAL_TYPE:
-                flag = *(double*)value == node->value.real;
-                if(flag) {
-                    free((double*)value);
-                }
-            break;
-            case CHARS_TYPE:
-                flag = strcmp((char*)value, (char*)node->value.chars) == 0;
-            break;
-            case LIST_TYPE:
-                flag = eq_list((List*)value, node->value.list);
-            break;
-            case TREE_TYPE:
-                flag = eq_tree((Tree*)value, node->value.tree);
-            break;
-            case HASHTAB_TYPE:
-                flag = eq_hashtab((HashTab*)value, node->value.hashtab);
-            break;
-            case ARRAY_TYPE:
-                flag = eq_array((Array*)value, node->value.array);
-            break;
-            case BIGINT_TYPE:
-                flag = eq_bigint((BigInt*)value, node->value.bigint);
-            break;
-            case DYNAMIC_TYPE:
-                flag = eq_dynamic((Dynamic*)value, node->value.dynamic);
-            break;
-        }
-        if (flag) {
-            return index;
-        }
-        node = node->next;
-        ++index;
-    }
-    if(list->type == REAL_TYPE) {
-        free((double*)value);
-    }
-    return -1;
 }
 
 extern _Bool eq_list(List *x, List *y) {
@@ -145,6 +96,55 @@ extern _Bool eq_list(List *x, List *y) {
         ptry = ptry->next;
     }
     return 1;
+}
+
+extern int32_t in_list(List *list, void *value) {
+    int32_t index = 0;
+    list_node *node = list->node;
+    while(node != NULL) {
+        _Bool flag = 0;
+        switch(list->type) {
+            case DECIMAL_TYPE:
+                flag = (int32_t)(intptr_t)value == node->value.decimal;
+            break;
+            case REAL_TYPE:
+                flag = *(double*)value == node->value.real;
+                if(flag) {
+                    free((double*)value);
+                }
+            break;
+            case CHARS_TYPE:
+                flag = strcmp((char*)value, (char*)node->value.chars) == 0;
+            break;
+            case LIST_TYPE:
+                flag = eq_list((List*)value, node->value.list);
+            break;
+            case TREE_TYPE:
+                flag = eq_tree((Tree*)value, node->value.tree);
+            break;
+            case HASHTAB_TYPE:
+                flag = eq_hashtab((HashTab*)value, node->value.hashtab);
+            break;
+            case ARRAY_TYPE:
+                flag = eq_array((Array*)value, node->value.array);
+            break;
+            case BIGINT_TYPE:
+                flag = eq_bigint((BigInt*)value, node->value.bigint);
+            break;
+            case DYNAMIC_TYPE:
+                flag = eq_dynamic((Dynamic*)value, node->value.dynamic);
+            break;
+        }
+        if (flag) {
+            return index;
+        }
+        node = node->next;
+        ++index;
+    }
+    if(list->type == REAL_TYPE) {
+        free((double*)value);
+    }
+    return -1;
 }
 
 extern size_t size_list(List *list) {

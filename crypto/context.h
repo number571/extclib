@@ -10,11 +10,6 @@ typedef enum ctxmode_t {
 	C_MODE_CTX,
 } ctxmode_t;
 
-typedef enum option_t {
-	A_OPTION_CTX,
-	B_OPTION_CTX,
-} option_t;
-
 typedef struct Context {
     ctxmode_t mode;
     struct {
@@ -29,17 +24,8 @@ typedef struct Context {
     } desc;
 } Context;
 
-// crypto.h
-#define ENCRYPT_OPTION A_OPTION_CTX
-#define DECRYPT_OPTION B_OPTION_CTX
-// #define GENERATE_OPTION C_OPTION_CTX
-
-#define ECB_MODE  A_MODE_CTX // AES
-#define CBC_MODE  B_MODE_CTX // AES
-#define OAEP_MODE C_MODE_CTX // RSA
-
-// encoding.h
-#define ENCODE_OPTION A_OPTION_CTX
-#define DECODE_OPTION B_OPTION_CTX
+#define ECB_MODE  A_MODE_CTX
+#define CBC_MODE  B_MODE_CTX
+#define OAEP_MODE C_MODE_CTX
 
 #endif /* EXTCLIB_CONTEXT_H_ */

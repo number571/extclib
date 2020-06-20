@@ -1,13 +1,9 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <stdint.h>
 
+#include "extclib/io.h"
 #include "extclib/crypto.h"
 
-#define SEEDSIZE 32
 #define BUFFSIZE 20
-
-void print_bytes(uint8_t * array, size_t length);
 
 int main(void) {
     uint8_t buffer[BUFFSIZE] = {0};
@@ -18,19 +14,8 @@ int main(void) {
         },
     };
     for (size_t i = 0; i < 10; ++i) {
-        rand_crypto(ctx);
-        print_bytes(buffer, BUFFSIZE);
+        bytes_rand(ctx);
+        printf_io("%$\n", buffer, BUFFSIZE);
     }
     return 0;
-}
-
-void print_bytes(uint8_t * array, size_t length) {
-    printf("[ ");
-    for (size_t i = 0; i < length; ++i) {
-        if (array[i] <= 0xF) {
-            putchar('0');
-        }
-        printf("%x ", array[i]);
-    }
-    printf("]\n");
 }

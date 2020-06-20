@@ -3,13 +3,13 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "type.h"
-#include "tree.h"
-#include "list.h"
-#include "hashtab.h"
 #include "array.h"
 #include "bigint.h"
 #include "dynamic.h"
+#include "hashtab.h"
+#include "list.h"
+#include "tree.h"
+#include "type.h"
 
 typedef struct array_value {
     value_t value;
@@ -98,6 +98,47 @@ extern int8_t del_array(Array *array, size_t index) {
     return 0;
 }
 
+extern _Bool eq_stack(Array *x, Array *y) {
+    if (x->type != y->type) {
+        return 0;
+    }
+    if (x->stack.end - x->stack.begin != y->stack.end - y->stack.begin) {
+        return 0;
+    }
+    if (x->stack.top - x->stack.begin != y->stack.top - y->stack.begin) {
+        return 0;
+    }
+    size_t i = x->stack.begin;
+    size_t j = y->stack.begin;
+    for (; i < x->stack.top; ++i, ++j) {
+        if (!_eq_node_array(x, y, i, j)) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+extern _Bool eq_array(Array *x, Array *y) {
+    if (x->type != y->type) {
+        return 0;
+    }
+    if (x->size != y->size) {
+        return 0;
+    }
+    for (size_t i = 0; i < x->size; ++i) {
+        if (!x->buffer[i].exist && !y->buffer[i].exist) {
+            continue;
+        }
+        if (!x->buffer[i].exist || !y->buffer[i].exist) {
+            return 0;
+        }
+        if (!_eq_node_array(x, y, i, i)) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
 extern int32_t in_array(Array *array, void *value) {
     for (size_t index = 0; index < array->size; ++index) {
         if (!array->buffer[index].exist) {
@@ -144,47 +185,6 @@ extern int32_t in_array(Array *array, void *value) {
         free((double*)value);
     }
     return -1;
-}
-
-extern _Bool eq_stack(Array *x, Array *y) {
-    if (x->type != y->type) {
-        return 0;
-    }
-    if (x->stack.end - x->stack.begin != y->stack.end - y->stack.begin) {
-        return 0;
-    }
-    if (x->stack.top - x->stack.begin != y->stack.top - y->stack.begin) {
-        return 0;
-    }
-    size_t i = x->stack.begin;
-    size_t j = y->stack.begin;
-    for (; i < x->stack.top; ++i, ++j) {
-        if (!_eq_node_array(x, y, i, j)) {
-            return 0;
-        }
-    }
-    return 1;
-}
-
-extern _Bool eq_array(Array *x, Array *y) {
-    if (x->type != y->type) {
-        return 0;
-    }
-    if (x->size != y->size) {
-        return 0;
-    }
-    for (size_t i = 0; i < x->size; ++i) {
-        if (!x->buffer[i].exist && !y->buffer[i].exist) {
-            continue;
-        }
-        if (!x->buffer[i].exist || !y->buffer[i].exist) {
-            return 0;
-        }
-        if (!_eq_node_array(x, y, i, i)) {
-            return 0;
-        }
-    }
-    return 1;
 }
 
 extern size_t size_stack(Array *array) {

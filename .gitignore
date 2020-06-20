@@ -1,11 +1,3 @@
-# Clean object files
 *.o
-types/*.o
-
-# Clean preprocessor files
 *.i
-types/*.i
-
-# Clean asm files
 *.s
-types/*.s

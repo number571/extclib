@@ -1,13 +1,13 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "type.h"
-#include "list.h"
-#include "tree.h"
-#include "hashtab.h"
 #include "array.h"
 #include "bigint.h"
 #include "dynamic.h"
+#include "hashtab.h"
+#include "list.h"
+#include "tree.h"
+#include "type.h"
 
 extern void *decimal(int32_t x) {
     return (void*)(intptr_t)x;

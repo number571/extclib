@@ -2,10 +2,13 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include "type.h"
-#include "tree.h"
+#include "array.h"
 #include "bigint.h"
 #include "dynamic.h"
+#include "hashtab.h"
+#include "list.h"
+#include "tree.h"
+#include "type.h"
 
 typedef struct HashTab {
     struct {

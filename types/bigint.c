@@ -4,6 +4,8 @@
 
 #include <gmp.h>
 
+#include "bigint.h"
+
 typedef struct BigInt{
     mpz_t decimal;
 } BigInt;

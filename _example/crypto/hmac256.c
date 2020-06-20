@@ -1,17 +1,18 @@
-#include <stdio.h>
+#include <stdint.h>
 #include <string.h>
 
+#include "extclib/io.h"
 #include "extclib/crypto.h"
 
-void print_bytes(uint8_t * array, size_t length);
+#define BUFFSIZE 64
 
 int main(void) {
-    uint8_t in[BUFSIZ] = "abcdefghijklmnopqrstuvwxyz";
-    uint8_t key[BUFSIZ] = "1234567890";
+    uint8_t in[BUFFSIZE] = "abcdefghijklmnopqrstuvwxyz";
+    uint8_t key[BUFFSIZE] = "1234567890";
 
     uint8_t hash[32] = {0};
 
-    Context params = {
+    Context ctx = {
         .data = {
             .size = strlen((char*)in),
             .in = in,
@@ -23,18 +24,7 @@ int main(void) {
         },
     };
 
-    hmac256_crypto(params);
-    print_bytes(hash, 32);
+    sum_hmac256(ctx);
+    printf_io("%$\n", hash, 32);
     return 0;
-}
-
-void print_bytes(uint8_t * array, size_t length) {
-    printf("[ ");
-    for (size_t i = 0; i < length; ++i) {
-        if (array[i] <= 0xF) {
-            putchar('0');
-        }
-        printf("%x ", array[i]);
-    }
-    printf("]\n");
 }

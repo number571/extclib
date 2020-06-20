@@ -7,6 +7,7 @@
 #define INDEX(ptr, init) (ptr-init)
 
 static void _printf_io(char *fmt, va_list args);
+static void _printb_io(uint8_t *bytes, size_t size);
 
 extern void printf_io(char *fmt, ...) {
 	va_list factor;
@@ -53,10 +54,27 @@ static void _printf_io(char *fmt, va_list args) {
         		case 'A': print_array(va_arg(args, Array*)); break;
         		case 'S': print_stack(va_arg(args, Array*)); break;
                 case 'D': print_dynamic(va_arg(args, Dynamic*)); break;
-        	    default:  putchar(*fmt);
+                case '$': {
+                    uint8_t *bytes = va_arg(args, uint8_t*);
+                    size_t size = va_arg(args, size_t);
+                    _printb_io(bytes, size); 
+                }; 
+                break;
+        	    default: putchar(*fmt);
             }
         }
         flag = 0;
         ++fmt;
     }
+}
+
+static void _printb_io(uint8_t *bytes, size_t size) {
+    printf("[ ");
+    for (size_t i = 0; i < size; ++i) {
+        if (bytes[i] <= 0xF) {
+            putchar('0');
+        }
+        printf("%x ", bytes[i]);
+    }
+    printf("]");
 }

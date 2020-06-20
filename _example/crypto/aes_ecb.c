@@ -1,16 +1,16 @@
-#include <stdio.h>
+#include <stdint.h>
 #include <string.h>
 
+#include "extclib/io.h"
 #include "extclib/crypto.h"
 
-#define MAX_SIZE 32 // multiple 128 bit for AES block
-
-void print_bytes(uint8_t * array, size_t length);
+#define BLCKSIZE 16
+#define BUFFSIZE BLCKSIZE*2
 
 int main(void) {
-    uint8_t in[BUFSIZ] = "1234567890abcdefghij";
+    uint8_t in[BUFFSIZE] = "1234567890abcdefghij";
 
-    Context params = {
+    Context ctx = {
         .mode = ECB_MODE,
         .data = {
             .size = strlen((char*)in),
@@ -19,23 +19,17 @@ int main(void) {
         },
         .desc = {
             .size = 128,
-            .vec1 = "AES_key_128_bits", // key
+            .vec1 = (uint8_t*)"AES_key_128_bits", // key
         },
     };
 
-    print_bytes(in, MAX_SIZE);
+    printf_io("%$\n", in, BUFFSIZE);
 
-    aes_crypto(ENCRYPT_OPTION, params);
-    print_bytes(in, MAX_SIZE);
+    encrypt_aes(ctx);
+    printf_io("%$\n", in, BUFFSIZE);
 
-    aes_crypto(DECRYPT_OPTION, params);
-    print_bytes(in, MAX_SIZE);
+    decrypt_aes(ctx);
+    printf_io("%$\n", in, BUFFSIZE);
+
     return 0;
-}
-
-void print_bytes(uint8_t * array, size_t length) {
-    printf("[ ");
-    for (size_t i = 0; i < length; ++i)
-        printf("%x ", array[i]);
-    printf("]\n");
 }

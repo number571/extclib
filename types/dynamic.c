@@ -3,13 +3,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "type.h"
-#include "list.h"
-#include "tree.h"
-#include "hashtab.h"
 #include "array.h"
 #include "bigint.h"
 #include "dynamic.h"
+#include "hashtab.h"
+#include "list.h"
+#include "tree.h"
+#include "type.h"
 
 typedef struct Dynamic {
     vtype_t type;

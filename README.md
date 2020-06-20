@@ -2,7 +2,7 @@
 > Extended C library.
 
 ### Implemented:
-1. Types: Array, BigInt, Dynamic, HashTab, List, String, Tree;
+1. Types: Array, BigInt, Dynamic, HashTab, List, Tree;
 2. Crypto: AES[ECB, CBC], SHA256, HMAC[SHA256], RAND;
 3. Net: Linux[arpa/inet.h], Windows[winsock2.h];
 
