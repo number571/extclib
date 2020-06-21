@@ -8,6 +8,7 @@ typedef enum ctxmode_t {
 	A_MODE_CTX,
 	B_MODE_CTX,
 	C_MODE_CTX,
+    D_MODE_CTX
 } ctxmode_t;
 
 typedef struct Context {
@@ -27,5 +28,6 @@ typedef struct Context {
 #define ECB_MODE  A_MODE_CTX
 #define CBC_MODE  B_MODE_CTX
 #define OAEP_MODE C_MODE_CTX
+#define SIGN_MODE D_MODE_CTX
 
 #endif /* EXTCLIB_CONTEXT_H_ */
