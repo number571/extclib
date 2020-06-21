@@ -10,17 +10,18 @@
 ### Used libraries:
 1. gmp: [gmplib.org/](https://gmplib.org/);
 2. openssl: [openssl.org](https://www.openssl.org/);
+3. cJSON: (https://github.com/DaveGamble/cJSON);
 
 ### Compile library:
 ```
-/* install 'gmp', 'openssl' libraries before compilation */
+/* install 'gmp', 'openssl', 'cJSON' libraries before compilation */
 $ make -C extclib/
 
 /* linux compile: */
-$ cc main.c extclib/extclib.o -o main -lgmp -lcrypto
+$ cc main.c extclib/extclib.o -o main -lgmp -lcrypto -lcjson
 
 /* windows compile: */
-$ cc main.c extclib/extclib.o -o main -lgmp -lcrypto -lws2_32
+$ cc main.c extclib/extclib.o -o main -lgmp -lcrypto -lcjson -lws2_32
 ```
 
 ### Usage restrictions:
@@ -32,26 +33,24 @@ $ cc main.c extclib/extclib.o -o main -lgmp -lcrypto -lws2_32
 #include "extclib/io.h"
 #include "extclib/types.h"
 
-// gcc main.c extclib/extclib.o -o main
-
 int main(void) {
-    HashTab *hashtab = new_hashtab(250, CHARS_TYPE, BIGINT_TYPE);
+    HashTab *hashtab = new_hashtab(250, STRING_TYPE, BIGINT_TYPE);
 
-    set_hashtab(hashtab, chars("varX"), bigint(new_bigint("872138712637512787387124821738712648712736128749182")));
-    set_hashtab(hashtab, chars("varY"), bigint(new_bigint("675346126835124712346172467268375128731")));
-    set_hashtab(hashtab, chars("result"), bigint(new_bigint("")));
+    set_hashtab(hashtab, string("varX"), new_bigint("872138712637512787387124821738712648712736128749182"));
+    set_hashtab(hashtab, string("varY"), new_bigint("675346126835124712346172467268375128731"));
+    set_hashtab(hashtab, string("result"), new_bigint(""));
 
     // result <- varX * varY
     mul_bigint(
-        get_hashtab(hashtab, chars("result")).bigint, 
-        get_hashtab(hashtab, chars("varX")).bigint,
-        get_hashtab(hashtab, chars("varY")).bigint
+        get_hashtab(hashtab, string("result")).bigint, 
+        get_hashtab(hashtab, string("varX")).bigint,
+        get_hashtab(hashtab, string("varY")).bigint
     );
 
     printf_io("(%B * %B = %B)\n", 
-        get_hashtab(hashtab, chars("varX")).bigint,
-        get_hashtab(hashtab, chars("varY")).bigint,
-        get_hashtab(hashtab, chars("result")).bigint
+        get_hashtab(hashtab, string("varX")).bigint,
+        get_hashtab(hashtab, string("varY")).bigint,
+        get_hashtab(hashtab, string("result")).bigint
     );
     free_hashtab(hashtab);
     return 0;

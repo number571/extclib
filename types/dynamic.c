@@ -23,7 +23,7 @@ extern Dynamic *new_dynamic(vtype_t type, void *value) {
     switch(type) {
         case DECIMAL_TYPE: 
         case REAL_TYPE: 
-        case CHARS_TYPE: 
+        case STRING_TYPE: 
         case LIST_TYPE: 
         case TREE_TYPE: 
         case HASHTAB_TYPE: 
@@ -44,8 +44,8 @@ extern Dynamic *new_dynamic(vtype_t type, void *value) {
             dynamic->value.real = *(double*)value;
             free((double*)value);  
         break;
-        case CHARS_TYPE: 
-            dynamic->value.chars = (char*)value;
+        case STRING_TYPE: 
+            dynamic->value.string = (char*)value;
         break;
         case LIST_TYPE: 
             dynamic->value.list = (struct List*)value;
@@ -96,8 +96,8 @@ extern _Bool eq_dynamic(Dynamic *x, Dynamic *y) {
         case REAL_TYPE:
             flag = x->value.real == y->value.real;
         break;
-        case CHARS_TYPE:
-            flag = strcmp((char*)x->value.chars, (char*)y->value.chars) == 0;
+        case STRING_TYPE:
+            flag = strcmp((char*)x->value.string, (char*)y->value.string) == 0;
         break;
         case LIST_TYPE:
             flag = eq_list(x->value.list, y->value.list);
@@ -127,8 +127,8 @@ extern void print_dynamic(Dynamic *dynamic) {
         case REAL_TYPE:
             printf("%lf", dynamic->value.real);
         break;
-        case CHARS_TYPE:
-            printf("'%s'", dynamic->value.chars);
+        case STRING_TYPE:
+            printf("'%s'", dynamic->value.string);
         break;
         case LIST_TYPE:
             print_list(dynamic->value.list);

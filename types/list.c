@@ -30,7 +30,7 @@ extern List *new_list(vtype_t type) {
     switch(type) {
         case DECIMAL_TYPE: 
         case REAL_TYPE: 
-        case CHARS_TYPE: 
+        case STRING_TYPE: 
         case LIST_TYPE: 
         case TREE_TYPE: 
         case HASHTAB_TYPE: 
@@ -67,8 +67,8 @@ extern _Bool eq_list(List *x, List *y) {
             case REAL_TYPE:
                 flag = ptrx->value.real == ptry->value.real;
             break;
-            case CHARS_TYPE:
-                flag = strcmp((char*)ptrx->value.chars, (char*)ptry->value.chars) == 0;
+            case STRING_TYPE:
+                flag = strcmp((char*)ptrx->value.string, (char*)ptry->value.string) == 0;
             break;
             case LIST_TYPE:
                 flag = eq_list(ptrx->value.list, ptry->value.list);
@@ -113,8 +113,8 @@ extern int32_t in_list(List *list, void *value) {
                     free((double*)value);
                 }
             break;
-            case CHARS_TYPE:
-                flag = strcmp((char*)value, (char*)node->value.chars) == 0;
+            case STRING_TYPE:
+                flag = strcmp((char*)value, (char*)node->value.string) == 0;
             break;
             case LIST_TYPE:
                 flag = eq_list((List*)value, node->value.list);
@@ -341,8 +341,8 @@ static list_node *_new_node(vtype_t type, void *value) {
             node->value.real = *(double*)value;
             free((double*)value);
         break;
-        case CHARS_TYPE:
-            node->value.chars = (char*)value;
+        case STRING_TYPE:
+            node->value.string = (char*)value;
         break;
         case LIST_TYPE:
             node->value.list = (struct List*)value;
@@ -376,8 +376,8 @@ static void _print_list(List *list, vtype_t type, list_node *node) {
             case REAL_TYPE:
                 printf("%lf", node->value.real);
             break;
-            case CHARS_TYPE:
-                printf("'%s'", node->value.chars);
+            case STRING_TYPE:
+                printf("'%s'", node->value.string);
             break;
             case LIST_TYPE:
                 print_list(node->value.list);

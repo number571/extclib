@@ -51,7 +51,7 @@ static _Bool _eq_tree(vtype_t tkey, vtype_t tvalue, tree_node *x, tree_node *y);
 extern Tree *new_tree(vtype_t key, vtype_t value) {
     switch(key){
         case DECIMAL_TYPE: 
-        case CHARS_TYPE:
+        case STRING_TYPE:
         case BIGINT_TYPE:
             break;
         default:
@@ -61,7 +61,7 @@ extern Tree *new_tree(vtype_t key, vtype_t value) {
     switch(value) {
         case DECIMAL_TYPE: 
         case REAL_TYPE: 
-        case CHARS_TYPE: 
+        case STRING_TYPE: 
         case LIST_TYPE: 
         case TREE_TYPE: 
         case HASHTAB_TYPE: 
@@ -155,8 +155,8 @@ static _Bool _eq_tree(vtype_t tkey, vtype_t tvalue, tree_node *x, tree_node *y) 
             case DECIMAL_TYPE:
                 fkey = x->data.key.decimal == y->data.key.decimal;
             break;
-            case CHARS_TYPE:
-                fkey = strcmp((char*)x->data.key.chars, (char*)y->data.key.chars) == 0;
+            case STRING_TYPE:
+                fkey = strcmp((char*)x->data.key.string, (char*)y->data.key.string) == 0;
             break;
             default: ;
         }
@@ -167,8 +167,8 @@ static _Bool _eq_tree(vtype_t tkey, vtype_t tvalue, tree_node *x, tree_node *y) 
             case REAL_TYPE:
                 fval = x->data.value.real == y->data.value.real;
             break;
-            case CHARS_TYPE:
-                fval = strcmp((char*)x->data.value.chars, (char*)y->data.value.chars) == 0;
+            case STRING_TYPE:
+                fval = strcmp((char*)x->data.value.string, (char*)y->data.value.string) == 0;
             break;
             case LIST_TYPE:
                 fval = eq_list(x->data.value.list, y->data.value.list);
@@ -241,8 +241,8 @@ static void _set_key(tree_node *node, vtype_t tkey, void *key) {
         case DECIMAL_TYPE:
             node->data.key.decimal = (int32_t)(intptr_t)key;
         break;
-        case CHARS_TYPE:
-            node->data.key.chars = (char*)key;
+        case STRING_TYPE:
+            node->data.key.string = (char*)key;
         break;
         case BIGINT_TYPE:
             node->data.key.bigint = (struct BigInt*)key;
@@ -263,8 +263,8 @@ static void _set_value(tree_node *node, vtype_t tvalue, void *value) {
             node->data.value.real = *(double*)value;
             free((double*)value);
         break;
-        case CHARS_TYPE:
-            node->data.value.chars = (char*)value;
+        case STRING_TYPE:
+            node->data.value.string = (char*)value;
         break;
         case LIST_TYPE:
             node->data.value.list = (struct List*)value;
@@ -331,8 +331,8 @@ static int8_t _cmp_tkey_tree(tree_node *node, vtype_t tkey, void *key) {
         case DECIMAL_TYPE:
             cond = _cmp_int32((int32_t)(intptr_t)key, node->data.key.decimal);
         break;
-        case CHARS_TYPE:
-            cond = strcmp((char*)key, node->data.key.chars);
+        case STRING_TYPE:
+            cond = strcmp((char*)key, node->data.key.string);
         break;
         case BIGINT_TYPE:
             cond = cmp_bigint((BigInt*)key, node->data.key.bigint);
@@ -422,8 +422,8 @@ static void _print_node_tree(Tree *tree, tree_node *node, vtype_t tkey, vtype_t 
         case DECIMAL_TYPE:
             printf("%d", node->data.key.decimal);
         break;
-        case CHARS_TYPE:
-            printf("'%s'", node->data.key.chars);
+        case STRING_TYPE:
+            printf("'%s'", node->data.key.string);
         break;
         case BIGINT_TYPE:
             print_bigint(node->data.key.bigint);
@@ -438,8 +438,8 @@ static void _print_node_tree(Tree *tree, tree_node *node, vtype_t tkey, vtype_t 
         case REAL_TYPE:
             printf("%lf", node->data.value.real);
         break;
-        case CHARS_TYPE:
-            printf("'%s'", node->data.value.chars);
+        case STRING_TYPE:
+            printf("'%s'", node->data.value.string);
         break;
         case LIST_TYPE: 
             print_list(node->data.value.list);

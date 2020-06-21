@@ -3,17 +3,17 @@
 #include "extclib/types/hashtab.h"
 
 int main(void) {
-    HashTab *hashtab = new_hashtab(10000, CHARS_TYPE, DECIMAL_TYPE);
+    HashTab *hashtab = new_hashtab(10000, STRING_TYPE, DECIMAL_TYPE);
 
-    set_hashtab(hashtab, chars("A"), decimal(10));
-    set_hashtab(hashtab, chars("B"), decimal(20));
-    set_hashtab(hashtab, chars("C"), decimal(30));
+    set_hashtab(hashtab, string("A"), decimal(10));
+    set_hashtab(hashtab, string("B"), decimal(20));
+    set_hashtab(hashtab, string("C"), decimal(30));
 
-    del_hashtab(hashtab, chars("B"));
+    del_hashtab(hashtab, string("B"));
 
     char *elem = "A";
-    if (in_hashtab(hashtab, chars(elem))) {
-        printf("%d\n", get_hashtab(hashtab, chars(elem)).decimal);
+    if (in_hashtab(hashtab, string(elem))) {
+        printf("%d\n", get_hashtab(hashtab, string(elem)).decimal);
     }
 
     println_hashtab(hashtab);

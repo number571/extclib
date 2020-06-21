@@ -6,7 +6,7 @@
 typedef enum vtype_t {
     DECIMAL_TYPE,
     REAL_TYPE,
-    CHARS_TYPE,
+    STRING_TYPE,
     LIST_TYPE,
     TREE_TYPE,
     HASHTAB_TYPE,
@@ -18,7 +18,7 @@ typedef enum vtype_t {
 typedef union value_t {
     int32_t decimal;
     double real;
-    char *chars;
+    char *string;
     struct List *list;
     struct Tree *tree;
     struct HashTab *hashtab;
@@ -28,13 +28,7 @@ typedef union value_t {
 } value_t;
 
 extern void *decimal(int32_t x);
-extern void *chars(char *x);
+extern void *string(char *x);
 extern void *real(double x);
-extern void *list(struct List *x);
-extern void *tree(struct Tree *x);
-extern void *hashtab(struct HashTab *x);
-extern void *bigint(struct BigInt *x);
-extern void *array(struct Array *x);
-extern void *dynamic(struct Dynamic *x);
 
 #endif /* EXTCLIB_TYPE_H_ */

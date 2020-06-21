@@ -39,7 +39,7 @@ extern Array *new_array(size_t size, vtype_t type) {
     switch(type) {
         case DECIMAL_TYPE: 
         case REAL_TYPE: 
-        case CHARS_TYPE: 
+        case STRING_TYPE: 
         case LIST_TYPE: 
         case TREE_TYPE: 
         case HASHTAB_TYPE: 
@@ -155,8 +155,8 @@ extern int32_t in_array(Array *array, void *value) {
                     free((double*)value);
                 }
             break;
-            case CHARS_TYPE:
-                flag = strcmp((char*)value, (char*)array->buffer[index].value.chars) == 0;
+            case STRING_TYPE:
+                flag = strcmp((char*)value, (char*)array->buffer[index].value.string) == 0;
             break;
             case LIST_TYPE:
                 flag = eq_list((List*)value, array->buffer[index].value.list);
@@ -298,8 +298,8 @@ static void _print_node_array(Array *array, size_t index) {
         case REAL_TYPE:
             printf("%lf", array->buffer[index].value.real);
         break;
-        case CHARS_TYPE:
-            printf("'%s'", array->buffer[index].value.chars);
+        case STRING_TYPE:
+            printf("'%s'", array->buffer[index].value.string);
         break;
         case LIST_TYPE:
             print_list(array->buffer[index].value.list);
@@ -334,8 +334,8 @@ static void _set_node_array(Array *array, size_t index, void *value) {
             array->buffer[index].value.real = *(double*)value;
             free((double*)value);
         break;
-        case CHARS_TYPE:
-            array->buffer[index].value.chars = (char*)value;
+        case STRING_TYPE:
+            array->buffer[index].value.string = (char*)value;
         break;
         case LIST_TYPE:
             array->buffer[index].value.list = (struct List*)value;
@@ -368,8 +368,8 @@ static _Bool _eq_node_array(Array *x, Array *y, size_t ix, size_t iy) {
         case REAL_TYPE:
             flag = x->buffer[ix].value.real == y->buffer[iy].value.real;
         break;
-        case CHARS_TYPE:
-            flag = strcmp((char*)x->buffer[ix].value.chars, (char*)y->buffer[iy].value.chars) == 0;
+        case STRING_TYPE:
+            flag = strcmp((char*)x->buffer[ix].value.string, (char*)y->buffer[iy].value.string) == 0;
         break;
         case LIST_TYPE:
             flag = eq_list(x->buffer[ix].value.list, y->buffer[iy].value.list);
