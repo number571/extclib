@@ -4,7 +4,7 @@
 #include <openssl/sha.h>
 
 #include "hmac256.h"
-#include "context.h"
+#include "../context.h"
 
 #include "_sha256.h"
 

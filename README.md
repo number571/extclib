@@ -3,7 +3,8 @@
 
 ### Implemented:
 1. Types: Array, BigInt, Dynamic, HashTab, List, Tree;
-2. Crypto: AES[ECB, CBC], RSA[OAEP], SHA256, HMAC[SHA256], RAND;
+2. Crypto: AES[ECB, CBC], RSA[OAEP, SIGN], SHA256, HMAC[SHA256], RAND;
+3. Encoding: Base64;
 3. Net: Linux[arpa/inet.h], Windows[winsock2.h];
 
 ### Used libraries:

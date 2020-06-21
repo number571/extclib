@@ -7,8 +7,6 @@
 #define BITSSIZE 512
 #define BYTESIZE BITSSIZE/8
 
-#define SHASIZE 32
-
 int main(void) {
     KeysRSA *keys = new_rsa(BITSSIZE);
     uint8_t in[BYTESIZE] = "hello, world!";

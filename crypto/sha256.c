@@ -1,7 +1,5 @@
 #include "sha256.h"
-#include "context.h"
-
-#include "sha256.h"
+#include "../context.h"
 
 #include "_sha256.h"
 

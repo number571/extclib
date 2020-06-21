@@ -3,7 +3,7 @@
 
 #include <openssl/sha.h>
 
-#include "context.h"
+#include "../context.h"
 
 static void _sum_sha256(Context *ctx) {
     SHA256_CTX sha256;

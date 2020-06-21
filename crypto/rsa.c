@@ -6,7 +6,7 @@
 #include <openssl/rsa.h>
 
 #include "rsa.h"
-#include "context.h"
+#include "../context.h"
 
 #include "_types.h"
 
