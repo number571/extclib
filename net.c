@@ -96,6 +96,7 @@ extern int recv_net(int conn, char *buffer, size_t size) {
 }
 
 extern int close_net(int conn) {
+    shutdown(conn, SHUT_RDWR); 
 #ifdef __linux__
     return close(conn);
 #elif __WIN32

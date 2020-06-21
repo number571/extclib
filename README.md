@@ -8,9 +8,9 @@
 3. Net: Linux[arpa/inet.h], Windows[winsock2.h];
 
 ### Used libraries:
-1. gmp: [gmplib.org/](https://gmplib.org/);
+1. gmp: [gmplib.org](https://gmplib.org/);
 2. openssl: [openssl.org](https://www.openssl.org/);
-3. cJSON: (https://github.com/DaveGamble/cJSON);
+3. cJSON: [cJSON.git](https://github.com/DaveGamble/cJSON);
 
 ### Compile library:
 ```
