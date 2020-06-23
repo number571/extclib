@@ -9,6 +9,6 @@ extern SQLite *new_sqlite(char *filename);
 extern void free_sqlite(SQLite *db);
 
 extern int8_t set_sqlite(SQLite *db, char *exec);
-extern int8_t get_sqlite(SQLite *db, char *exec, int(*callback)(void*,int,char**,char**));
+extern int8_t get_sqlite(SQLite *db, char *exec, int(*callback)(void*,int,char**,char**), void *arg);
 
 #endif /* EXTCLIB_SQLITE_H_ */

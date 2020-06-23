@@ -23,7 +23,7 @@ int main(void) {
         set_sqlite(db, exec);
     }
 
-    get_sqlite(db, "SELECT * FROM users;", callback);
+    get_sqlite(db, "SELECT * FROM users;", callback, NULL);
 
     free_sqlite(db);
     return 0;
