@@ -25,7 +25,7 @@ extern void neg_bigint(BigInt *z, BigInt *x);
 extern void abs_bigint(BigInt *z, BigInt *x);
 
 extern void fact_bigint(BigInt *z, uint32_t x);
-extern _Bool isprime_bigint(BigInt *z, size_t q);
+extern _Bool isprime_bigint(BigInt *z);
 extern void gcdext_bigint(BigInt *z, BigInt *a, BigInt *b, BigInt *x, BigInt *y);
 extern void gcd_bigint(BigInt *z, BigInt *a, BigInt *b);
 

@@ -4,17 +4,19 @@
 ### Implemented:
 1. Types: Array, BigInt, Dynamic, HashTab, List, Tree;
 2. Crypto: AES[ECB, CBC], RSA[OAEP, SIGN], SHA256, HMAC[SHA256], RAND;
-3. Encoding: Base64;
-3. Net: Linux[arpa/inet.h], Windows[winsock2.h];
+3. Encoding: Base64, JSON;
+4. Database: SQLite;
+5. Net: Linux[arpa/inet.h], Windows[winsock2.h];
 
 ### Used libraries:
 1. gmp: [gmplib.org](https://gmplib.org/);
 2. openssl: [openssl.org](https://www.openssl.org/);
-3. cJSON: [cJSON.git](https://github.com/DaveGamble/cJSON);
+3. cJSON: [cJSON.git](https://github.com/DaveGamble/cJSON.git/);
+4. sqlite3: [sqlite.org](https://www.sqlite.org/);
 
 ### Compile library:
 ```
-/* install 'gmp', 'openssl', 'cJSON' libraries before compilation */
+/* install 'gmp', 'openssl', 'cJSON', 'sqlite3' libraries before compilation */
 $ make -C extclib/
 
 /* linux compile: */

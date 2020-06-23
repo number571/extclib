@@ -15,7 +15,6 @@ extern JSON *get_json(JSON *json, char *key, vtype_t type);
 
 extern size_t arrsize_json(JSON *array);
 extern JSON *arritem_json(JSON *array, size_t index, vtype_t type);
-extern void arrpush_json(JSON *array, void *value, vtype_t type);
 
 extern JSON *decode_json(char *str);
 extern char *encode_json(JSON *json);

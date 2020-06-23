@@ -8,7 +8,7 @@
 #define BYTESIZE BITSSIZE/8
 
 int main(void) {
-    KeysRSA *keys = new_rsa(BITSSIZE);
+    RSA *keys = new_rsa(BITSSIZE);
     uint8_t in[BYTESIZE] = "hello, world!";
 
     Context ctx = {

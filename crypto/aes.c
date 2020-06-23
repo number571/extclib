@@ -5,15 +5,15 @@
 #include <openssl/aes.h>
 
 #include "aes.h"
-#include "../context.h"
 
 #include "_types.h"
+#include "_macro_ctx.h"
 
 #define AES_BSIZE 16 // block size = 16 byte
 
 static int8_t _aes(option_t option, Context *ctx);
-static int8_t _ecb_crypto(option_t option, Context *ctx);
-static int8_t _cbc_crypto(option_t option, Context *ctx);
+static int8_t _ecb_aes(option_t option, Context *ctx);
+static int8_t _cbc_aes(option_t option, Context *ctx);
 
 extern int8_t encrypt_aes(Context ctx) {
 	return _aes(ENCRYPT_OPTION, &ctx);
@@ -26,16 +26,16 @@ extern int8_t decrypt_aes(Context ctx) {
 static int8_t _aes(option_t option, Context *ctx) {
     switch(ctx->mode) {
         case ECB_MODE:
-            return _ecb_crypto(option, ctx);
+            return _ecb_aes(option, ctx);
         break;
         case CBC_MODE:
-            return _cbc_crypto(option, ctx);
+            return _cbc_aes(option, ctx);
         break;
         default: return -1;
     }
 }
 
-static int8_t _ecb_crypto(option_t option, Context *ctx) {
+static int8_t _ecb_aes(option_t option, Context *ctx) {
     AES_KEY wkeys;
     switch(ctx->desc.size){
         case 128: case 192: case 256: break;
@@ -58,7 +58,7 @@ static int8_t _ecb_crypto(option_t option, Context *ctx) {
     return 0;
 }
 
-static int8_t _cbc_crypto(option_t option, Context *ctx) {
+static int8_t _cbc_aes(option_t option, Context *ctx) {
     AES_KEY wkeys;
     uint8_t iv[AES_BSIZE];
     switch(ctx->desc.size){

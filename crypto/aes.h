@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#include "../context.h"
+#include "_macro_ctx.h"
 
 extern int8_t encrypt_aes(Context ctx);
 extern int8_t decrypt_aes(Context ctx);

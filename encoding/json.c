@@ -60,35 +60,6 @@ extern JSON *arritem_json(JSON *array, size_t index, vtype_t type) {
     return elem;
 }
 
-extern void arrpush_json(JSON *array, void *value, vtype_t type) {
-    JSON *elem;
-    switch(type) {
-        case DECIMAL_TYPE:
-            elem = cJSON_CreateNumber((int32_t)(intptr_t)value);
-            cJSON_AddItemToArray(array, elem);
-        break;
-        case REAL_TYPE: {
-            double fval = *(double*)value;
-            free((double*)value);
-            elem = cJSON_CreateNumber(fval);
-            cJSON_AddItemToArray(array, elem);
-        }
-        break;
-        case STRING_TYPE:
-            elem = cJSON_CreateString((char*)value);
-            cJSON_AddItemToArray(array, elem);
-        break;
-        case ARRAY_TYPE:
-            elem = cJSON_CreateArray();
-            cJSON_AddItemToArray(array, elem);
-        break;
-        case DYNAMIC_TYPE:
-            cJSON_AddItemToArray(array, (JSON*)value);
-        break;
-        default: ;
-    }
-}
-
 extern JSON *decode_json(char *str) {
     return cJSON_Parse(str);
 }

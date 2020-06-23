@@ -15,7 +15,7 @@ int main(void) {
 
     double nums[3] = {111.25, 222.50, 333.75};
     for (size_t i = 0; i < 3; ++i) {
-        arrpush_json(arr, real(nums[i]), REAL_TYPE);
+        set_json(arr, "", real(nums[i]), REAL_TYPE);
     }
 
     JSON *elem = new_json();

@@ -8,10 +8,10 @@
 #define BITSSIZE 512
 #define BYTESIZE BITSSIZE/8
 
-void test_encrypt(KeysRSA *keys);
+void test_encrypt(RSA *keys);
 
 int main(void) {
-    KeysRSA *keys = new_rsa(BITSSIZE);
+    RSA *keys = new_rsa(BITSSIZE);
 
     size_t priv_len, pub_len;
     pemsize_rsa(keys, &priv_len, &pub_len);
@@ -32,7 +32,7 @@ int main(void) {
     return 0;
 }
 
-void test_encrypt(KeysRSA *keys) {
+void test_encrypt(RSA *keys) {
     uint8_t in[BYTESIZE] = "hello, world!";
 
     Context ctx = {
