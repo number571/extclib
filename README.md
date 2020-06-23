@@ -20,10 +20,10 @@
 $ make -C extclib/
 
 /* linux compile: */
-$ cc main.c extclib/extclib.o -o main -lgmp -lcrypto -lcjson
+$ cc main.c extclib/extclib.o -o main -lgmp -lcrypto -lcjson -lsqlite3
 
 /* windows compile: */
-$ cc main.c extclib/extclib.o -o main -lgmp -lcrypto -lcjson -lws2_32
+$ cc main.c extclib/extclib.o -o main -lgmp -lcrypto -lcjson -lsqlite3 -lws2_32
 ```
 
 ### Usage restrictions:
