@@ -20,7 +20,8 @@ OBJECTS=array.o bigint.o list.o hashtab.o io.o net.o dynamic.o tree.o aes.o rsa.
 .PHONY: default compile link clean
 default: compile link
 compile: $(SOURCES) $(HEADERS)
-	# crypto.o, bigint.o, array.o list.o hashtab.o io.o net.o dynamic.o tree.o string.o type.o
+	# array.o, bigint.o, list.o hashtab.o io.o net.o dynamic.o tree.o aes.o rsa.o
+	# rand.o sha256.o hmac256.o type.o base64.o json.o sqlite.o
 	$(CC) $(CFLAGS) -c $(SOURCES)
 link: $(OBJECTS)
 	# extclib.o

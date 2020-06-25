@@ -1,5 +1,5 @@
 # extclib
-> Extended C library.
+> Extended C library. Version: 0.1.0.
 
 ### Implemented:
 1. Types: Array, BigInt, Dynamic, HashTab, List, Tree;
