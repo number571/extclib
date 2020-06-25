@@ -8,10 +8,10 @@
 #define BITSSIZE 512
 #define BYTESIZE BITSSIZE/8
 
-void test_encrypt(RSA *keys);
+void test_encrypt(RSA_e *keys);
 
 int main(void) {
-    RSA *keys = new_rsa(BITSSIZE);
+    RSA_e *keys = new_rsa(BITSSIZE);
 
     FILE *priv = fopen("private.pem", "w");
     if (priv == NULL) {
@@ -42,7 +42,7 @@ int main(void) {
     return 0;
 }
 
-void test_encrypt(RSA *keys) {
+void test_encrypt(RSA_e *keys) {
     uint8_t in[BYTESIZE] = "hello, world!";
 
     Context ctx = {

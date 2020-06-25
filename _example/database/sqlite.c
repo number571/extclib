@@ -7,7 +7,7 @@
 int callback(void *NotUsed, int argc, char **argv, char **azColName);
 
 int main(void) {
-    SQLite *db = new_sqlite("database.db");
+    SQLite_e *db = new_sqlite("database.db");
     set_sqlite(db, 
         "CREATE TABLE IF NOT EXISTS users ("
             "id INTEGER PRIMARY KEY AUTOINCREMENT,"

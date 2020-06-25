@@ -48,7 +48,7 @@ extern HashTab *new_hashtab(size_t size, vtype_t key, vtype_t value) {
             return NULL;
     }
     HashTab *hashtab = (HashTab*)malloc(sizeof(HashTab));
-    hashtab->table = (Tree**)malloc(size * sizeof_tree());
+    hashtab->table = (Tree**)malloc(size * sizeof(Tree*));
     for (size_t i = 0; i < size; ++i) {
         hashtab->table[i] = new_tree(key, value);
     }

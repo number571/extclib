@@ -10,8 +10,8 @@ char *json_str = "{"
 "}";
 
 int main(void) {
-    JSON *elem, *temp;
-    JSON *json = decode_json(json_str);
+    JSON_e *elem, *temp;
+    JSON_e *json = decode_json(json_str);
 
     elem = get_json(json, "str1", STRING_TYPE);
     printf("%s\n", string_json(elem));
@@ -19,7 +19,7 @@ int main(void) {
     elem = get_json(json, "num1", DECIMAL_TYPE);
     printf("%d\n", decimal_json(elem));
 
-    JSON *array = get_json(json, "array", ARRAY_TYPE);
+    JSON_e *array = get_json(json, "array", ARRAY_TYPE);
 
     for (size_t i = 0; i < arrsize_json(array); ++i) {
         elem = arritem_json(array, i, REAL_TYPE);
