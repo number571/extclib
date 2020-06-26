@@ -19,11 +19,12 @@
 
 typedef enum error_t {
     SOCKET_ERR  = -1,
-    PARSE_ERR   = -2,
-    CONNECT_ERR = -3,
-    BIND_ERR    = -4,
-    LISTEN_ERR  = -5,
-    WINSOCK_ERR = -6,
+    SETOPT_ERR  = -2,
+    PARSE_ERR   = -3,
+    CONNECT_ERR = -4,
+    BIND_ERR    = -5,
+    LISTEN_ERR  = -6,
+    WINSOCK_ERR = -7,
 } error_t;
 
 static int8_t _parse_address(char *address, char *ipv4, char *port);
@@ -38,6 +39,9 @@ extern int listen_net(char *address) {
     int listener = socket(AF_INET, SOCK_STREAM, 0);
     if (listener < 0) {
         return SOCKET_ERR;
+    }
+    if (setsockopt(listener, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int)) < 0) {
+        return SETOPT_ERR;
     }
     char ipv4[16];
     char port[6];
