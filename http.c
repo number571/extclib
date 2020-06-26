@@ -8,25 +8,21 @@
 #include "net.h"
 #include "types/hashtab.h"
 
-typedef struct Request {
-    char method[16];
-    char path[2048];
-    uint8_t state;
-    size_t index;
-} Request;
+#define PATH_SIZE 2048
+#define METHOD_SIZE 16
 
 typedef struct HTTP {
     char *host;
     int32_t len;
     int32_t cap;
-    void(**funcs)(int conn, Request *req);
+    void(**funcs)(int conn, HTTPreq *req);
     HashTab *tab;
 } HTTP;
 
-static Request _new_request(void);
-static void _parse_request(Request *request, char *buffer, size_t size);
-static void _null_reqdata(Request *request);
-static int8_t _switch_http(HTTP *http, int conn, Request *request);
+static HTTPreq _new_request(void);
+static void _parse_request(HTTPreq *request, char *buffer, size_t size);
+static void _null_reqdata(HTTPreq *request);
+static int8_t _switch_http(HTTP *http, int conn, HTTPreq *request);
 static void _page404_http(int conn);
 
 extern HTTP *new_http(char *address) {
@@ -34,7 +30,7 @@ extern HTTP *new_http(char *address) {
     http->cap = 1000;
     http->len = 0;
     http->host = (char*)malloc(sizeof(char)*strlen(address)+1);
-    http->funcs = (void(**)(int conn, Request *req))malloc(http->cap * (sizeof (void(*)(int conn, Request *req))));
+    http->funcs = (void(**)(int conn, HTTPreq *req))malloc(http->cap * (sizeof (void(*)(int conn, HTTPreq *req))));
     http->tab = new_hashtab(http->cap, STRING_TYPE, DECIMAL_TYPE);
     strcpy(http->host, address);
     return http;
@@ -46,13 +42,13 @@ extern void free_http(HTTP *http) {
     free(http);
 }
 
-extern int8_t handle_http(HTTP *http, char *path, void(*handle)(int conn, Request *req)) {
+extern int8_t handle_http(HTTP *http, char *path, void(*handle)(int conn, HTTPreq *req)) {
     set_hashtab(http->tab, string(path), decimal(http->len));
     http->funcs[http->len] = handle;
     http->len += 1;
     if (http->len == http->cap) {
         http->cap <<= 1;
-        http->funcs = (void(**)(int conn, Request *req))realloc(http->funcs, http->cap * (sizeof (void(*)(int conn, Request *req))));
+        http->funcs = (void(**)(int conn, HTTPreq *req))realloc(http->funcs, http->cap * (sizeof (void(*)(int conn, HTTPreq *req))));
     }
     return 0;
 }
@@ -67,7 +63,7 @@ extern int8_t listen_http(HTTP *http) {
         if (conn < 0) {
             continue;
         }
-        Request req = _new_request();
+        HTTPreq req = _new_request();
         while(1) {
             char buffer[BUFSIZ] = {0};
             int n = recv_net(conn, buffer, BUFSIZ);
@@ -100,8 +96,8 @@ extern void parsehtml_http(int conn, char *filename) {
     fclose(file);
 }
 
-static Request _new_request(void) {
-    return (Request){
+static HTTPreq _new_request(void) {
+    return (HTTPreq){
         .method = {0},
         .path = {0},
         .index = 0,
@@ -109,13 +105,11 @@ static Request _new_request(void) {
     };
 }
 
-static void _parse_request(Request *request, char *buffer, size_t size) {
-    const size_t maxsize_method = 16;
-    const size_t maxsize_path = 2048;
+static void _parse_request(HTTPreq *request, char *buffer, size_t size) {
     for (size_t i = 0; i < size; ++i) {
         switch(request->state) {
             case 0:
-                if (buffer[i] == ' ' || request->index == maxsize_method) {
+                if (buffer[i] == ' ' || request->index == METHOD_SIZE) {
                     request->method[request->index] = '\0';
                     _null_reqdata(request);
                     continue;
@@ -123,7 +117,7 @@ static void _parse_request(Request *request, char *buffer, size_t size) {
                 request->method[request->index] = buffer[i];
             break;
             case 1: 
-                if (buffer[i] == ' ' || request->index == maxsize_path) {
+                if (buffer[i] == ' ' || request->index == PATH_SIZE) {
                     request->path[request->index] = '\0';
                     _null_reqdata(request);
                     continue;
@@ -136,24 +130,33 @@ static void _parse_request(Request *request, char *buffer, size_t size) {
     }
 }
 
-static void _null_reqdata(Request *request) {
+static void _null_reqdata(HTTPreq *request) {
     request->state += 1;
     request->index = 0;
 }
 
-static int8_t _switch_http(HTTP *http, int conn, Request *request) {
+static int8_t _switch_http(HTTP *http, int conn, HTTPreq *request) {
     if (!in_hashtab(http->tab, string(request->path))) {
-        size_t length = strlen(request->path);
-        if (length == 0) {
+        char buffer[PATH_SIZE];
+        memcpy(buffer, request->path, PATH_SIZE);
+        int32_t index = strlen(request->path);
+        if (index == 0) {
             _page404_http(conn);
             return 1;
         }
-        int32_t index = length-1;
-        request->path[index] = '\0';
-        for (; request->path[index] != '/' && index > 0; --index) {
-            request->path[index] = '\0';
+        index -= 1;
+        buffer[index] = '\0';
+        for (; index > 0 && buffer[index] != '/'; --index) {
+            buffer[index] = '\0';
         }
-        return _switch_http(http, conn, request);
+        if(!in_hashtab(http->tab, string(buffer))) {
+            printf("%s\n", buffer);
+            _page404_http(conn);
+            return 1;
+        }
+        index = get_hashtab(http->tab, string(buffer)).decimal;
+        http->funcs[index](conn, request);
+        return 0;
     }
     int32_t index = get_hashtab(http->tab, string(request->path)).decimal;
     http->funcs[index](conn, request);
