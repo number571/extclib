@@ -100,7 +100,7 @@ extern int recv_net(int conn, char *buffer, size_t size) {
 }
 
 extern int close_net(int conn) {
-    shutdown(conn, SHUT_RDWR); 
+    // shutdown(conn, SHUT_RDWR); 
 #ifdef __linux__
     return close(conn);
 #elif __WIN32
@@ -109,27 +109,24 @@ extern int close_net(int conn) {
 }
 
 static int8_t _parse_address(char *address, char *ipv4, char *port) {
-    char *ptr = address;
-    while(*ptr != ':') {
-        if (*ptr == '\0') {
+    size_t i = 0, j = 0;
+    for (; address[i] != ':'; ++i) {
+        if (address[i] == '\0') {
             return 1;
         }
-        if (INDEX(ptr, address) > 15) {
+        if (i >= 16-1) {
             return 2;
         }
-        *ipv4++ = *ptr++;
+        ipv4[i] = address[i];
     }
-    *ipv4 = '\0';
-    ++ptr;
-    address = ptr;
-    ptr = address;
-    while(*ptr != '\0') {
-        if (INDEX(ptr, address) > 5) {
+    ipv4[i] = '\0';
+    for (i += 1; address[i] != '\0'; ++i, ++j) {
+        if (j >= 6-1) {
             return 3;
         }
-        *port++ = *ptr++;
+        port[j] = address[i];
     }
-    *port = '\0';
+    port[j] = '\0';
     return 0;
 }
 

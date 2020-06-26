@@ -8,14 +8,15 @@
 #include "net.h"
 #include "types/hashtab.h"
 
-#define PATH_SIZE 2048
 #define METHOD_SIZE 16
+#define PATH_SIZE   2048
+#define PROTO_SIZE  16
 
 typedef struct HTTP {
     char *host;
     int32_t len;
     int32_t cap;
-    void(**funcs)(int conn, HTTPreq *req);
+    void(**funcs)(int, HTTPreq*);
     HashTab *tab;
 } HTTP;
 
@@ -30,7 +31,7 @@ extern HTTP *new_http(char *address) {
     http->cap = 1000;
     http->len = 0;
     http->host = (char*)malloc(sizeof(char)*strlen(address)+1);
-    http->funcs = (void(**)(int conn, HTTPreq *req))malloc(http->cap * (sizeof (void(*)(int conn, HTTPreq *req))));
+    http->funcs = (void(**)(int, HTTPreq*))malloc(http->cap * (sizeof (void(*)(int, HTTPreq*))));
     http->tab = new_hashtab(http->cap, STRING_TYPE, DECIMAL_TYPE);
     strcpy(http->host, address);
     return http;
@@ -39,16 +40,18 @@ extern HTTP *new_http(char *address) {
 extern void free_http(HTTP *http) {
     free_hashtab(http->tab);
     free(http->host);
+    free(http->funcs);
     free(http);
 }
 
-extern int8_t handle_http(HTTP *http, char *path, void(*handle)(int conn, HTTPreq *req)) {
+extern int8_t handle_http(HTTP *http, char *path, void(*handle)(int, HTTPreq*)) {
     set_hashtab(http->tab, string(path), decimal(http->len));
     http->funcs[http->len] = handle;
     http->len += 1;
     if (http->len == http->cap) {
         http->cap <<= 1;
-        http->funcs = (void(**)(int conn, HTTPreq *req))realloc(http->funcs, http->cap * (sizeof (void(*)(int conn, HTTPreq *req))));
+        http->funcs = (void(**)(int, HTTPreq*))realloc(http->funcs, http->cap * 
+            (sizeof (void(*)(int, HTTPreq*))));
     }
     return 0;
 }
@@ -83,7 +86,7 @@ extern int8_t listen_http(HTTP *http) {
 }
 
 extern void parsehtml_http(int conn, char *filename) {
-    char buffer[BUFSIZ] = "HTTP/1.1 200 OK\r\n\n";
+    char buffer[BUFSIZ] = "HTTP/1.1 200 OK\nContent-type: text/html\n\n";
     size_t readsize = strlen(buffer);
     send_net(conn, buffer, readsize);
     FILE *file = fopen(filename, "r");
@@ -100,29 +103,39 @@ static HTTPreq _new_request(void) {
     return (HTTPreq){
         .method = {0},
         .path = {0},
+        .proto = {0},
         .index = 0,
         .state = 0,
     };
 }
 
 static void _parse_request(HTTPreq *request, char *buffer, size_t size) {
+    printf("%s\n", buffer);
     for (size_t i = 0; i < size; ++i) {
         switch(request->state) {
             case 0:
-                if (buffer[i] == ' ' || request->index == METHOD_SIZE) {
+                if (buffer[i] == ' ' || request->index == METHOD_SIZE-1) {
                     request->method[request->index] = '\0';
                     _null_reqdata(request);
                     continue;
-                } 
+                }
                 request->method[request->index] = buffer[i];
             break;
             case 1: 
-                if (buffer[i] == ' ' || request->index == PATH_SIZE) {
+                if (buffer[i] == ' ' || request->index == PATH_SIZE-1) {
                     request->path[request->index] = '\0';
                     _null_reqdata(request);
                     continue;
                 } 
                 request->path[request->index] = buffer[i];
+            break;
+            case 2:
+                if (buffer[i] == '\n' || request->index == PROTO_SIZE-1) {
+                    request->proto[request->index] = '\0';
+                    _null_reqdata(request);
+                    continue;
+                } 
+                request->proto[request->index] = buffer[i];
             break;
             default: return;
         }
@@ -150,7 +163,6 @@ static int8_t _switch_http(HTTP *http, int conn, HTTPreq *request) {
             buffer[index] = '\0';
         }
         if(!in_hashtab(http->tab, string(buffer))) {
-            printf("%s\n", buffer);
             _page404_http(conn);
             return 1;
         }
@@ -164,7 +176,7 @@ static int8_t _switch_http(HTTP *http, int conn, HTTPreq *request) {
 }
 
 static void _page404_http(int conn) {
-    char *header = "HTTP/1.1 404 Not Found\r\n\nnot found";
+    char *header = "HTTP/1.1 404 Not Found\n\nnot found";
     size_t headsize = strlen(header);
     send_net(conn, header, headsize);
 }
