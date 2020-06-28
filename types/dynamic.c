@@ -44,8 +44,11 @@ extern Dynamic *new_dynamic(vtype_t type, void *value) {
             dynamic->value.real = *(double*)value;
             free((double*)value);  
         break;
-        case STRING_TYPE: 
-            dynamic->value.string = (char*)value;
+        case STRING_TYPE: {
+            size_t size = strlen((char*)value);
+            dynamic->value.string = (char*)malloc(sizeof(char)*size+1);
+            strcpy(dynamic->value.string, (char*)value);
+        }
         break;
         case LIST_TYPE: 
             dynamic->value.list = (struct List*)value;
@@ -156,6 +159,9 @@ extern void println_dynamic(Dynamic *dynamic) {
 
 static void _free_dynamic(Dynamic *dynamic) {
     switch(dynamic->type) {
+        case STRING_TYPE:
+            free(dynamic->value.string);
+        break;
         case LIST_TYPE:
             free_list(dynamic->value.list);
         break;

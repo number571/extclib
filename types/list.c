@@ -308,6 +308,9 @@ extern void free_list(List *list) {
 
 static void _free_list(List *list, list_node *node) {
     switch(list->type) {
+        case STRING_TYPE:
+            free(node->value.string);
+        break;
         case LIST_TYPE:
             free_list(node->value.list);
         break;
@@ -341,8 +344,11 @@ static list_node *_new_node(vtype_t type, void *value) {
             node->value.real = *(double*)value;
             free((double*)value);
         break;
-        case STRING_TYPE:
-            node->value.string = (char*)value;
+        case STRING_TYPE: {
+            size_t size = strlen((char*)value);
+            node->value.string = (char*)malloc(sizeof(char)*size+1);
+            strcpy(node->value.string, (char*)value);
+        }
         break;
         case LIST_TYPE:
             node->value.list = (struct List*)value;

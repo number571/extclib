@@ -15,8 +15,6 @@
 
 #include "net.h"
 
-#define INDEX(ptr, init) (ptr-init)
-
 typedef enum error_t {
     SOCKET_ERR  = -1,
     SETOPT_ERR  = -2,
@@ -52,7 +50,7 @@ extern int listen_net(char *address) {
     addr.sin_family = AF_INET;
     addr.sin_port = htons(atoi(port));
     addr.sin_addr.s_addr = inet_addr(ipv4);
-    if (bind(listener, (struct sockaddr*)&addr, sizeof(addr))) {
+    if (bind(listener, (struct sockaddr*)&addr, sizeof(addr)) != 0) {
         return BIND_ERR;
     }
     if (listen(listener, SOMAXCONN) != 0) {
@@ -81,7 +79,7 @@ extern int connect_net(char *address) {
     addr.sin_family = AF_INET;
     addr.sin_port = htons(atoi((char*)port));
     addr.sin_addr.s_addr = inet_addr((char*)ipv4);
-    if (connect(conn, (struct sockaddr *)&addr, sizeof(addr))) {
+    if (connect(conn, (struct sockaddr *)&addr, sizeof(addr)) != 0) {
         return CONNECT_ERR;
     }
     return conn;

@@ -334,8 +334,11 @@ static void _set_node_array(Array *array, size_t index, void *value) {
             array->buffer[index].value.real = *(double*)value;
             free((double*)value);
         break;
-        case STRING_TYPE:
-            array->buffer[index].value.string = (char*)value;
+        case STRING_TYPE: {
+            size_t size = strlen((char*)value);
+            array->buffer[index].value.string = (char*)malloc(sizeof(char)*size+1);
+            strcpy(array->buffer[index].value.string, (char*)value);
+        }
         break;
         case LIST_TYPE:
             array->buffer[index].value.list = (struct List*)value;
@@ -404,6 +407,9 @@ static void _free_array(Array *array) {
 
 static void _free_node_array(Array *array, size_t index) {
     switch(array->type) {
+        case STRING_TYPE:
+            free(array->buffer[index].value.string);
+        break;
         case LIST_TYPE:
             free_list(array->buffer[index].value.list);
         break;
