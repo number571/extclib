@@ -39,6 +39,7 @@ int main(void) {
 		conn = net_accept(listener);
 		n = net_recv(conn, buffer, BUFSIZ);
 		net_send(conn, buffer, n);
+		net_close(conn);
 	}
 
 	net_close(listener);
