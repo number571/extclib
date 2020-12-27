@@ -1,131 +1,224 @@
-#ifdef __linux__
-    #include <unistd.h>
-    #include <arpa/inet.h>
+#ifdef __unix__
+	#include <unistd.h>
+	#include <arpa/inet.h>
 #elif __WIN32
-    #include <winsock2.h>
+	#include <winsock2.h>
+	#include <ws2tcpip.h>
 #else
-    #warning "net.h: platform not supported"
+	#warning "platform not supported"
 #endif
-
-#if defined(__linux__) || defined(__WIN32)
-
-#include <stddef.h>
-#include <stdint.h>
-#include <stdlib.h>
 
 #include "net.h"
 
-typedef enum error_t {
-    SOCKET_ERR  = -1,
-    SETOPT_ERR  = -2,
-    PARSE_ERR   = -3,
-    CONNECT_ERR = -4,
-    BIND_ERR    = -5,
-    LISTEN_ERR  = -6,
-    WINSOCK_ERR = -7,
-} error_t;
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-static int8_t _parse_address(char *address, char *ipv4, char *port);
+#define BUFSIZ_1K (1 << 10)
+#define BUFSIZ_4K (4 << 10)
 
-extern int listen_net(char *address) {
+#define ADRSIZ 256
+
+typedef struct net_conn {
+	int  conn;
+	int  port;
+	char addr[ADRSIZ];
+} net_conn;
+
+static int _close(int conn);
+static char *_strncpy(char *output, const char *input, size_t size);
+
+extern int net_init(void) {
+	int rc = 0;
 #ifdef __WIN32
-    WSADATA wsa;
-    if (WSAStartup(MAKEWORD(2,2), &wsa) != 0) {
-        return WINSOCK_ERR;
-    }
+	int conn = socket(AF_INET, SOCK_STREAM, 0);
+	if (conn == INVALID_SOCKET) {
+		WSADATA wsa;
+		rc = WSAStartup(MAKEWORD(2,2), &wsa);
+	}
 #endif
-    int listener = socket(AF_INET, SOCK_STREAM, 0);
-    if (listener < 0) {
-        return SOCKET_ERR;
-    }
-    if (setsockopt(listener, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int)) < 0) {
-        return SETOPT_ERR;
-    }
-    char ipv4[16];
-    char port[6];
-    if (_parse_address(address, ipv4, port) != 0) {
-        return PARSE_ERR;
-    }
-    struct sockaddr_in addr;
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(atoi(port));
-    addr.sin_addr.s_addr = inet_addr(ipv4);
-    if (bind(listener, (struct sockaddr*)&addr, sizeof(addr)) != 0) {
-        return BIND_ERR;
-    }
-    if (listen(listener, SOMAXCONN) != 0) {
-        return LISTEN_ERR;
-    }
-    return listener;
+	return rc;
 }
 
-extern int connect_net(char *address) {
+extern int net_free(void) {
+	int rc = 0;
 #ifdef __WIN32
-    WSADATA wsa;
-    if (WSAStartup(MAKEWORD(2,2), &wsa) != 0) {
-        return WINSOCK_ERR;
-    }
+	rc = WSACleanup();
 #endif
-    int conn = socket(AF_INET, SOCK_STREAM, 0);
-    if (conn < 0) {
-        return SOCKET_ERR;
-    }
-    char ipv4[16];
-    char port[6];
-    if (_parse_address(address, ipv4, port) != 0) {
-        return PARSE_ERR;
-    }
-    struct sockaddr_in addr;
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(atoi((char*)port));
-    addr.sin_addr.s_addr = inet_addr((char*)ipv4);
-    if (connect(conn, (struct sockaddr *)&addr, sizeof(addr)) != 0) {
-        return CONNECT_ERR;
-    }
-    return conn;
+	return rc;
 }
 
-extern int accept_net(int listener) {
-    return accept(listener, NULL, NULL);
+extern int net_sock(net_conn *state) {
+	if (state == NULL) {
+		return -1;
+	}
+	return state->conn;
 }
 
-extern int send_net(int conn, char *buffer, size_t size) {
-    return send(conn, buffer, (int)size, 0);
+extern int net_port(net_conn *state) {
+	if (state == NULL) {
+		return -1;
+	}
+	return state->port;
 }
 
-extern int recv_net(int conn, char *buffer, size_t size) {
-    return recv(conn, buffer, (int)size, 0);
+extern char *net_addr(net_conn *state) {
+	if (state == NULL) {
+		return NULL;
+	}
+	return state->addr;
 }
 
-extern int close_net(int conn) {
-    // shutdown(conn, SHUT_RDWR); 
-#ifdef __linux__
-    return close(conn);
+extern net_conn *net_listen(const char *ipv4, int port) {
+	int listener = socket(AF_INET, SOCK_STREAM, 0);
+	if (listener < 0) {
+		return NULL;
+	}
+#ifdef __unix__
+	int opt = 1;
 #elif __WIN32
-    return closesocket(conn);
+	char opt = 1;
+#endif
+	if (setsockopt(listener, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
+		_close(listener);
+		return NULL;
+	}
+	struct sockaddr_in addr;
+	addr.sin_family = AF_INET;
+	addr.sin_port = htons(port);
+	addr.sin_addr.s_addr = inet_addr(ipv4);
+	if (bind(listener, (struct sockaddr*)&addr, sizeof(addr)) != 0) {
+		_close(listener);
+		return NULL;
+	}
+	if (listen(listener, SOMAXCONN) != 0) {
+		_close(listener);
+		return NULL;
+	}
+	net_conn *state = (net_conn*)malloc(sizeof(net_conn));
+	state->conn = listener;
+	state->port = port;
+	_strncpy(state->addr, ipv4, ADRSIZ);
+	return state;
+}
+
+extern net_conn *net_accept(net_conn *state) {
+	if (state == NULL) {
+		return NULL;
+	}
+	struct sockaddr_in client;
+	socklen_t addrsize = sizeof(client);
+	int conn = accept(state->conn, (struct sockaddr *)&client, &addrsize);
+	if (conn < 0) {
+		return NULL;
+	}
+	net_conn *nstate = (net_conn*)malloc(sizeof(net_conn));
+	nstate->conn = conn;
+	nstate->port = ntohs(client.sin_port);
+	_strncpy(nstate->addr, inet_ntoa(client.sin_addr), ADRSIZ);
+	return nstate;
+}
+
+extern int net_http_get(net_conn *state, const char *path) {
+	char buffer[BUFSIZ_4K];
+	snprintf(buffer, BUFSIZ_4K, 
+		"GET %s HTTP/1.1\r\n"
+		"Host: %s\r\n\r\n", path, state->addr);
+	return net_send(state, buffer, strlen(buffer));
+}
+
+extern int net_http_post(net_conn *state, const char *path, const char *data) {
+	char buffer[BUFSIZ_4K];
+	size_t dlen = strlen(data);
+	snprintf(buffer, BUFSIZ_4K,
+		"POST %s HTTP/1.1\r\n"
+		"Host: %s\r\n"
+		"Content-Type: application/json\r\n"
+		"Content-Length: %ld\r\n\r\n", path, state->addr, dlen);
+	net_send(state, buffer, strlen(buffer));
+	return net_send(state, data, dlen);
+}
+
+extern net_conn *net_socks5_connect(const char *hostname, int port) {
+	const char hostlen = strlen(hostname);
+	char buffer[BUFSIZ_1K];
+	net_conn *state = net_connect("127.0.0.1", port);
+	if (state == NULL) {
+		return NULL;
+	}
+	/* connect */
+	memcpy(buffer, (char[]){5, 1, 0}, 3);
+	net_send(state, buffer, 3);
+	net_recv(state, buffer, BUFSIZ_1K);
+	/* request */
+	state->port = 80;
+	memcpy(buffer, (char[]){5, 1, 0, 3, hostlen}, 5);
+	memcpy(buffer+5, hostname, hostlen);
+	memcpy(buffer+5+hostlen, (char[]){0, state->port}, 2);
+	net_send(state, buffer, 5+hostlen+2);
+	net_recv(state, buffer, BUFSIZ_1K);
+	if (buffer[1] != 0) {
+		net_close(state);
+		return NULL;
+	}
+	_strncpy(state->addr, hostname, ADRSIZ);
+	return state;
+}
+
+extern net_conn *net_connect(const char *ipv4, int port) {
+	int conn = socket(AF_INET, SOCK_STREAM, 0);
+	if (conn < 0) {
+		return NULL;
+	}
+	struct sockaddr_in addr;
+	addr.sin_family = AF_INET;
+	addr.sin_port = htons(port);
+	addr.sin_addr.s_addr = inet_addr(ipv4);
+	if (connect(conn, (struct sockaddr*)&addr, sizeof(addr)) != 0) {
+		_close(conn);
+		return NULL;
+	}
+	net_conn *state = (net_conn*)malloc(sizeof(net_conn));
+	state->conn = conn;
+	state->port = port;
+	_strncpy(state->addr, ipv4, ADRSIZ);
+	return state;
+}
+
+extern int net_close(net_conn *state) {
+	int rc = -2;
+	if (state == NULL) {
+		return rc;
+	}
+	rc = _close(state->conn);
+	free(state);
+	return rc;
+}
+
+extern int net_send(net_conn *state, const char *data, int size) {
+	if (state == NULL) {
+		return -2;
+	}
+	return send(state->conn, data, size, 0);
+}
+
+extern int net_recv(net_conn *state, char *data, int size) {
+	if (state == NULL) {
+		return -2;
+	}
+	return recv(state->conn, data, size, 0);
+}
+
+static int _close(int conn) {
+#ifdef __unix__
+	return close(conn);
+#elif __WIN32
+	return closesocket(conn);
 #endif
 }
 
-static int8_t _parse_address(char *address, char *ipv4, char *port) {
-    size_t i = 0, j = 0;
-    for (; address[i] != ':'; ++i) {
-        if (address[i] == '\0') {
-            return 1;
-        }
-        if (i >= 16-1) {
-            return 2;
-        }
-        ipv4[i] = address[i];
-    }
-    ipv4[i] = '\0';
-    for (i += 1; address[i] != '\0'; ++i, ++j) {
-        if (j >= 6-1) {
-            return 3;
-        }
-        port[j] = address[i];
-    }
-    port[j] = '\0';
-    return 0;
+static char *_strncpy(char *output, const char *input, size_t size) {
+	char *ret = strncpy(output, input, size-1);
+	output[size-1] = '\0';
+	return ret;
 }
-
-#endif /* defined(__linux__) || defined(__WIN32) */

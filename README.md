@@ -1,67 +1,71 @@
 # extclib
-> Extended C library. Version: 0.1.0.
+> Extented c library. Version 0.2.0.
 
 ### Implemented:
-1. Types: Array, BigInt, Dynamic, HashTab, List, Tree;
-2. Crypto: AES[ECB, CBC], RSA[OAEP, SIGN], SHA256, HMAC[SHA256], RAND;
-3. Encoding: Base64, JSON;
-4. Database: SQLite;
-5. Net: TCP(Linux[arpa/inet.h], Windows[winsock2.h]), HTTP;
+1. Net: TCP connections;
+2. Type: List, Hashtab;
+3. Crypto: AES-256CBC, RSA-OAEP, RSA-SIGN, SHA-256, RAND;
 
 ### Used libraries:
-1. gmp: [gmplib.org](https://gmplib.org/);
-2. openssl: [openssl.org](https://www.openssl.org/);
-3. cJSON: [cJSON.git](https://github.com/DaveGamble/cJSON.git/);
-4. sqlite3: [sqlite.org](https://www.sqlite.org/);
+1. openssl: [openssl.org](https://www.openssl.org/);
 
 ### Compile library:
 ```
-/* install 'gmp', 'openssl', 'cJSON', 'sqlite3' libraries before compilation */
+/* install 'openssl' library before compilation */
 $ make -C extclib/
 
-/* linux compile: */
-$ cc main.c extclib/extclib.o -o main -lgmp -lcrypto -lcjson -lsqlite3
+/* unix compile: */
+$ cc main.c extclib/extclib.o -o main -lcrypto
 
 /* windows compile: */
-$ cc main.c extclib/extclib.o -o main -lgmp -lcrypto -lcjson -lsqlite3 -lws2_32
+$ cc main.c extclib/extclib.o -o main -lcrypto -lws2_32
 ```
 
-### Usage restrictions:
-1. Recursive hash tables, trees, lists, arrays are not allowed. Cross-recursive is dangerous;
-2. Values (and/or keys) in hash tables, trees, lists, arrays are freed up automatically when deleting or replacing an object's value;
-
-### Example (HTTP server):
+### Example (ECHO server):
 ```c
-#include <string.h>
+#include "extclib/net.h"
 
-#include "extclib/http.h"
+#include <stdio.h>
 
-void _index_page(int conn, HTTPreq *req);
-void _about_page(int conn, HTTPreq *req);
+#define ADDRESS "0.0.0.0", 8080
 
 int main(void) {
-    HTTP *serve = new_http("127.0.0.1:7545");
+	int n;
+	char buffer[BUFSIZ];
+	net_conn *listener, *conn;
+	listener = net_listen(ADDRESS);
 
-    handle_http(serve, "/", _index_page);
-    handle_http(serve, "/about", _about_page);
+	while(1) {
+		conn = net_accept(listener);
+		n = net_recv(conn, buffer, BUFSIZ);
+		net_send(conn, buffer, n);
+	}
 
-    listen_http(serve);
-    return 0;
+	net_close(listener);
+	return 0;
 }
+```
 
-void _index_page(int conn, HTTPreq *req) {
-    if (strcmp(req->path, "/") != 0) {
-        parsehtml_http(conn, "page404.html");
-        return;
-    }
-    parsehtml_http(conn, "index.html");
-}
+### Example (ECHO client):
+```c
+#include "extclib/net.h"
 
-void _about_page(int conn, HTTPreq *req) {
-    if (strcmp(req->path, "/about") != 0) {
-        parsehtml_http(conn, "page404.html");
-        return;
-    }
-    parsehtml_http(conn, "about.html");
+#include <stdio.h>
+#include <string.h>
+
+#define ADDRESS "127.0.0.1", 8080
+
+int main(void) {
+	net_conn *conn;
+	char buffer[BUFSIZ];
+	const char *message = "hello, world!";
+
+	conn = net_connect(ADDRESS);
+	net_send(conn, message, strlen(message)+1);
+	net_recv(conn, buffer, BUFSIZ);
+
+	printf("%s\n", buffer);
+	net_close(conn);
+	return 0;
 }
 ```
