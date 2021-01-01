@@ -160,7 +160,7 @@ extern void crypto_hex(int mode, char *output, int osize, const char *input, int
     switch(mode) {
         case ENCRYPT_MODE:
             for (i = 0, j = 0; i < isize && j < osize-2; ++i, j += 2) {
-                sprintf((char*)(output+j), "%02x", input[i]);
+                sprintf((char*)(output+j), "%02x", (uint8_t)input[i]);
             }
         break;
         case DECRYPT_MODE: {
