@@ -139,10 +139,10 @@ extern int net_http_post(net_conn *state, const char *path, const char *data) {
 	return net_send(state, data, dlen);
 }
 
-extern net_conn *net_socks5_connect(const char *hostname, int port) {
+extern net_conn *net_socks5_connect(const char *hostname, int port, int s5port) {
 	const char hostlen = strlen(hostname);
 	char buffer[BUFSIZ_1K];
-	net_conn *state = net_connect("127.0.0.1", port);
+	net_conn *state = net_connect("127.0.0.1", s5port);
 	if (state == NULL) {
 		return NULL;
 	}
@@ -151,10 +151,10 @@ extern net_conn *net_socks5_connect(const char *hostname, int port) {
 	net_send(state, buffer, 3);
 	net_recv(state, buffer, BUFSIZ_1K);
 	/* request */
-	state->port = 80;
+	state->port = port;
 	memcpy(buffer, (char[]){5, 1, 0, 3, hostlen}, 5);
 	memcpy(buffer+5, hostname, hostlen);
-	memcpy(buffer+5+hostlen, (char[]){0, state->port}, 2);
+	memcpy(buffer+5+hostlen, (char[]){(state->port >> 8) & 0xFF, state->port & 0xFF}, 2);
 	net_send(state, buffer, 5+hostlen+2);
 	net_recv(state, buffer, BUFSIZ_1K);
 	if (buffer[1] != 0) {

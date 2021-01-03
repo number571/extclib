@@ -3,7 +3,7 @@
 
 typedef struct net_conn net_conn;
 
-extern net_conn *net_socks5_connect(const char *hostname, int port);
+extern net_conn *net_socks5_connect(const char *hostname, int port, int s5port);
 extern int net_http_get(net_conn *state, const char *path);
 extern int net_http_post(net_conn *state, const char *path, const char *data);
 
