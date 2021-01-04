@@ -123,6 +123,18 @@ extern void type_list_free(type_list *ls) {
 	}
 }
 
+extern int type_list_find(type_list *ls, void *elem, int size) {
+	int i = 0;
+	while(ls->next != NULL) {
+		ls = ls->next;
+		if (ls->size == size && memcmp(ls->elem, elem, size) == 0) {
+			return i;
+		}
+		++i;
+	}
+	return -1;
+}
+
 extern void *type_list_select(type_list *ls, int index, int *size) {
 	int i = 0;
 	while(ls->next != NULL && i < index) {

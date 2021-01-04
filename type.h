@@ -17,6 +17,7 @@ extern type_list *type_list_new(void);
 extern void type_list_free(type_list *ls);
 extern int type_list_size(type_list *ls);
 
+extern int type_list_find(type_list *ls, void *elem, int size);
 extern void *type_list_select(type_list *ls, int index, int *size);
 extern int type_list_insert(type_list *ls, int index, void *elem, int size);
 extern int type_list_delete(type_list *ls, int index);
