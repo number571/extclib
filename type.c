@@ -197,3 +197,63 @@ extern int type_list_size(type_list *ls) {
 	return i;
 }
 
+/* ----------- */
+/* TYPE: STACK */
+/* ----------- */
+
+typedef struct type_stack {
+	int size;
+	int valsize;
+	int currpos;
+	char *buffer;
+} type_stack;
+
+extern type_stack *type_stack_new(int size, int valsize) {
+	type_stack *st = (type_stack*)malloc(sizeof(type_stack));
+	st->size = size;
+	st->valsize = valsize;
+	st->currpos = 0;
+	st->buffer = (char*)malloc(size*valsize);
+	return st;
+}
+
+extern void type_stack_free(type_stack *st) {
+	free(st->buffer);
+	free(st);
+}
+
+extern int type_stack_size(type_stack *st) {
+	return st->currpos;
+}
+
+extern int type_stack_push(type_stack *st, void *elem) {
+	if (st->currpos == st->size) {
+		return 1;
+	}
+	memcpy(st->buffer + st->currpos * st->valsize, elem, st->valsize);
+	st->currpos += 1;
+	return 0;
+}
+
+extern void *type_stack_pop(type_stack *st) {
+	if (st->currpos == 0) {
+		return NULL;
+	}
+	st->currpos -= 1;
+	return st->buffer + st->currpos * st->valsize;
+}
+
+extern int type_stack_set(type_stack *st, int index, void *elem) {
+	if (index < 0 || index >= st->size) {
+		return 1;
+	}
+	memcpy(st->buffer + index * st->valsize, elem, st->valsize);
+	return 0;
+}
+
+extern void *type_stack_get(type_stack *st, int index) {
+	if (index < 0 || index >= st->size) {
+		return NULL;
+	}
+	return st->buffer + index * st->valsize;
+}
