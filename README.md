@@ -3,8 +3,9 @@
 
 ### Implemented:
 1. Net: TCP connections;
-2. Type: List, Hashtab;
+2. Type: Hashtab, List, Stack;
 3. Crypto: AES-256CBC, RSA-OAEP, RSA-SIGN, SHA-256, RAND;
+4. SimpleCrypto: RC4, XOR;
 
 ### Used libraries:
 1. openssl: [openssl.org](https://www.openssl.org/);

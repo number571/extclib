@@ -2,9 +2,9 @@ CC=gcc
 LN=ld
 CFLAGS=-Wall -std=c99
 
-SOURCES=crypto.c net.c type.c
-HEADERS=crypto.h net.h type.h
-OBJECTS=crypto.o net.o type.o
+SOURCES=crypto.c scrypto.c net.c type.c
+HEADERS=crypto.h scrypto.h net.h type.h
+OBJECTS=crypto.o scrypto.o net.o type.o
 
 .PHONY: default compile link
 default: compile link
