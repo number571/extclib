@@ -7,7 +7,7 @@
 int main(void) {
 	int n;
 	char buffer[BUFSIZ];
-	net_conn *listener, *conn;
+	net_t *listener, *conn;
 	listener = net_listen(ADDRESS);
 
 	while(1) {

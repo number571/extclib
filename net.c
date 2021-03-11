@@ -10,66 +10,58 @@
 
 #include "net.h"
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #define BUFSIZ_1K (1 << 10)
-#define BUFSIZ_4K (4 << 10)
-
 #define ADRSIZ 256
 
-typedef struct net_conn {
+typedef struct net_t {
 	int  conn;
 	int  port;
 	char addr[ADRSIZ];
-} net_conn;
+} net_t;
 
 static int _close(int conn);
 static char *_strncpy(char *output, const char *input, size_t size);
 
-extern int net_init(void) {
-	int rc = 0;
 #ifdef __WIN32
-	int conn = socket(AF_INET, SOCK_STREAM, 0);
-	if (conn == INVALID_SOCKET) {
-		WSADATA wsa;
-		rc = WSAStartup(MAKEWORD(2,2), &wsa);
+	extern int net_init(void) {
+		int rc = 0;
+		int conn = socket(AF_INET, SOCK_STREAM, 0);
+		if (conn == INVALID_SOCKET) {
+			WSADATA wsa;
+			rc = WSAStartup(MAKEWORD(2,2), &wsa);
+		}
+		return rc;
+	}
+	extern int net_free(void) {
+		return WSACleanup();
 	}
 #endif
-	return rc;
-}
 
-extern int net_free(void) {
-	int rc = 0;
-#ifdef __WIN32
-	rc = WSACleanup();
-#endif
-	return rc;
-}
-
-extern int net_sock(net_conn *state) {
+extern int net_sock(net_t *state) {
 	if (state == NULL) {
 		return -1;
 	}
 	return state->conn;
 }
 
-extern int net_port(net_conn *state) {
+extern int net_port(net_t *state) {
 	if (state == NULL) {
 		return -1;
 	}
 	return state->port;
 }
 
-extern char *net_addr(net_conn *state) {
+extern char *net_addr(net_t *state) {
 	if (state == NULL) {
 		return NULL;
 	}
 	return state->addr;
 }
 
-extern net_conn *net_listen(const char *ipv4, int port) {
+extern net_t *net_listen(const char *ipv4, int port) {
 	int listener = socket(AF_INET, SOCK_STREAM, 0);
 	if (listener < 0) {
 		return NULL;
@@ -95,14 +87,14 @@ extern net_conn *net_listen(const char *ipv4, int port) {
 		_close(listener);
 		return NULL;
 	}
-	net_conn *state = (net_conn*)malloc(sizeof(net_conn));
+	net_t *state = (net_t*)malloc(sizeof(net_t));
 	state->conn = listener;
 	state->port = port;
 	_strncpy(state->addr, ipv4, ADRSIZ);
 	return state;
 }
 
-extern net_conn *net_accept(net_conn *state) {
+extern net_t *net_accept(net_t *state) {
 	if (state == NULL) {
 		return NULL;
 	}
@@ -112,40 +104,17 @@ extern net_conn *net_accept(net_conn *state) {
 	if (conn < 0) {
 		return NULL;
 	}
-	net_conn *nstate = (net_conn*)malloc(sizeof(net_conn));
+	net_t *nstate = (net_t*)malloc(sizeof(net_t));
 	nstate->conn = conn;
 	nstate->port = ntohs(client.sin_port);
 	_strncpy(nstate->addr, inet_ntoa(client.sin_addr), ADRSIZ);
 	return nstate;
 }
 
-extern int net_http_get(net_conn *state, const char *path) {
-	char buffer[BUFSIZ_4K];
-	snprintf(buffer, BUFSIZ_4K, 
-		"GET %s HTTP/1.1\r\n"
-		"Host: %s\r\n\r\n", path, state->addr);
-	return net_send(state, buffer, strlen(buffer));
-}
-
-extern int net_http_post(net_conn *state, const char *path, const char *data) {
-	char buffer[BUFSIZ_4K];
-	size_t dlen = strlen(data);
-	snprintf(buffer, BUFSIZ_4K,
-		"POST %s HTTP/1.1\r\n"
-		"Host: %s\r\n"
-		"Content-Type: application/json\r\n"
-		"Content-Length: %ld\r\n\r\n", path, state->addr, dlen);
-	net_send(state, buffer, strlen(buffer));
-	return net_send(state, data, dlen);
-}
-
-extern net_conn *net_socks5_connect(const char *hostname, int port, int s5port) {
-	const char hostlen = strlen(hostname);
+// state = net_connect(socks5_address, socks5_port);
+extern int net_proxy(net_t *state, const char *hostname, int port) {
+	char hostlen = strlen(hostname);
 	char buffer[BUFSIZ_1K];
-	net_conn *state = net_connect("127.0.0.1", s5port);
-	if (state == NULL) {
-		return NULL;
-	}
 	/* connect */
 	memcpy(buffer, (char[]){5, 1, 0}, 3);
 	net_send(state, buffer, 3);
@@ -159,13 +128,13 @@ extern net_conn *net_socks5_connect(const char *hostname, int port, int s5port) 
 	net_recv(state, buffer, BUFSIZ_1K);
 	if (buffer[1] != 0) {
 		net_close(state);
-		return NULL;
+		return 1;
 	}
 	_strncpy(state->addr, hostname, ADRSIZ);
-	return state;
+	return 0;
 }
 
-extern net_conn *net_connect(const char *ipv4, int port) {
+extern net_t *net_connect(const char *ipv4, int port) {
 	int conn = socket(AF_INET, SOCK_STREAM, 0);
 	if (conn < 0) {
 		return NULL;
@@ -178,14 +147,14 @@ extern net_conn *net_connect(const char *ipv4, int port) {
 		_close(conn);
 		return NULL;
 	}
-	net_conn *state = (net_conn*)malloc(sizeof(net_conn));
+	net_t *state = (net_t*)malloc(sizeof(net_t));
 	state->conn = conn;
 	state->port = port;
 	_strncpy(state->addr, ipv4, ADRSIZ);
 	return state;
 }
 
-extern int net_close(net_conn *state) {
+extern int net_close(net_t *state) {
 	int rc = -2;
 	if (state == NULL) {
 		return rc;
@@ -195,14 +164,14 @@ extern int net_close(net_conn *state) {
 	return rc;
 }
 
-extern int net_send(net_conn *state, const char *data, int size) {
+extern int net_send(net_t *state, const char *data, int size) {
 	if (state == NULL) {
 		return -2;
 	}
 	return send(state->conn, data, size, 0);
 }
 
-extern int net_recv(net_conn *state, char *data, int size) {
+extern int net_recv(net_t *state, char *data, int size) {
 	if (state == NULL) {
 		return -2;
 	}

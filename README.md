@@ -1,18 +1,13 @@
 # extclib
-> Extented c library. Version 0.2.0.
+> Extented c library. Version 0.3.0.
 
 ### Implemented:
-1. Net: TCP connections;
-2. Type: Hashtab, List, Stack;
-3. Crypto: AES-256CBC, RSA-OAEP, RSA-SIGN, SHA-256, RAND;
-4. SimpleCrypto: RC4, XOR;
-
-### Used libraries:
-1. openssl: [openssl.org](https://www.openssl.org/);
+1. Net: TCP, HTTP;
+2. Type: HASHTAB, LIST, STACK;
+3. Crypto: RAND, RC4, XOR;
 
 ### Compile library:
 ```
-/* install 'openssl' library before compilation */
 $ make -C extclib/
 
 /* unix compile: */
@@ -33,7 +28,7 @@ $ cc main.c extclib/extclib.o -o main -lcrypto -lws2_32
 int main(void) {
 	int n;
 	char buffer[BUFSIZ];
-	net_conn *listener, *conn;
+	net_t *listener, *conn;
 	listener = net_listen(ADDRESS);
 
 	while(1) {
@@ -58,7 +53,7 @@ int main(void) {
 #define ADDRESS "127.0.0.1", 8080
 
 int main(void) {
-	net_conn *conn;
+	net_t *conn;
 	char buffer[BUFSIZ];
 	const char *message = "hello, world!";
 

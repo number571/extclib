@@ -6,7 +6,7 @@
 #define ADDRESS "127.0.0.1", 8080
 
 int main(void) {
-	net_conn *conn;
+	net_t *conn;
 	char buffer[BUFSIZ];
 	const char *message = "hello, world!";
 

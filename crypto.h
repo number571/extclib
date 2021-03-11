@@ -1,26 +1,23 @@
 #ifndef EXTCLIB_CRYPTO_H_
 #define EXTCLIB_CRYPTO_H_
 
-typedef struct rsa_st crypto_rsa;
+/*
+	todo:
+	1. Hash function SHA256
+	2. Asymmetric function El-Gamal
+*/
 
-extern crypto_rsa *crypto_rsa_new(int ksize);
-extern void crypto_rsa_free(crypto_rsa *key);
+extern int crypto_entropy(unsigned char *output, int size);
 
-extern int crypto_rsa_size(crypto_rsa *key);
-extern void crypto_rsa_hashpub(char *output, crypto_rsa *key);
+extern void crypto_srand(const unsigned char *key, int ksize);
+extern void crypto_rand(unsigned char *output, int size);
 
-extern crypto_rsa *crypto_rsa_loadprv(const char *prv);
-extern crypto_rsa *crypto_rsa_loadpub(const char *pub);
-
-extern int crypto_rsa_storeprv(char *output, int osize, crypto_rsa *key);
-extern int crypto_rsa_storepub(char *output, int osize, crypto_rsa *key);
-
-extern int crypto_rsa_sign(int mode, crypto_rsa *key, char *output, int osize, const char *input, int isize);
-extern int crypto_rsa_oaep(int mode, crypto_rsa *key, char *output, int osize, const char *input, int isize);
-
-extern void crypto_hex(int mode, char *output, int osize, const char *input, int isize);
-extern void crypto_rand(char *output, int size);
-extern void crypto_sha_256(char *output, const char *input, int isize);
-extern int crypto_aes_256cbc(int mode, const char *key, char *output, const char *input, int isize, const char *iv);
+extern void crypto_xor(
+	unsigned char *output, 
+	const unsigned char *key, 
+	int ksize, 
+	const unsigned char *input, 
+	int size
+);
 
 #endif /* EXTCLIB_CRYPTO_H_ */
