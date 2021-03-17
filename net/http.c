@@ -20,7 +20,7 @@ extern int http_post(net_t *state, const char *path, const char *data) {
 		"POST %s HTTP/1.1\r\n"
 		"Host: %s\r\n"
 		"Content-Type: application/json\r\n"
-		"Content-Length: %ld\r\n\r\n", path, net_addr(state), dlen);
+		"Content-Length: %d\r\n\r\n", path, net_addr(state), (int)dlen);
 	net_send(state, buffer, strlen(buffer));
 	return net_send(state, data, dlen);
 }
