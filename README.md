@@ -1,20 +1,15 @@
 # extclib
-> Extented c library. Version 0.3.0.
+> Extented c library. Version 0.3.1.
 
 ### Implemented:
 1. Net: TCP, HTTP;
 2. Type: HASHTAB, LIST, STACK;
-3. Crypto: RAND, RC4, XOR;
+3. Crypto: RAND, RC4, XTEA, XOR, HEX;
 
 ### Compile library:
 ```
 $ make -C extclib/
-
-/* unix compile: */
-$ cc main.c extclib/extclib.o -o main -lcrypto
-
-/* windows compile: */
-$ cc main.c extclib/extclib.o -o main -lcrypto -lws2_32
+$ cc main.c extclib/extclib.o -o main
 ```
 
 ### Example (ECHO server):

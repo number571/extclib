@@ -10,6 +10,7 @@ OBJECTS=crypto.o net.o net/http.o type/hashtab.o type/list.o type/stack.o
 default: compile link
 compile: $(SOURCES) $(HEADERS)
 	$(CC) $(CFLAGS) -c $(SOURCES)
+
 link: $(OBJECTS)
 	$(LN) -r $(OBJECTS) -o extclib.o
 clean:
