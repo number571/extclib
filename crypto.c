@@ -12,6 +12,7 @@
 #include "crypto.h"
 
 #include <stdint.h>
+#include <string.h>
 
 static void _split_64bits_to_32bits(uint64_t b64, uint32_t * b32_1, uint32_t * b32_2);
 static uint64_t _join_32bits_to_64bits(uint32_t b32_1, uint32_t b32_2);
@@ -71,6 +72,35 @@ extern void crypto_rand(unsigned char *output, int size) {
 }
 /* END: RC4 */
 
+/* BEGIN: HASH(RC4) */
+extern void crypto_hash(unsigned char output[32], const unsigned char *input, int size) {
+	const int PSIZE = (3 << 10);
+	const int BSIZE = 32;
+	int i = 0;
+	unsigned char buffer[BSIZE];
+	crypto_srand(input, size % 256);
+	for (i = 0; i < PSIZE; i += BSIZE) {
+		crypto_rand(buffer, BSIZE);
+	}
+	for (i = 0; i < size-BSIZE; i += BSIZE) {
+		crypto_rand(output, BSIZE);
+		memcpy(buffer, input+i, BSIZE);
+		for (int j = 0; j < BSIZE; ++j) {
+			output[j] = output[j] ^ buffer[j];
+		}
+		crypto_srand(output, BSIZE);
+	}
+	crypto_rand(output, BSIZE);
+	memcpy(buffer, input+i, size-i);
+	memset(buffer+size-i, 0, BSIZE-size-i);
+	for (int j = 0; j < BSIZE; ++j) {
+		output[j] = output[j] ^ buffer[j];
+	}
+	crypto_srand(output, BSIZE);
+	crypto_rand(output, BSIZE);
+}
+/* END: HASH(RC4) */
+
 /* BEGIN: XTEA */
 extern unsigned long long crypto_xtea(
 	int mode, 
@@ -103,17 +133,9 @@ extern unsigned long long crypto_xtea(
 }
 /* END: XTEA */
 
-extern void crypto_xor(
-	unsigned char *output, 
-	const unsigned char *key, 
-	int ksize, 
-	const unsigned char *input, 
-	int isize
-) {
-	for (int i = 0; i < isize; ++i) {
-		output[i] = input[i] ^ key[i % ksize];
-	}
-}
+/* BEGIN: RC6 */
+
+/* END: RC6 */
 
 extern int crypto_hex(
 	int mode,

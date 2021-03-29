@@ -15,18 +15,12 @@ extern int crypto_entropy(unsigned char *output, int size);
 extern void crypto_srand(const unsigned char *key, int ksize);
 extern void crypto_rand(unsigned char *output, int size);
 
+extern void crypto_hash(unsigned char output[32], const unsigned char *input, int size);
+
 extern unsigned long long crypto_xtea(
 	int mode, 
 	unsigned long long data, 
 	const unsigned long key[4]
-);
-
-extern void crypto_xor(
-	unsigned char *output, 
-	const unsigned char *key, 
-	int ksize, 
-	const unsigned char *input, 
-	int size
 );
 
 extern int crypto_hex(
