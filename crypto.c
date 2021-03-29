@@ -76,25 +76,29 @@ extern void crypto_rand(unsigned char *output, int size) {
 extern void crypto_hash(unsigned char output[32], const unsigned char *input, int size) {
 	const int PSIZE = (3 << 10);
 	const int BSIZE = 32;
-	int i = 0;
 	unsigned char buffer[BSIZE];
-	crypto_srand(input, size % 256);
+	int i, j;
+	// INIT
+	crypto_srand(input, size);
 	for (i = 0; i < PSIZE; i += BSIZE) {
 		crypto_rand(buffer, BSIZE);
 	}
+	// UPDATE
 	for (i = 0; i < size-BSIZE; i += BSIZE) {
 		crypto_rand(output, BSIZE);
 		memcpy(buffer, input+i, BSIZE);
-		for (int j = 0; j < BSIZE; ++j) {
+		for (j = 0; j < BSIZE; ++j) {
 			output[j] = output[j] ^ buffer[j];
 		}
 		crypto_srand(output, BSIZE);
 	}
+	// FINAL
+	j = (size-i)%BSIZE;
 	crypto_rand(output, BSIZE);
-	memcpy(buffer, input+i, size-i);
-	memset(buffer+size-i, 0, BSIZE-size-i);
-	for (int j = 0; j < BSIZE; ++j) {
-		output[j] = output[j] ^ buffer[j];
+	memcpy(buffer, input+i, j);
+	memset(buffer+j, 0, BSIZE-j);
+	for (i = 0; i < BSIZE; ++i) {
+		output[i] = output[i] ^ buffer[i];
 	}
 	crypto_srand(output, BSIZE);
 	crypto_rand(output, BSIZE);
@@ -132,10 +136,6 @@ extern unsigned long long crypto_xtea(
 	return _join_32bits_to_64bits(v[0], v[1]);
 }
 /* END: XTEA */
-
-/* BEGIN: RC6 */
-
-/* END: RC6 */
 
 extern int crypto_hex(
 	int mode,

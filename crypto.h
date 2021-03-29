@@ -6,8 +6,7 @@
 
 /*
 	todo:
-	1. Hash function SHA256
-	2. Asymmetric function El-Gamal
+	1. Asymmetric function El-Gamal
 */
 
 extern int crypto_entropy(unsigned char *output, int size);
