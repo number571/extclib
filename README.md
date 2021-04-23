@@ -4,7 +4,7 @@
 ### Implemented:
 1. Net: TCP, HTTP;
 2. Type: HASHTAB, LIST, STACK;
-3. Crypto: RAND, XTEA, HASH, HEX;
+3. Crypto: RAND, XTEA, HEX;
 
 ### Compile library:
 ```
@@ -24,8 +24,8 @@ int main(void) {
 	int n;
 	char buffer[BUFSIZ];
 	net_t *listener, *conn;
+	
 	listener = net_listen(ADDRESS);
-
 	while(1) {
 		conn = net_accept(listener);
 		n = net_recv(conn, buffer, BUFSIZ);

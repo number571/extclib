@@ -1,7 +1,7 @@
 #ifdef __unix__
 	#include <unistd.h>
 	#include <arpa/inet.h>
-#elif __WIN32
+#elif _WIN32
 	#include <winsock2.h>
 	#include <ws2tcpip.h>
 #else
@@ -13,7 +13,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define BUFSIZ_1K (1 << 10)
 #define ADRSIZ 256
 
 typedef struct net_t {
@@ -25,7 +24,7 @@ typedef struct net_t {
 static int _close(int conn);
 static char *_strncpy(char *output, const char *input, size_t size);
 
-#ifdef __WIN32
+#ifdef _WIN32
 	extern int net_init(void) {
 		int rc = 0;
 		int conn = socket(AF_INET, SOCK_STREAM, 0);
@@ -68,7 +67,7 @@ extern net_t *net_listen(const char *ipv4, int port) {
 	}
 #ifdef __unix__
 	int opt = 1;
-#elif __WIN32
+#elif _WIN32
 	char opt = 1;
 #endif
 	if (setsockopt(listener, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
@@ -109,29 +108,6 @@ extern net_t *net_accept(net_t *state) {
 	nstate->port = ntohs(client.sin_port);
 	_strncpy(nstate->addr, inet_ntoa(client.sin_addr), ADRSIZ);
 	return nstate;
-}
-
-// state = net_connect(socks5_address, socks5_port);
-extern int net_proxy(net_t *state, const char *hostname, int port) {
-	char hostlen = strlen(hostname);
-	char buffer[BUFSIZ_1K];
-	/* connect */
-	memcpy(buffer, (char[]){5, 1, 0}, 3);
-	net_send(state, buffer, 3);
-	net_recv(state, buffer, BUFSIZ_1K);
-	/* request */
-	state->port = port;
-	memcpy(buffer, (char[]){5, 1, 0, 3, hostlen}, 5);
-	memcpy(buffer+5, hostname, hostlen);
-	memcpy(buffer+5+hostlen, (char[]){(state->port >> 8) & 0xFF, state->port & 0xFF}, 2);
-	net_send(state, buffer, 5+hostlen+2);
-	net_recv(state, buffer, BUFSIZ_1K);
-	if (buffer[1] != 0) {
-		net_close(state);
-		return 1;
-	}
-	_strncpy(state->addr, hostname, ADRSIZ);
-	return 0;
 }
 
 extern net_t *net_connect(const char *ipv4, int port) {
@@ -181,7 +157,7 @@ extern int net_recv(net_t *state, char *data, int size) {
 static int _close(int conn) {
 #ifdef __unix__
 	return close(conn);
-#elif __WIN32
+#elif _WIN32
 	return closesocket(conn);
 #endif
 }

@@ -6,7 +6,6 @@
 #else
 	#include <stdlib.h>
 	#include <time.h>
-	#warning crypto.h: used insecure entropy generator
 #endif
 
 #include "crypto.h"
@@ -37,6 +36,7 @@ extern int crypto_entropy(unsigned char *output, int size) {
 	}
 	CryptReleaseContext(hCryptProv, 0);
 #else
+	#warning crypto.h: used insecure entropy generator
 	srand(time(NULL));
 	for (size_t i = 0; i < size; ++i) {
 		output[i] = rand();
@@ -72,39 +72,6 @@ extern void crypto_rand(unsigned char *output, int size) {
 }
 /* END: RC4 */
 
-/* BEGIN: HASH(RC4) */
-extern void crypto_hash(unsigned char output[32], const unsigned char *input, int size) {
-	const int PSIZE = (3 << 10);
-	const int BSIZE = 32;
-	unsigned char buffer[BSIZE];
-	int i, j;
-	// INIT
-	crypto_srand(input, size);
-	for (i = 0; i < PSIZE; i += BSIZE) {
-		crypto_rand(buffer, BSIZE);
-	}
-	// UPDATE
-	for (i = 0; i < size-BSIZE; i += BSIZE) {
-		crypto_rand(output, BSIZE);
-		memcpy(buffer, input+i, BSIZE);
-		for (j = 0; j < BSIZE; ++j) {
-			output[j] = output[j] ^ buffer[j];
-		}
-		crypto_srand(output, BSIZE);
-	}
-	// FINAL
-	j = (size-i)%BSIZE;
-	crypto_rand(output, BSIZE);
-	memcpy(buffer, input+i, j);
-	memset(buffer+j, 0, BSIZE-j);
-	for (i = 0; i < BSIZE; ++i) {
-		output[i] = output[i] ^ buffer[i];
-	}
-	crypto_srand(output, BSIZE);
-	crypto_rand(output, BSIZE);
-}
-/* END: HASH(RC4) */
-
 /* BEGIN: XTEA */
 extern unsigned long long crypto_xtea(
 	int mode, 
@@ -112,7 +79,7 @@ extern unsigned long long crypto_xtea(
 	const unsigned long key[4]
 ) {
 	const int D = 0x9E3779B9;
-	const int N = 64;
+	const int N = 32;
 	uint32_t v[2], sum;
 	_split_64bits_to_32bits(data, &v[0], &v[1]);
 	switch(mode) {
