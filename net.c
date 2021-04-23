@@ -5,7 +5,7 @@
 	#include <winsock2.h>
 	#include <ws2tcpip.h>
 #else
-	#warning "platform not supported"
+	#warning "net.h: platform not supported"
 #endif
 
 #include "net.h"

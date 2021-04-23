@@ -4,6 +4,7 @@
 	#include <windows.h>
 	#include <wincrypt.h>
 #else
+	#warning crypto.h: used insecure entropy generator
 	#include <stdlib.h>
 	#include <time.h>
 #endif
@@ -36,7 +37,6 @@ extern int crypto_entropy(unsigned char *output, int size) {
 	}
 	CryptReleaseContext(hCryptProv, 0);
 #else
-	#warning crypto.h: used insecure entropy generator
 	srand(time(NULL));
 	for (size_t i = 0; i < size; ++i) {
 		output[i] = rand();
