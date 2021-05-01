@@ -1,10 +1,10 @@
 # extclib
-> Extented C library. Version 0.4.0.
+> Extented C library. Version 0.5.0.
 
 ### Implemented:
-1. Net: TCP, HTTP;
-2. Type: HASHTAB, LIST, STACK;
-3. Crypto: RAND, HASH, ENCRYPT;
+1. Net: tcp, http;
+2. Type: bigint, hashtab, list, stack;
+3. Crypto: rand, hash, encrypt;
 
 ### Compile library:
 ```
