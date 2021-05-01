@@ -44,6 +44,10 @@ extern void bigint_out(bigint_t *num, FILE *stream, int base) {
     mpz_out_str(stream, base, num->decimal);
 }
 
+extern void bigint_load(bigint_t *num, unsigned char *bytes, int size) {
+    mpz_import(num->decimal, size, 1, sizeof(char), 0, 0, bytes);
+}
+
 
 
 extern int bigint_isprime(bigint_t *r) {

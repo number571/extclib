@@ -1,63 +1,44 @@
 # extclib
 > Extented C library. Version 0.5.0.
 
-### Implemented:
+### Implemented
 1. Net: tcp, http;
 2. Type: bigint, hashtab, list, stack;
 3. Crypto: rand, hash, encrypt;
 
-### Compile library:
+### Compile library
 ```
 $ make -C extclib/
+> gcc -Wall -std=c99 -c crypto.c net.c net/http.c type/bigint.c type/hashtab.c type/list.c type/stack.c type/mini-gmp/mini-gmp.c type/mini-gmp/mini-mpq.c
+> ld -r crypto.o net.o net/http.o type/bigint.o type/hashtab.o type/list.o type/stack.o type/mini-gmp/mini-gmp.o type/mini-gmp/mini-mpq.o -o extclib.o
 $ cc main.c extclib/extclib.o -o main
 ```
 
-### Example (ECHO server):
+### Example
 ```c
-#include "extclib/net.h"
+#include "extclib/crypto.h"
+#include "extclib/type/bigint.h"
 
-#include <stdio.h>
+bigint_t *generate_prime(int bits) {
+	const int bsize = bits/8;
+	unsigned char buffer[bsize];
 
-#define ADDRESS "0.0.0.0", 8080
+	bigint_t *num = bigint_new("");
+	crypto_rand(buffer, bsize);
+	bigint_load(num, buffer, bsize);
 
-int main(void) {
-	int n;
-	char buffer[BUFSIZ];
-	net_t *listener, *conn;
-	
-	listener = net_listen(ADDRESS);
-	while(1) {
-		conn = net_accept(listener);
-		n = net_recv(conn, buffer, BUFSIZ);
-		net_send(conn, buffer, n);
-		net_close(conn);
+	while(!bigint_isprime(num)) {
+		crypto_rand(buffer+(bsize-8), 8);
+		bigint_load(num, buffer, bsize);
 	}
 
-	net_close(listener);
-	return 0;
+	return num;
 }
-```
-
-### Example (ECHO client):
-```c
-#include "extclib/net.h"
-
-#include <stdio.h>
-#include <string.h>
-
-#define ADDRESS "127.0.0.1", 8080
 
 int main(void) {
-	net_t *conn;
-	char buffer[BUFSIZ];
-	const char *message = "hello, world!";
-
-	conn = net_connect(ADDRESS);
-	net_send(conn, message, strlen(message)+1);
-	net_recv(conn, buffer, BUFSIZ);
-
-	printf("%s\n", buffer);
-	net_close(conn);
+	bigint_t *prime = generate_prime(2048);
+	bigint_out(prime, stdout, 10);
+	bigint_free(prime);
 	return 0;
 }
 ```

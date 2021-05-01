@@ -10,6 +10,7 @@ extern void bigint_free(bigint_t *num);
 
 extern void bigint_cpy(bigint_t *r, bigint_t *x);
 extern void bigint_out(bigint_t *num, FILE *stream, int base);
+extern void bigint_load(bigint_t *num, unsigned char *bytes, int size);
 
 extern int bigint_isprime(bigint_t *r);
 extern void bigint_gcd(bigint_t *r, bigint_t *x, bigint_t *y);
