@@ -14,13 +14,135 @@
 #include <stdint.h>
 #include <string.h>
 
-static void _split_64bits_to_32bits(uint64_t b64, uint32_t * b32_1, uint32_t * b32_2);
-static uint64_t _join_32bits_to_64bits(uint32_t b32_1, uint32_t b32_2);
+static int _entropy(uint8_t *output, int size);
+static void _xor (
+	uint8_t *output,
+	uint8_t *input,
+	int size
+);
+static void _speck (
+	uint64_t output[2],
+	const uint64_t input[2],
+	const uint64_t key[2]
+);
+static void _speck_ofb (
+	unsigned char * output,
+	int size,
+	uint64_t iv[2],
+	const uint64_t key[2]
+);
 
-static inline int _hex(uint8_t ch);
-static inline void _swap(uint8_t *x, uint8_t *y);
+// static uint64_t _join_32bits_to_64bits(uint32_t b32_1, uint32_t b32_2);
+static uint64_t _join_8bits_to_64bits(uint8_t * b8);
+// static uint64_t _join_8bits_to_32bits(uint8_t * b8);
 
-extern int crypto_entropy(unsigned char *output, int size) {
+// static void _split_64bits_to_32bits(uint64_t b64, uint32_t * b32_1, uint32_t * b32_2);
+static void _split_64bits_to_8bits(uint64_t b64, uint8_t * b8);
+// static void _split_32bits_to_8bits(uint32_t b32, uint8_t * b8);
+
+// static void _print_hex(uint8_t *b8, int size);
+
+// CIPHER(Speck-OFB)
+extern void crypto_encrypt (
+	unsigned char * output,
+	const unsigned char * const key,
+	int ksize,
+	const unsigned char * const iv,
+	int vsize,
+	const unsigned char * const input, 
+	int isize
+) {
+	const int BSIZE = (2 << 20); // 2MiB
+
+	uint8_t buffer[BSIZE];
+	uint64_t mainkey[2];
+	uint64_t mainiv[2];
+
+	crypto_hash(buffer, key, ksize);
+	mainkey[0] = _join_8bits_to_64bits(buffer);
+	mainkey[1] = _join_8bits_to_64bits(buffer+8);
+
+	crypto_hash(buffer, iv, vsize);
+	mainiv[0] = _join_8bits_to_64bits(buffer);
+	mainiv[1] = _join_8bits_to_64bits(buffer+8);
+
+	for (int i = 0; i < isize; i += BSIZE) {
+		_speck_ofb(buffer, BSIZE, mainiv, mainkey);
+		_xor(output+i, buffer, 
+			(i+BSIZE >= isize) ? (isize-i) : (BSIZE));
+	}
+}
+
+// HASH(Speck-MDC-2)
+extern void crypto_hash (
+	unsigned char output[32],
+	const unsigned char * const input, 
+	int size
+) {
+	const int HSIZE = 32; // 256bit
+	const int BSIZE = 16; // 128bit
+
+	uint64_t G[2] = {0x5252525252525252, 0x5252525252525252};
+	uint64_t H[2] = {0x2525252525252525, 0x2525252525252525};
+
+	uint8_t buffer[HSIZE];
+	uint64_t A[2], B[2];
+	uint64_t M[2];
+
+	for (int i = 0; i < size; i += BSIZE) {
+		if (i+BSIZE >= size) {
+			memcpy(buffer, input, size-i);
+			memset(buffer+(size-i), 0x01, BSIZE-(size-i));
+		} else {
+			memcpy(buffer, input, BSIZE);
+		}
+
+		M[0] = _join_8bits_to_64bits(buffer);
+		M[1] = _join_8bits_to_64bits(buffer+8);
+
+		_speck(A, M, G);
+		_speck(B, M, H);
+
+		A[0] ^= M[0]; A[1] ^= M[1];
+		B[0] ^= M[0]; B[1] ^= M[1];
+
+		G[0] = B[0]; G[1] = A[1];
+		H[0] = A[0]; H[1] = B[1];
+	}
+
+	_split_64bits_to_8bits(G[0], output);
+	_split_64bits_to_8bits(G[1], output+8);
+	_split_64bits_to_8bits(H[0], output+16);
+	_split_64bits_to_8bits(H[1], output+24);
+}
+
+// RAND(Speck-OFB)
+extern void crypto_rand (
+	unsigned char *output, 
+	int size
+) {
+	const uint64_t MAXSIZ = (2 << 30); // 2GiB
+	const int BSIZE = 16; // 128bit
+
+	static uint64_t gsize = MAXSIZ;
+	static uint64_t key[2];
+	static uint64_t iv[2] = {0x5252525252525252, 0x2525252525252525};
+
+	uint8_t buffer[BSIZE];
+
+	if (gsize >= MAXSIZ) {
+		_entropy(buffer, BSIZE);
+		for (int i = 0; i < BSIZE; i += 8) {
+			key[i/8] = _join_8bits_to_64bits(buffer+i);
+		}
+		gsize = 0;
+	}
+
+	_speck_ofb(output, size, iv, key);
+	gsize += size + (BSIZE - (size % BSIZE));
+}
+
+static int _entropy(uint8_t *output, int size) {
 #ifdef __unix__
 	FILE *file = fopen("/dev/random", "rb");
 	if (file == NULL) {
@@ -45,125 +167,100 @@ extern int crypto_entropy(unsigned char *output, int size) {
 	return 0;
 }
 
-/* BEGIN: RC4 */
-static uint8_t sbox_rc4[256];
-
-extern void crypto_srand(const unsigned char *key, int ksize) {
-	uint8_t j = 0;
-	for (int i = 0; i < 256; ++i) {
-		sbox_rc4[i] = i;
-	}
-	for (int i = 0; i < 256; ++i) {
-		j = j + sbox_rc4[i] + (uint8_t)key[i % ksize];
-		_swap(&sbox_rc4[i], &sbox_rc4[j]);
-	}
-}
-
-extern void crypto_rand(unsigned char *output, int size) {
-	uint8_t i = 0, j = 0;
-	uint8_t t;
-	for (int k = 0; k < size; ++k) {
-		i += 1;
-		j += sbox_rc4[i];
-		_swap(&sbox_rc4[i], &sbox_rc4[j]);
-		t = sbox_rc4[i] + sbox_rc4[j];
-		output[k] = sbox_rc4[t];
-	}
-}
-/* END: RC4 */
-
-/* BEGIN: XTEA */
-extern unsigned long long crypto_xtea(
-	int mode, 
-	unsigned long long data, 
-	const unsigned long key[4]
-) {
-	const int D = 0x9E3779B9;
-	const int N = 32;
-	uint32_t v[2], sum;
-	_split_64bits_to_32bits(data, &v[0], &v[1]);
-	switch(mode) {
-		case CRYPTO_MODE_ENCRYPT:
-			sum = 0;
-			for (int i = 0; i < N; ++i) {
-				v[0]  += (((v[1] << 4) ^ (v[1] >> 5)) + v[1]) ^ (sum + key[sum & 3]);
-				sum += D;
-				v[1]  += (((v[0] << 4) ^ (v[0] >> 5)) + v[0]) ^ (sum + key[(sum>>11) & 3]);
-			}
-		break;
-		case CRYPTO_MODE_DECRYPT:
-			sum = D*N;
-			for (int i = 0; i < N; ++i) {
-				v[1]  -= (((v[0] << 4) ^ (v[0] >> 5)) + v[0]) ^ (sum + key[(sum>>11) & 3]);
-				sum -= D;
-				v[0]  -= (((v[1] << 4) ^ (v[1] >> 5)) + v[1]) ^ (sum + key[sum & 3]);
-			}
-		break;
-	}
-	return _join_32bits_to_64bits(v[0], v[1]);
-}
-/* END: XTEA */
-
-extern int crypto_hex(
-	int mode,
-	unsigned char *output,
-	const unsigned char *input,
+static void _xor (
+	uint8_t *output,
+	uint8_t *input,
 	int size
 ) {
-	const char *alpha = "0123456789ABCDEF";
-	switch(mode) {
-		case CRYPTO_MODE_ENCRYPT: {
-			for (int i = 0; i < size; ++i) {
-				output[i*2]   = alpha[input[i] >> 4];
-				output[i*2+1] = alpha[input[i] & 15];
-			}
-			output[size*2] = '\0'; 
-		}
-		break;
-		case CRYPTO_MODE_DECRYPT: {
-			uint8_t hex1, hex2;
-			size = size / 2;
-			for (int i = 0; i < size; ++i) {
-				hex1 = _hex(input[i*2]);
-				hex2 = _hex(input[i*2+1]);
-				if (hex1 == -1 || hex2 == -1) {
-					return 1;
-				}
-				output[i] = (hex1 << 4) | hex2;
-			}
-			output[size] = '\0';
-		}
-		break;
+	for (int i = 0; i < size; ++i) {
+		output[i] ^= input[i];
 	}
-	return 0;
 }
 
-static void _split_64bits_to_32bits(uint64_t b64, uint32_t * b32_1, uint32_t * b32_2) {
-    *b32_1 = (uint32_t)(b64 >> 32);
-    *b32_2 = (uint32_t)(b64);
-}
+#define ROR(x, r) ((x >> r) | (x << (64 - r)))
+#define ROL(x, r) ((x << r) | (x >> (64 - r)))
+#define R(x, y, k) (x = ROR(x, 8), x += y, x ^= k, y = ROL(y, 3), y ^= x)
+#define ROUNDS 32
 
-static uint64_t _join_32bits_to_64bits(uint32_t b32_1, uint32_t b32_2) {
-    uint64_t b64;
-    b64 = (uint64_t)b32_1;
-    b64 = (uint64_t)(b64 << 32) | b32_2;
-    return b64;
-}
+static void _speck (
+	uint64_t output[2],
+	const uint64_t input[2],
+	const uint64_t key[2]
+) {
+	uint64_t y = input[0], x = input[1], b = key[0], a = key[1];
 
-static inline int _hex(uint8_t ch) {
-	if (ch >= '0' && ch <= '9') {
-		return ch - '0';
-	} else if (ch >= 'A' && ch <= 'Z') {
-		return ch - 'A' + 10;
-	} else if (ch >= 'a' && ch <= 'a') {
-		return ch - 'a' + 10;
+	R(x, y, b);
+	for (int i = 0; i < ROUNDS - 1; i++) {
+		R(a, b, i);
+		R(x, y, b);
 	}
-	return -1;
-} 
 
-static inline void _swap(uint8_t *x, uint8_t *y) {
-	uint8_t t = 0;
-	t = *x;
-	*x = *y;
-	*y = t;
+	output[0] = y;
+	output[1] = x;
 }
+
+static void _speck_ofb (
+	unsigned char * output,
+	int size,
+	uint64_t iv[2],
+	const uint64_t key[2]
+) {
+	const int BSIZE = 16; // 128bit
+
+	uint8_t buffer[BSIZE];
+
+	for (int i = 0; i < size; i += BSIZE) { 
+		_speck(iv, iv, key);
+		_split_64bits_to_8bits(iv[0], buffer);
+		_split_64bits_to_8bits(iv[1], buffer+8);
+		memcpy(output+i, buffer, 
+			(i+BSIZE >= size) ? (size-i) : (BSIZE));
+	}
+}
+
+// static uint64_t _join_32bits_to_64bits(uint32_t b32_1, uint32_t b32_2) {
+// 	uint64_t b64;
+// 	b64 = (uint64_t)b32_1;
+// 	b64 = (uint64_t)(b64 << 32) | b32_2;
+// 	return b64;
+// }
+
+static uint64_t _join_8bits_to_64bits(uint8_t * b8) {
+	uint64_t b64;
+	for (uint8_t *p = b8; p < b8 + 8; ++p) {
+		b64 = (b64 << 8) | *p;
+	}
+	return b64;
+}
+
+// static uint64_t _join_8bits_to_32bits(uint8_t * b8) {
+// 	uint64_t b32;
+// 	for (uint8_t *p = b8; p < b8 + 4; ++p) {
+// 		b32 = (b32 << 8) | *p;
+// 	}
+// 	return b32;
+// }
+
+static void _split_64bits_to_8bits(uint64_t b64, uint8_t * b8) {
+	for (size_t i = 0; i < 8; ++i) {
+		b8[i] = (uint8_t)(b64 >> ((7 - i) * 8));
+	}
+}
+
+// static void _split_64bits_to_32bits(uint64_t b64, uint32_t * b32_1, uint32_t * b32_2) {
+// 	*b32_1 = (uint32_t)(b64 >> 32);
+// 	*b32_2 = (uint32_t)(b64);
+// }
+
+// static void _split_32bits_to_8bits(uint32_t b32, uint8_t *b8) {
+// 	for (size_t i = 0; i < 4; ++i) {
+// 		b8[i] = (uint8_t)(b32 >> ((3 - i) * 8));
+// 	}
+// }
+
+// static void _print_hex(uint8_t *b8, int size) {
+// 	for (int i = 0; i < size; ++i) {
+// 		printf("%02x", b8[i]);
+// 	}
+// 	printf("\n");
+// }
