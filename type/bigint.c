@@ -40,12 +40,18 @@ extern void bigint_cpy(bigint_t *r, bigint_t *x) {
 	mpz_set(r->decimal, x->decimal);
 }
 
-extern void bigint_out(bigint_t *num, FILE *stream, int base) {
+extern void bigint_out(FILE *stream, bigint_t *num, int base) {
     mpz_out_str(stream, base, num->decimal);
 }
 
-extern void bigint_load(bigint_t *num, unsigned char *bytes, int size) {
-    mpz_import(num->decimal, size, 1, sizeof(char), 0, 0, bytes);
+extern void bigint_load(bigint_t *num, const unsigned char *bytes, int size) {
+    mpz_import(num->decimal, size, -1, sizeof(char), 0, 0, bytes);
+}
+
+extern int bigint_save(unsigned char *output, bigint_t *num, int size) {
+    size_t val = (size_t)size;
+    mpz_export(output, &val, -1, sizeof(char), 0, 0, num->decimal);
+    return (int)val;
 }
 
 
@@ -140,7 +146,7 @@ extern void bigint_add_ui(bigint_t *r, bigint_t *x, unsigned y) {
 }
 
 extern void bigint_sub_ui(bigint_t *r, bigint_t *x, unsigned y) {
-    mpz_add_ui(r->decimal, x->decimal, y);
+    mpz_sub_ui(r->decimal, x->decimal, y);
 }
 
 extern void bigint_mul_ui(bigint_t *r, bigint_t *x, unsigned y) {

@@ -1,10 +1,10 @@
 # extclib
-> Extented C library. Version 0.5.0.
+> Extented C library. Version 0.6.0.
 
 ### Implemented
 1. Net: tcp, http;
 2. Type: bigint, hashtab, list, stack;
-3. Crypto: rand, hash, encrypt;
+3. Crypto: rand, hash, encrypt, akey;
 
 ### Compile library
 ```
@@ -16,29 +16,42 @@ $ cc main.c extclib/extclib.o -o main
 
 ### Example
 ```c
-#include "extclib/crypto.h"
 #include "extclib/type/bigint.h"
+#include "extclib/crypto/akey.h"
 
-bigint_t *generate_prime(int bits) {
-	const int bsize = bits/8;
-	unsigned char buffer[bsize];
+#include <string.h>
 
-	bigint_t *num = bigint_new("");
-	crypto_rand(buffer, bsize);
-	bigint_load(num, buffer, bsize);
-
-	while(!bigint_isprime(num)) {
-		crypto_rand(buffer+(bsize-8), 8);
-		bigint_load(num, buffer, bsize);
+static void _print_hex(unsigned char *b8, int size) {
+	for (int i = 0; i < size; ++i) {
+		printf("%02x", b8[i]);
 	}
-
-	return num;
+	printf("\n");
 }
 
 int main(void) {
-	bigint_t *prime = generate_prime(2048);
-	bigint_out(prime, stdout, 10);
-	bigint_free(prime);
+	// 24-bit key
+	akey_t *key = akey_new(24);
+	int ksize = akey_size(key);
+
+	unsigned char message[ksize];
+	unsigned char decrypted[ksize];
+	unsigned char encrypted[ksize*2];
+
+	memset(message, 0, ksize);
+	memcpy(message, "ABC", 3);
+
+	// Message
+	_print_hex(message, ksize);
+
+	// Encrypted
+	akey_encrypt(encrypted, key, message);
+	_print_hex(encrypted, ksize*2);
+
+	// Decrypted
+	akey_decrypt(decrypted, key, encrypted);
+	_print_hex(decrypted, ksize);
+
+	akey_free(key);
 	return 0;
 }
 ```
