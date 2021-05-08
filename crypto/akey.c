@@ -267,10 +267,10 @@ static bigint_t *_generate_prime(int bits) {
 			bigint_add_ui(num, num, 1);
 		}
 		do {
+			bigint_add_ui(num, num, 2);
 			if (bigint_cmp(num, max) >= 0) {
 				goto generate_new;
 			}
-			bigint_add_ui(num, num, 2);
 		} while(!bigint_isprime(num));
 		break;
 	}
