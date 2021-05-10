@@ -7,8 +7,24 @@ static void _print_hex(unsigned char *b8, int size);
 
 int main(void) {
 	// 24-bit key
-	akey_t *key = akey_new(24);
+	akey_t *key = akey_new(3);
 	int ksize = akey_size(key);
+
+	akey_t *prv = akey_set(
+		ksize, 
+		AKEY_PRIVATE,
+		akey_x(key),
+		akey_g(key),
+		akey_p(key)
+	);
+
+	akey_t *pub = akey_set(
+		ksize, 
+		AKEY_PUBLIC,
+		akey_y(key),
+		akey_g(key),
+		akey_p(key)
+	);
 
 	unsigned char message[ksize];
 	unsigned char decrypted[ksize];
@@ -21,14 +37,17 @@ int main(void) {
 	_print_hex(message, ksize);
 
 	// Encrypted
-	akey_encrypt(encrypted, key, message);
+	akey_encrypt(encrypted, pub, message);
 	_print_hex(encrypted, ksize*2);
 
 	// Decrypted
-	akey_decrypt(decrypted, key, encrypted);
+	akey_decrypt(decrypted, prv, encrypted);
 	_print_hex(decrypted, ksize);
 
 	akey_free(key);
+	akey_free(pub);
+	akey_free(prv);
+
 	return 0;
 }
 

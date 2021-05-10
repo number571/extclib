@@ -30,7 +30,7 @@ static void _print_hex(unsigned char *b8, int size) {
 
 int main(void) {
 	// 24-bit key
-	akey_t *key = akey_new(24);
+	akey_t *key = akey_new(3);
 	int ksize = akey_size(key);
 
 	unsigned char message[ksize];

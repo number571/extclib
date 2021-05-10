@@ -32,15 +32,8 @@ static void _speck_ofb (
 	const uint64_t key[2]
 );
 
-// static uint64_t _join_32bits_to_64bits(uint32_t b32_1, uint32_t b32_2);
 static uint64_t _join_8bits_to_64bits(uint8_t * b8);
-// static uint64_t _join_8bits_to_32bits(uint8_t * b8);
-
-// static void _split_64bits_to_32bits(uint64_t b64, uint32_t * b32_1, uint32_t * b32_2);
 static void _split_64bits_to_8bits(uint64_t b64, uint8_t * b8);
-// static void _split_32bits_to_8bits(uint32_t b32, uint8_t * b8);
-
-// static void _print_hex(uint8_t *b8, int size);
 
 // CIPHER(Speck-OFB)
 extern void crypto_encrypt (
@@ -218,13 +211,6 @@ static void _speck_ofb (
 	}
 }
 
-// static uint64_t _join_32bits_to_64bits(uint32_t b32_1, uint32_t b32_2) {
-// 	uint64_t b64;
-// 	b64 = (uint64_t)b32_1;
-// 	b64 = (uint64_t)(b64 << 32) | b32_2;
-// 	return b64;
-// }
-
 static uint64_t _join_8bits_to_64bits(uint8_t * b8) {
 	uint64_t b64;
 	for (uint8_t *p = b8; p < b8 + 8; ++p) {
@@ -233,34 +219,8 @@ static uint64_t _join_8bits_to_64bits(uint8_t * b8) {
 	return b64;
 }
 
-// static uint64_t _join_8bits_to_32bits(uint8_t * b8) {
-// 	uint64_t b32;
-// 	for (uint8_t *p = b8; p < b8 + 4; ++p) {
-// 		b32 = (b32 << 8) | *p;
-// 	}
-// 	return b32;
-// }
-
 static void _split_64bits_to_8bits(uint64_t b64, uint8_t * b8) {
 	for (size_t i = 0; i < 8; ++i) {
 		b8[i] = (uint8_t)(b64 >> ((7 - i) * 8));
 	}
 }
-
-// static void _split_64bits_to_32bits(uint64_t b64, uint32_t * b32_1, uint32_t * b32_2) {
-// 	*b32_1 = (uint32_t)(b64 >> 32);
-// 	*b32_2 = (uint32_t)(b64);
-// }
-
-// static void _split_32bits_to_8bits(uint32_t b32, uint8_t *b8) {
-// 	for (size_t i = 0; i < 4; ++i) {
-// 		b8[i] = (uint8_t)(b32 >> ((3 - i) * 8));
-// 	}
-// }
-
-// static void _print_hex(uint8_t *b8, int size) {
-// 	for (int i = 0; i < size; ++i) {
-// 		printf("%02x", b8[i]);
-// 	}
-// 	printf("\n");
-// }

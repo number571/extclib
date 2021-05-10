@@ -17,19 +17,17 @@ typedef struct akey_t {
 static void _generate_rand_bigint(bigint_t *num, int bits);
 static bigint_t *_generate_prime(int bits);
 
-extern akey_t *akey_new(int bits) {
+extern akey_t *akey_new(int bytes) {
+	const int BITSIZE = bytes*8;
+
 	bigint_t *t1, *t2;
 	akey_t *key;
 
-	if (bits % 8 != 0) {
-		return NULL;
-	}
-	
 	key = (akey_t*)malloc(sizeof(akey_t));
-	key->size = bits/8;
+	key->size = bytes;
 
 	// create module
-	key->p = _generate_prime(bits);
+	key->p = _generate_prime(BITSIZE);
 	key->g = bigint_new("0");
 	key->x = bigint_new("0");
 	key->y = bigint_new("0");
@@ -42,7 +40,7 @@ extern akey_t *akey_new(int bits) {
 
 	// create generator
 	while(1) {
-		_generate_rand_bigint(key->g, bits);
+		_generate_rand_bigint(key->g, BITSIZE);
 		// should be: 1 < g < p-1
 		if ((bigint_cmp_ui(key->g, 1) <= 0) || (bigint_cmp(key->g, t1) >= 0)) {
 			continue;
@@ -52,7 +50,7 @@ extern akey_t *akey_new(int bits) {
 
 	// create session value
 	while(1) {
-		_generate_rand_bigint(key->x, bits);
+		_generate_rand_bigint(key->x, BITSIZE);
 		// should be: 1 < x < p-1
 		if ((bigint_cmp_ui(key->x, 1) <= 0) || (bigint_cmp(key->x, t1) >= 0)) {
 			continue;
@@ -86,40 +84,77 @@ extern int akey_size(akey_t *key) {
 	return key->size;
 }
 
-extern akey_t *akey_set_x(int bits, bigint_t *x, bigint_t *g, bigint_t *p) {
+extern akey_t *akey_set(
+	int bytes, 
+	int ktype,
+	bigint_t *k,
+	bigint_t *g, 
+	bigint_t *p
+) {
+	bigint_t *t1;
 	akey_t *key;
 
-	if (bits % 8 != 0) {
-		return NULL;
+	key = NULL;
+	t1 = bigint_new("0");
+
+	if (k == NULL) {
+		goto close;
+	}
+
+	if (ktype != AKEY_PUBLIC && ktype != AKEY_PRIVATE) {
+		goto close;
+	}
+
+	if (!bigint_isprime(p)){
+		goto close;
+	}
+
+	// t1 = p-1
+	bigint_sub_ui(t1, p, 1);
+
+	// should be: 1 < g < p-1
+	if ((bigint_cmp_ui(g, 1) <= 0) || (bigint_cmp(g, t1) >= 0)) {
+		goto close;
+	}
+
+	if (ktype == AKEY_PRIVATE) {
+		// should be: 1 < x < p-1
+		if ((bigint_cmp_ui(k, 1) <= 0) || (bigint_cmp(k, t1) >= 0)) {
+			goto close;
+		}
+		// should be: gcd(x, p-1) = 1
+		bigint_gcd(t1, k, t1);
+		if (bigint_cmp_ui(t1, 1) != 0) {
+			goto close;
+		}
 	}
 
 	key = (akey_t*)malloc(sizeof(akey_t));
-	key->size = bits/8;
+	key->size = bytes;
 
-	key->p = p;
-	key->g = g;
-	key->x = x;
+	key->p = bigint_new("0");
+	key->g = bigint_new("0");
+	key->x = bigint_new("0");
 	key->y = bigint_new("0");
 
-	bigint_expmod(key->y, key->g, key->x, key->p);
+	bigint_cpy(key->p, p);
+	bigint_cpy(key->g, g);
 
-	return key;
-}
-
-extern akey_t *akey_set_y(int bits, bigint_t *y, bigint_t *g, bigint_t *p) {
-	akey_t *key;
-
-	if (bits % 8 != 0) {
-		return NULL;
+	switch(ktype) {
+		case AKEY_PUBLIC: {
+			bigint_cpy(key->y, k);
+		}
+		break;
+		case AKEY_PRIVATE: {
+			bigint_cpy(key->x, k);
+			bigint_expmod(key->y, g, k, p);
+		}
+		break;
 	}
 
-	key = (akey_t*)malloc(sizeof(akey_t));
-	key->size = bits/8;
+close:
 
-	key->p = p;
-	key->g = g;
-	key->x = NULL;
-	key->y = y;
+	bigint_free(t1);
 
 	return key;
 }
@@ -140,14 +175,15 @@ extern bigint_t *akey_y(akey_t *key) {
 	return key->y;
 }
 
-extern void akey_encrypt (
+extern int akey_encrypt (
 	unsigned char * output,
 	const akey_t *key,
 	const unsigned char * const input
 ) {
 	const int BITSIZE = key->size*8;
 
-	bigint_t *k, *a, *b, *t1, *t2;
+	bigint_t *t1, *t2;
+	bigint_t *k, *a, *b;
 
 	t1 = bigint_new("0");
 	t2 = bigint_new("0");
@@ -198,6 +234,8 @@ extern void akey_encrypt (
 
 	bigint_free(t1);
 	bigint_free(t2);
+
+	return 0;
 }
 
 extern int akey_decrypt (
@@ -205,9 +243,10 @@ extern int akey_decrypt (
 	const akey_t *key,
 	const unsigned char * const input
 ) {
-	bigint_t *t1, *a, *b;
+	bigint_t *t1;
+	bigint_t *a, *b;
 
-	if (key->x == NULL) {
+	if (bigint_cmp_ui(key->x, 0) == 0) {
 		return 1;
 	}
 
