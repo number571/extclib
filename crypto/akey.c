@@ -328,8 +328,6 @@ extern int akey_sign (
 	crypto_hash(hash, input, isize);
 	bigint_load(t2, hash, HSIZE);
 
-	bigint_add(t2, t2, t1);
-
 	bigint_mul(s, key->x, r);
 	bigint_mod(s, s, t1);
 
