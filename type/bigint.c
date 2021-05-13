@@ -40,7 +40,7 @@ extern void bigint_cpy(bigint_t *r, bigint_t *x) {
 	mpz_set(r->decimal, x->decimal);
 }
 
-extern void bigint_out(FILE *stream, bigint_t *num, int base) {
+extern void bigint_out(bigint_t *num, FILE *stream, int base) {
     mpz_out_str(stream, base, num->decimal);
 }
 
@@ -48,7 +48,7 @@ extern void bigint_load(bigint_t *num, const unsigned char *bytes, int size) {
     mpz_import(num->decimal, size, -1, sizeof(char), 0, 0, bytes);
 }
 
-extern int bigint_save(unsigned char *output, bigint_t *num, int size) {
+extern int bigint_save(bigint_t *num, unsigned char *output, int size) {
     size_t val = (size_t)size;
     mpz_export(output, &val, -1, sizeof(char), 0, 0, num->decimal);
     return (int)val;

@@ -176,8 +176,8 @@ extern bigint_t *akey_y(akey_t *key) {
 }
 
 extern int akey_encrypt (
-	unsigned char * output,
 	const akey_t *key,
+	unsigned char * output,
 	const unsigned char * const input
 ) {
 	const int BITSIZE = key->size*8;
@@ -224,8 +224,8 @@ extern int akey_encrypt (
 
 	memset(output, 0, key->size*2);
 
-	bigint_save(output, a, key->size);
-	bigint_save(output+(key->size), b, key->size);
+	bigint_save(a, output, key->size);
+	bigint_save(b, output+(key->size), key->size);
 
 	bigint_free(a);
 	bigint_free(b);
@@ -239,8 +239,8 @@ extern int akey_encrypt (
 }
 
 extern int akey_decrypt (
-	unsigned char * output,
 	const akey_t *key,
+	unsigned char * output,
 	const unsigned char * const input
 ) {
 	bigint_t *t1;
@@ -266,7 +266,7 @@ extern int akey_decrypt (
 	bigint_mod(t1, t1, key->p);
 
 	memset(output, 0, key->size);
-	bigint_save(output, t1, key->size);
+	bigint_save(t1, output, key->size);
 
 	bigint_free(a);
 	bigint_free(b);
@@ -274,6 +274,150 @@ extern int akey_decrypt (
 	bigint_free(t1);
 
 	return 0;
+}
+
+extern int akey_sign (
+	const akey_t *key,
+	unsigned char * output,
+	const unsigned char * const input,
+	int isize
+) {
+	const int BITSIZE = key->size*8;
+	const int HSIZE = 32;
+
+	bigint_t *t1, *t2;
+	bigint_t *k, *r, *s;
+	uint8_t hash[HSIZE];
+
+	if (bigint_cmp_ui(key->x, 0) == 0) {
+		return 1;
+	}
+
+	t1 = bigint_new("0");
+	t2 = bigint_new("0");
+
+	// session key
+	k = bigint_new("0");
+
+	// t1 = p-1
+	bigint_sub_ui(t1, key->p, 1);
+
+	// (r, s) - signed message
+	r = bigint_new("0");
+	s = bigint_new("0");
+
+	// create session value
+	while(1) {
+		_generate_rand_bigint(k, BITSIZE);
+		// should be: 1 < k < p-1
+		if ((bigint_cmp_ui(k, 1) <= 0) || (bigint_cmp(k, t1) >= 0)) {
+			continue;
+		}
+		// should be: gcd(k, p-1) = 1
+		bigint_gcd(t2, k, t1);
+		if (bigint_cmp_ui(t2, 1) != 0) {
+			continue;
+		}
+		break;
+	}
+
+	// r = g^k (mod p)
+	bigint_expmod(r, key->g, k, key->p);
+
+	// s = (m - xr) * k^(-1) (mod p-1)
+	crypto_hash(hash, input, isize);
+	bigint_load(t2, hash, HSIZE);
+
+	bigint_add(t2, t2, t1);
+
+	bigint_mul(s, key->x, r);
+	bigint_mod(s, s, t1);
+
+	bigint_sub(s, t2, s);
+	bigint_inv(t2, k, t1);
+
+	bigint_mul(s, s, t2);
+	bigint_mod(s, s, t1);
+
+	memset(output, 0, key->size*2);
+
+	bigint_save(r, output, key->size);
+	bigint_save(s, output+(key->size), key->size);
+
+	bigint_free(r);
+	bigint_free(s);
+
+	bigint_free(k);
+
+	bigint_free(t1);
+	bigint_free(t2);
+
+	return 0;
+}
+
+extern int akey_verify (
+	const akey_t *key,
+	const unsigned char * const sign,
+	const unsigned char * const input,
+	int isize
+) {
+	const int HSIZE = 32;
+
+	bigint_t *t1, *t2;
+	bigint_t *r, *s;
+	uint8_t hash[HSIZE];
+	int retcode;
+
+	t1 = bigint_new("0");
+	t2 = bigint_new("0");
+
+	r = bigint_new("0");
+	s = bigint_new("0");
+
+	bigint_load(r, sign, key->size);
+	bigint_load(s, sign+(key->size), key->size);
+
+	// t1 = p-1
+	bigint_sub_ui(t1, key->p, 1);
+
+	// should be: 0 < r < p
+	if ((bigint_cmp_ui(r, 0) <= 0) || (bigint_cmp(r, key->p) >= 0)) {
+		retcode = 2;
+		goto close;
+	}
+
+	// should be: 0 < s < p-1
+	if ((bigint_cmp_ui(r, 0) <= 0) || (bigint_cmp(r, t1) >= 0)) {
+		retcode = 2;
+		goto close;
+	}
+
+	// w = (y^r) * (r^s) (mod p)
+	bigint_expmod(t1, key->y, r, key->p);
+	bigint_expmod(t2, r, s, key->p);
+	bigint_mul(t1, t1, t2);
+	bigint_mod(t1, t1, key->p);
+
+	// u = g^m (mod p)
+	crypto_hash(hash, input, isize);
+	bigint_load(t2, hash, HSIZE);
+	bigint_expmod(t2, key->g, t2, key->p);
+
+	if (bigint_cmp(t1, t2) == 0) {
+		retcode = 0;
+	} else {
+		retcode = 1;
+	}
+
+close:
+
+	bigint_free(r);
+	bigint_free(s);
+
+	bigint_free(t1);
+	bigint_free(t2);
+
+	return retcode;
 }
 
 static void _generate_rand_bigint(bigint_t *num, int bits) {

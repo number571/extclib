@@ -27,30 +27,31 @@ extern bigint_t *akey_y(akey_t *key);
 
 // size of output = size(key)*2
 extern int akey_encrypt (
-	unsigned char * output,
 	const akey_t *key,
+	unsigned char * output,
 	const unsigned char * const input
 );
 
 // size of output = size(key)
 extern int akey_decrypt (
-	unsigned char * output,
 	const akey_t *key,
+	unsigned char * output,
 	const unsigned char * const input
 );
 
-// // size of output = size(key)*2
-// extern int akey_sign (
-// 	unsigned char * output,
-// 	const akey_t *key,
-// 	const unsigned char * const input
-// );
+// size of output = size(key)*2
+extern int akey_sign (
+	const akey_t *key,
+	unsigned char * output,
+	const unsigned char * const input,
+	int isize
+);
 
-// // size of output = size(key)
-// extern int akey_verify (
-// 	unsigned char * output,
-// 	const akey_t *key,
-// 	const unsigned char * const input
-// );
+extern int akey_verify (
+	const akey_t *key,
+	const unsigned char * const sign,
+	const unsigned char * const input,
+	int isize
+);
 
 #endif /* EXTCLIB_CRYPTO_AKEY_H_ */

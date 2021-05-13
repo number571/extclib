@@ -37,11 +37,11 @@ int main(void) {
 	_print_hex(message, ksize);
 
 	// Encrypted
-	akey_encrypt(encrypted, pub, message);
+	akey_encrypt(pub, encrypted, message);
 	_print_hex(encrypted, ksize*2);
 
 	// Decrypted
-	akey_decrypt(decrypted, prv, encrypted);
+	akey_decrypt(prv, decrypted, encrypted);
 	_print_hex(decrypted, ksize);
 
 	akey_free(key);
