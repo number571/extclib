@@ -14,6 +14,7 @@ extern void bigint_load(bigint_t *num, const unsigned char *bytes, int size);
 extern int bigint_save(bigint_t *num, unsigned char *output, int size);
 
 extern int bigint_isprime(bigint_t *r);
+extern void bigint_genprime(bigint_t *r, int bits);
 extern void bigint_gcd(bigint_t *r, bigint_t *x, bigint_t *y);
 extern void bigint_inv(bigint_t *r, bigint_t *x, bigint_t *y);
 extern void bigint_expmod(bigint_t *r, bigint_t *x, bigint_t *e, bigint_t *n);

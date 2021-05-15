@@ -57,7 +57,7 @@ extern int bigint_save(bigint_t *num, unsigned char *output, int size) {
 
 
 extern int bigint_isprime(bigint_t *r) {
-    return mpz_probab_prime_p(r->decimal, 50);
+    return mpz_probab_prime_p(r->decimal, 15);
 }
 
 extern void bigint_gcd(bigint_t *r, bigint_t *x, bigint_t *y) {

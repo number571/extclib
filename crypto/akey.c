@@ -420,7 +420,6 @@ close:
 
 static void _generate_rand_bigint(bigint_t *num, int bits) {
 	const int BSIZE = bits/8;
-
 	uint8_t buffer[BSIZE];
 
 	crypto_rand(buffer, BSIZE);
@@ -428,7 +427,8 @@ static void _generate_rand_bigint(bigint_t *num, int bits) {
 }
 
 static bigint_t *_generate_prime(int bits) {
-	bigint_t *num, *tmp, *max, *min;
+	bigint_t *num, *tmp;
+	bigint_t *max, *min;
 
 	num = bigint_new("1");
 	tmp = bigint_new("0");
@@ -439,22 +439,25 @@ static bigint_t *_generate_prime(int bits) {
 	bigint_shl(max, max, bits);
 	bigint_shl(min, min, bits-1);
 
-	while(1) {
-	generate_new:
-		_generate_rand_bigint(num, bits);
-		bigint_add(num, num, min);
-		bigint_mod_ui(tmp, num, 2);
-		if (bigint_cmp_ui(tmp, 0) == 0) {
-			bigint_add_ui(num, num, 1);
-		}
-		do {
-			bigint_add_ui(num, num, 2);
-			if (bigint_cmp(num, max) >= 0) {
-				goto generate_new;
-			}
-		} while(!bigint_isprime(num));
-		break;
+generate_new:
+	_generate_rand_bigint(num, bits);
+
+	// RAND mod (MAX-MIN) + MIN
+	bigint_sub(tmp, max, min);
+	bigint_mod(num, num, tmp);
+	bigint_add(num, num, min);
+
+	bigint_mod_ui(tmp, num, 2);
+	if (bigint_cmp_ui(tmp, 0) == 0) {
+		bigint_add_ui(num, num, 1);
 	}
+
+	do {
+		bigint_add_ui(num, num, 2);
+		if (bigint_cmp(num, max) >= 0) {
+			goto generate_new;
+		}
+	} while(!bigint_isprime(num));
 
 	bigint_free(min);
 	bigint_free(max);
