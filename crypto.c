@@ -45,9 +45,9 @@ extern void crypto_encrypt (
 	const unsigned char * const input, 
 	int isize
 ) {
-	const int BSIZE = (2 << 20); // 2MiB
+	const int HSIZE = 32; // 256bit
 
-	uint8_t buffer[BSIZE];
+	uint8_t buffer[HSIZE];
 	uint64_t mainkey[2];
 	uint64_t mainiv[2];
 
@@ -59,10 +59,10 @@ extern void crypto_encrypt (
 	mainiv[0] = _join_8bits_to_64bits(buffer);
 	mainiv[1] = _join_8bits_to_64bits(buffer+8);
 
-	for (int i = 0; i < isize; i += BSIZE) {
-		_speck_ofb(buffer, BSIZE, mainiv, mainkey);
+	for (int i = 0; i < isize; i += HSIZE) {
+		_speck_ofb(buffer, HSIZE, mainiv, mainkey);
 		_xor(output+i, buffer, 
-			(i+BSIZE >= isize) ? (isize-i) : (BSIZE));
+			(i+HSIZE >= isize) ? (isize-i) : (HSIZE));
 	}
 }
 
