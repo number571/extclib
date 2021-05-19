@@ -1,19 +1,18 @@
 # extclib
-> Extented C library. Version 0.6.1.
+> Extented C library. Version 0.7.0.
 
 ### Implemented
 1. Net: tcp, http;
 2. Type: bigint, hashtab, list, stack;
 3. Crypto: rand, hash, encrypt, akey(encrypt, sign);
+4. Database: sqlite3;
 
 ### Compile library
 ```
 $ make -C extclib/
-> gcc -Wall -std=c99 -c crypto.c crypto/akey.c net.c net/http.c type/bigint.c type/hashtab.c type/list.c type/stack.c \
-	type/mini-gmp/mini-gmp.c type/mini-gmp/mini-mpq.c
-> ld -r crypto.o crypto/akey.o net.o net/http.o type/bigint.o type/hashtab.o type/list.o type/stack.o \
-	type/mini-gmp/mini-gmp.o type/mini-gmp/mini-mpq.o -o extclib.o
-$ cc main.c extclib/extclib.o -o main
+> gcc -Wall -std=c99 -c crypto.c crypto/akey.c database.c database/sqlite3.c net.c net/http.c type/bigint.c type/hashtab.c type/list.c type/stack.c type/bigint/mini-gmp.c type/bigint/mini-mpq.c
+> ld -r crypto.o crypto/akey.o database.o database/sqlite3.o net.o net/http.o type/bigint.o type/hashtab.o type/list.o type/stack.o type/bigint/mini-gmp.o type/bigint/mini-mpq.o -o extclib.o
+$ gcc -std=c99 -Wall -lpthread -ldl -o main main.c extclib/extclib.o
 ```
 
 ### Example

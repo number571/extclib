@@ -1,5 +1,5 @@
 #include "bigint.h"
-#include "mini-gmp/mini-mpq.h"
+#include "bigint/mini-mpq.h"
 
 #include <stdio.h>
 #include <stdlib.h>
