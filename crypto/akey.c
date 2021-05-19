@@ -401,6 +401,7 @@ extern int akey_verify (
 	bigint_load(t2, hash, HSIZE);
 	bigint_expmod(t2, key->g, t2, key->p);
 
+	// w = u ?
 	if (bigint_cmp(t1, t2) == 0) {
 		retcode = 0;
 	} else {

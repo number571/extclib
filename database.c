@@ -1,4 +1,3 @@
-#include <stdint.h>
 #include <stdlib.h>
 
 #include "database/sqlite3.h"
@@ -29,7 +28,8 @@ extern void database_free(database_t *db) {
 }
 
 extern int database_set(database_t *db, const char *exec) {
-	int rc = sqlite3_exec(db->ptr, exec, NULL, NULL, NULL);
+	int rc;
+	rc = sqlite3_exec(db->ptr, exec, NULL, NULL, NULL);
 	if (rc != SQLITE_OK) {
 		return 1;
 	}
@@ -42,7 +42,8 @@ extern int database_get(
 	int(*callback)(void*,int,char**,char**), 
 	void *arg
 ) {
-	int rc = sqlite3_exec(db->ptr, exec, callback, arg, NULL);
+	int rc;
+	rc = sqlite3_exec(db->ptr, exec, callback, arg, NULL);
 	if (rc != SQLITE_OK) {
 		return 1;
 	}

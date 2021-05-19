@@ -1,8 +1,6 @@
 #ifndef EXTCLIB_DATABASE_H_
 #define EXTCLIB_DATABASE_H_
 
-#include <stdint.h>
-
 typedef struct database_t database_t;
 
 extern database_t *database_new(const char *filename);

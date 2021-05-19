@@ -2,7 +2,9 @@
 	#include <unistd.h>
 	#include <arpa/inet.h>
 #elif _WIN32
-	#pragma comment(lib, "ws2_32.lib")
+	#ifdef _MSC_VER
+		#pragma comment(lib, "ws2_32.lib")
+	#endif
 	#include <winsock2.h>
 	#include <ws2tcpip.h>
 #else
@@ -36,6 +38,7 @@ static char *_strncpy(char *output, const char *input, size_t size);
 			rc = WSAStartup(MAKEWORD(2,2), &wsa);
 		}
 
+		_close(sock);
 		return rc;
 	}
 

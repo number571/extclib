@@ -6,6 +6,7 @@
 #define AKEY_PUBLIC   1
 #define AKEY_PRIVATE -1
 
+// Elgamal encryption
 typedef struct akey_t akey_t;
 
 extern akey_t *akey_new(int bits);
@@ -47,6 +48,8 @@ extern int akey_sign (
 	int isize
 );
 
+// if ret = 0 -> success
+// else -> failed
 extern int akey_verify (
 	const akey_t *key,
 	const unsigned char * const sign,

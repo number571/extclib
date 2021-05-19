@@ -1,6 +1,7 @@
 #ifndef EXTCLIB_CRYPTO_H_
 #define EXTCLIB_CRYPTO_H_
 
+// Speck-OFB
 extern void crypto_encrypt (
 	unsigned char * output,
 	const unsigned char * const key,
@@ -11,11 +12,13 @@ extern void crypto_encrypt (
 	int isize
 );
 
+// RAND(Speck-OFB)
 extern void crypto_rand (
 	unsigned char *output, 
 	int size
 );
 
+// MDC-2(Speck)
 extern void crypto_hash (
 	unsigned char output[32],
 	const unsigned char * const input, 
