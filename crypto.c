@@ -10,6 +10,7 @@
 #endif
 
 #include "crypto.h"
+#include "type/bigint.h"
 
 #include <stdint.h>
 #include <string.h>
@@ -66,49 +67,6 @@ extern void crypto_encrypt (
 	}
 }
 
-// HASH(Speck-MDC-2)
-extern void crypto_hash (
-	unsigned char output[32],
-	const unsigned char * const input, 
-	int size
-) {
-	const int HSIZE = 32; // 256bit
-	const int BSIZE = 16; // 128bit
-
-	uint64_t G[2] = {0x5252525252525252, 0x5252525252525252};
-	uint64_t H[2] = {0x2525252525252525, 0x2525252525252525};
-
-	uint8_t buffer[HSIZE];
-	uint64_t A[2], B[2];
-	uint64_t M[2];
-
-	for (int i = 0; i < size; i += BSIZE) {
-		if (i+BSIZE >= size) {
-			memcpy(buffer, input, size-i);
-			memset(buffer+(size-i), 0x01, BSIZE-(size-i));
-		} else {
-			memcpy(buffer, input, BSIZE);
-		}
-
-		M[0] = _join_8bits_to_64bits(buffer);
-		M[1] = _join_8bits_to_64bits(buffer+8);
-
-		_speck(A, M, G);
-		_speck(B, M, H);
-
-		A[0] ^= M[0]; A[1] ^= M[1];
-		B[0] ^= M[0]; B[1] ^= M[1];
-
-		G[0] = B[0]; G[1] = A[1];
-		H[0] = A[0]; H[1] = B[1];
-	}
-
-	_split_64bits_to_8bits(G[0], output);
-	_split_64bits_to_8bits(G[1], output+8);
-	_split_64bits_to_8bits(H[0], output+16);
-	_split_64bits_to_8bits(H[1], output+24);
-}
-
 // RAND(Speck-OFB)
 extern void crypto_rand (
 	unsigned char *output, 
@@ -133,6 +91,81 @@ extern void crypto_rand (
 
 	_speck_ofb(output, size, iv, key);
 	gsize += size + (BSIZE - (size % BSIZE));
+}
+
+// HASH(Speck-MDC-2)
+extern void crypto_hash (
+	unsigned char output[32],
+	const unsigned char * const input, 
+	int size
+) {
+	const int HSIZE = 32; // 256bit
+	const int BSIZE = 16; // 128bit
+
+	uint64_t G[2] = {0x5252525252525252, 0x5252525252525252};
+	uint64_t H[2] = {0x2525252525252525, 0x2525252525252525};
+
+	uint8_t buffer[HSIZE];
+	uint64_t A[2], B[2];
+	uint64_t M[2];
+
+	for (int i = 0; i < size; i += BSIZE) {
+		if (i+BSIZE >= size) {
+			memcpy(buffer, input+i, size-i);
+			memset(buffer+(size-i), 0x01, BSIZE-(size-i));
+		} else {
+			memcpy(buffer, input+i, BSIZE);
+		}
+
+		M[0] = _join_8bits_to_64bits(buffer);
+		M[1] = _join_8bits_to_64bits(buffer+8);
+
+		_speck(A, M, G);
+		_speck(B, M, H);
+
+		A[0] ^= M[0]; A[1] ^= M[1];
+		B[0] ^= M[0]; B[1] ^= M[1];
+
+		G[0] = B[0]; G[1] = A[1];
+		H[0] = A[0]; H[1] = B[1];
+	}
+
+	_split_64bits_to_8bits(G[0], output);
+	_split_64bits_to_8bits(G[1], output+8);
+	_split_64bits_to_8bits(H[0], output+16);
+	_split_64bits_to_8bits(H[1], output+24);
+}
+
+extern unsigned long long crypto_pow (
+	unsigned char hash[32], 
+	unsigned int diff
+) {
+	uint8_t  thash[40];
+	uint64_t proof;
+	bigint_t *hashnum;
+	bigint_t *diffnum;
+
+	hashnum = bigint_new("0");
+	diffnum = bigint_new("1");
+
+	bigint_shl(diffnum, diffnum, 256-diff);
+
+	for (proof = 0; proof < UINT64_MAX; ++proof) {
+		memcpy(thash, hash, 32);
+		_split_64bits_to_8bits(proof, thash+32);
+
+		crypto_hash(thash, thash, 40);
+		bigint_load(hashnum, thash, 32);
+
+		if (bigint_cmp(hashnum, diffnum) < 0) {
+			break;
+		}
+	}
+
+	bigint_free(hashnum);
+	bigint_free(diffnum);
+
+	return proof;
 }
 
 static int _entropy(uint8_t *output, int size) {
