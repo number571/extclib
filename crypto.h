@@ -25,10 +25,4 @@ extern void crypto_hash (
 	int size
 );
 
-// Proof-Of-Work(MDC-2[Speck])
-extern unsigned long long crypto_pow (
-	unsigned char hash[32], 
-	unsigned int diff
-);
-
 #endif /* EXTCLIB_CRYPTO_H_ */

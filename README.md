@@ -4,8 +4,9 @@
 ### Implemented
 1. Net: tcp, http;
 2. Type: bigint, hashtab, list, stack;
-3. Crypto: rand, hash, encrypt, akey(encrypt, sign);
+3. Crypto: rand, hash, encrypt, akey(encrypt, sign), proof;
 4. Database: sqlite3;
+5. Encoding: 8to64, 64to8;
 
 ### Compile library
 ```
