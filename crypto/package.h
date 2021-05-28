@@ -18,8 +18,8 @@ extern package_t *package_decode(void *pack);
 extern int package_encrypt(package_t *pack, akey_t *sender, akey_t *receiver, int diff);
 extern int package_decrypt(package_t *pack, akey_t *receiver, int diff);
 
-extern akey_t *package_head_sendr(package_t *pack);
-extern unsigned char *package_head_title(package_t *pack);
-extern unsigned char *package_body_data(package_t *pack);
+extern akey_t *package_sender(package_t *pack);
+extern unsigned char *package_title(package_t *pack);
+extern unsigned char *package_data(package_t *pack);
 
 #endif /* EXTCLIB_CRYPTO_PACKAGE_H_ */

@@ -64,13 +64,6 @@ extern package_t *package_decode(void *pack) {
 	return (package_t*)pack;
 }
 
-static void _print_hex(unsigned char *b8, int size) {
-	for (int i = 0; i < size; ++i) {
-		printf("%02x", b8[i]);
-	}
-	printf("\n");
-}
-
 extern int package_encrypt(package_t *pack, akey_t *sender, akey_t *receiver, int diff) {
 	uint8_t tmparr[AKEYSIZ*3];
 	uint8_t hashes[5][HASHSIZ];
@@ -164,6 +157,7 @@ extern int package_decrypt(package_t *pack, akey_t *receiver, int diff) {
 		return -1;
 	}
 
+	// check proof value
 	if (proof_verify(pack->body.hash, diff, pack->body.proof) != 0) {
 		return -2;
 	}
@@ -241,15 +235,15 @@ extern int package_decrypt(package_t *pack, akey_t *receiver, int diff) {
 	return retcode;
 }
 
-extern akey_t *package_head_sendr(package_t *pack) {
+extern akey_t *package_sender(package_t *pack) {
 	return pack->temp.sendr;
 }
 
-extern unsigned char *package_head_title(package_t *pack) {
+extern unsigned char *package_title(package_t *pack) {
 	return pack->head.title+IVECSIZ;
 }
 
-extern unsigned char *package_body_data(package_t *pack) {
+extern unsigned char *package_data(package_t *pack) {
 	return pack->body.data+IVECSIZ;
 }
 

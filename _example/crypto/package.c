@@ -13,7 +13,7 @@ int main(void) {
 	key = akey_new(PACKAGE_AKEYSIZ);
 	pack = package_new(title, data);
 
-	printf("%s\n", package_body_data(pack));
+	printf("%s\n", package_data(pack));
 
 	err = package_encrypt(pack, key, key, 15);
 	if (err != 0) {
@@ -24,7 +24,7 @@ int main(void) {
 	if (err != 0) {
 		return 2;
 	}
-	printf("%s\n", package_body_data(pack));
+	printf("%s\n", package_data(pack));
 
 	akey_free(key);
 

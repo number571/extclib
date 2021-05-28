@@ -148,8 +148,7 @@ static int _entropy(uint8_t *output, int size) {
 #elif _WIN32
 	HCRYPTPROV hCryptProv;
 	CryptAcquireContext(&hCryptProv, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT);
-	BOOL result = CryptGenRandom(hCryptProv, sizeof(char) * size, output);
-	if (result == 0) {
+	if (CryptGenRandom(hCryptProv, sizeof(char) * size, output) == 0) {
 		return 1;
 	}
 	CryptReleaseContext(hCryptProv, 0);
