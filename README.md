@@ -11,8 +11,8 @@
 ### Compile library
 ```
 $ make -C extclib/
-> gcc -Wall -std=c99 -c crypto.c crypto/akey.c database.c database/sqlite3.c net.c net/http.c type/bigint.c type/hashtab.c type/list.c type/stack.c type/bigint/mini-gmp.c type/bigint/mini-mpq.c
-> ld -r crypto.o crypto/akey.o database.o database/sqlite3.o net.o net/http.o type/bigint.o type/hashtab.o type/list.o type/stack.o type/bigint/mini-gmp.o type/bigint/mini-mpq.o -o extclib.o
+> gcc -Wall -std=c99 -c crypto.c crypto/akey.c crypto/proof.c encoding.c database.c database sqlite3.c net.c net/http.c type/bigint.c type/hashtab.c type/list.c type/stack.c type/bigint/mini-gmp.c type/bigint/mini-mpq.c
+> ld -r crypto.o crypto/akey.o crypto/proof.o encoding.o database.o database/sqlite3.o net.o net/http.o type/bigint.o type/hashtab.o type/list.o type/stack.o type/bigint/mini-gmp.o type/bigint/mini-mpq.o
 // if linux
 $ gcc -std=c99 -Wall -o main main.c extclib/extclib.o -lpthread -ldl 
 // if windows

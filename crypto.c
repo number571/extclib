@@ -34,9 +34,6 @@ static void _speck_ofb (
 	const uint64_t key[2]
 );
 
-static uint64_t _join_8bits_to_64bits(uint8_t * b8);
-static void _split_64bits_to_8bits(uint64_t b64, uint8_t * b8);
-
 // CIPHER(Speck-OFB)
 extern void crypto_encrypt (
 	unsigned char * output,
