@@ -1,6 +1,6 @@
 #include "akey.h"
 #include "../crypto.h"
-#include "../type/bigint.h"
+#include "../math/bigint.h"
 
 #include <stdint.h>
 #include <string.h>
@@ -224,8 +224,8 @@ extern int akey_encrypt (
 
 	memset(output, 0, key->size*2);
 
-	bigint_save(a, output, key->size);
-	bigint_save(b, output+(key->size), key->size);
+	bigint_store(a, output, key->size);
+	bigint_store(b, output+(key->size), key->size);
 
 	bigint_free(a);
 	bigint_free(b);
@@ -266,7 +266,7 @@ extern int akey_decrypt (
 	bigint_mod(t1, t1, key->p);
 
 	memset(output, 0, key->size);
-	bigint_save(t1, output, key->size);
+	bigint_store(t1, output, key->size);
 
 	bigint_free(a);
 	bigint_free(b);
@@ -339,8 +339,8 @@ extern int akey_sign (
 
 	memset(output, 0, key->size*2);
 
-	bigint_save(r, output, key->size);
-	bigint_save(s, output+(key->size), key->size);
+	bigint_store(r, output, key->size);
+	bigint_store(s, output+(key->size), key->size);
 
 	bigint_free(r);
 	bigint_free(s);

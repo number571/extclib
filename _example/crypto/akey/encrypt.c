@@ -1,4 +1,4 @@
-#include "extclib/type/bigint.h"
+#include "extclib/math/bigint.h"
 #include "extclib/crypto/akey.h"
 
 #include <string.h>

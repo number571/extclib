@@ -1,7 +1,7 @@
 #include "proof.h"
 #include "../crypto.h"
 #include "../encoding.h"
-#include "../type/bigint.h"
+#include "../math/bigint.h"
 
 #include <stdint.h>
 #include <string.h>

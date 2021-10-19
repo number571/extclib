@@ -9,4 +9,7 @@ extern void split_64bits_to_8bits(uint64_t b64, uint8_t b8[8]);
 extern uint32_t join_8bits_to_32bits(const uint8_t b8[4]);
 extern void split_32bits_to_8bits(uint32_t b32, uint8_t b8[4]);
 
+extern uint16_t join_8bits_to_16bits(const uint8_t b8[2]);
+extern void split_16bits_to_8bits(uint16_t b16, uint8_t b8[2]);
+
 #endif /* EXTCLIB_ENCODING_H_ */

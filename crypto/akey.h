@@ -1,7 +1,7 @@
 #ifndef EXTCLIB_CRYPTO_AKEY_H_
 #define EXTCLIB_CRYPTO_AKEY_H_
 
-#include "../type/bigint.h"
+#include "../math/bigint.h"
 
 #define AKEY_PUBLIC   1
 #define AKEY_PRIVATE -1

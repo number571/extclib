@@ -48,7 +48,7 @@ extern void bigint_load(bigint_t *num, const unsigned char *bytes, int size) {
     mpz_import(num->decimal, size, -1, sizeof(char), 0, 0, bytes);
 }
 
-extern int bigint_save(bigint_t *num, unsigned char *output, int size) {
+extern int bigint_store(bigint_t *num, unsigned char *output, int size) {
     size_t val = (size_t)size;
     mpz_export(output, &val, -1, sizeof(char), 0, 0, num->decimal);
     return (int)val;

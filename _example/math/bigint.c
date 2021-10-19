@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include "extclib/type/bigint.h"
+#include "extclib/math/bigint.h"
 
 int main(void) {
 	bigint_t *x = bigint_new("892734892374827498236498237498274982749285");

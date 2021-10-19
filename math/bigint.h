@@ -1,5 +1,5 @@
-#ifndef EXTCLIB_TYPE_BIGINT_H_
-#define EXTCLIB_TYPE_BIGINT_H_
+#ifndef EXTCLIB_MATH_BIGINT_H_
+#define EXTCLIB_MATH_BIGINT_H_
 
 #include <stdio.h>
 
@@ -11,7 +11,7 @@ extern void bigint_free(bigint_t *num);
 extern void bigint_cpy(bigint_t *r, bigint_t *x);
 extern void bigint_out(bigint_t *num, FILE *stream, int base);
 extern void bigint_load(bigint_t *num, const unsigned char *bytes, int size);
-extern int bigint_save(bigint_t *num, unsigned char *output, int size);
+extern int bigint_store(bigint_t *num, unsigned char *output, int size);
 
 extern int bigint_isprime(bigint_t *r);
 extern void bigint_genprime(bigint_t *r, int bits);
@@ -43,4 +43,4 @@ extern void bigint_mul_ui(bigint_t *r, bigint_t *x, unsigned y);
 extern void bigint_div_ui(bigint_t *r, bigint_t *x, unsigned y);
 extern void bigint_mod_ui(bigint_t *r, bigint_t *x, unsigned y);
 
-#endif /* EXTCLIB_TYPE_BIGINT_H_ */
+#endif /* EXTCLIB_MATH_BIGINT_H_ */
