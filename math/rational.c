@@ -106,6 +106,15 @@ extern void rational_add(rational_t *r, rational_t *x, rational_t *y) {
 
     bigint_div(r->numer, num, tmp);
     bigint_div(r->denom, den, tmp);
+
+    bigint_free(txn);
+    bigint_free(tyn);
+    bigint_free(txd);
+    bigint_free(tyd);
+
+    bigint_free(tmp);
+    bigint_free(num);
+    bigint_free(den);
 }
 
 extern void rational_sub(rational_t *r, rational_t *x, rational_t *y) {
@@ -137,6 +146,15 @@ extern void rational_sub(rational_t *r, rational_t *x, rational_t *y) {
 
     bigint_div(r->numer, num, tmp);
     bigint_div(r->denom, den, tmp);
+
+    bigint_free(txn);
+    bigint_free(tyn);
+    bigint_free(txd);
+    bigint_free(tyd);
+
+    bigint_free(tmp);
+    bigint_free(num);
+    bigint_free(den);
 }
 
 extern void rational_mul(rational_t *r, rational_t *x, rational_t *y) {
@@ -166,6 +184,15 @@ extern void rational_mul(rational_t *r, rational_t *x, rational_t *y) {
 
     bigint_div(r->numer, num, tmp);
     bigint_div(r->denom, den, tmp);
+
+    bigint_free(txn);
+    bigint_free(tyn);
+    bigint_free(txd);
+    bigint_free(tyd);
+
+    bigint_free(tmp);
+    bigint_free(num);
+    bigint_free(den);
 }
 
 extern void rational_div(rational_t *r, rational_t *x, rational_t *y) {
@@ -195,6 +222,15 @@ extern void rational_div(rational_t *r, rational_t *x, rational_t *y) {
 
     bigint_div(r->numer, num, tmp);
     bigint_div(r->denom, den, tmp);
+
+    bigint_free(txn);
+    bigint_free(tyn);
+    bigint_free(txd);
+    bigint_free(tyd);
+
+    bigint_free(tmp);
+    bigint_free(num);
+    bigint_free(den);
 }
 
 static void _gcd(bigint_t *r, bigint_t *a, bigint_t *b) {
